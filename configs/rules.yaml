@@ -1,0 +1,29 @@
+version: 1
+rules:
+  - id: R-THRESHOLD-01
+    typology: threshold_avoidance
+    severity: HIGH
+    enabled: true
+    condition: "amount >= 360_000_000 and amount < 400_000_000"
+    action_hint: FLAG
+
+  - id: R-LARGE-CASHOUT-01
+    typology: large_cash_out
+    severity: HIGH
+    enabled: true
+    condition: "channel == 'CASH_OUT' and amount >= 100_000_000"
+    action_hint: FLAG
+
+  - id: R-BALANCE-DRAIN-01
+    typology: balance_drain
+    severity: MEDIUM
+    enabled: true
+    condition: "amount_to_sender_balance_ratio >= 0.80 and amount >= 5_000_000"
+    action_hint: REVIEW
+
+  - id: R-ROUND-AMOUNT-01
+    typology: round_amount
+    severity: MINOR
+    enabled: true
+    condition: "is_round_amount and amount >= 50_000_000"
+    action_hint: MONITOR
