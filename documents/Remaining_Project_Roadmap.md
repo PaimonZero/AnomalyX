@@ -15,8 +15,13 @@ Tài liệu này tóm tắt những phần lớn còn lại của dự án sau k
 - Alert workflow.
 - OpenAI LLM explanation với template fallback.
 - Supabase persistence implementation.
-- Redis/in-memory idempotency implementation.
+- Redis/in-memory idempotency implementation với atomic claim-before-work để tránh tạo duplicate alert khi request trùng idempotency key chạy đồng thời.
 - JSON logging và Prometheus metrics.
+- Log JSON đã ghi thêm exception/stack info khi có lỗi.
+- Runtime config validation cho các secret bắt buộc như `OPENAI_API_KEY` và `JWT_SECRET_KEY`.
+- API key protection cho các endpoint nghiệp vụ bằng header `X-API-Key`; `health` và `metrics` vẫn public.
+- Rule reload đã có error handling và logging khi rule config lỗi.
+- Script kiểm tra Redis/Supabase đã tránh in secret trực tiếp và xử lý lỗi kết nối rõ hơn.
 - Các API chính:
   - `GET /api/v1/health`
   - `POST /api/v1/predict`
@@ -157,6 +162,8 @@ IDEMPOTENCY_STORE=redis
 REDIS_URL=redis://localhost:6379/0
 ```
 
+Lưu ý: flow idempotency hiện đã dùng cơ chế atomic reserve key trước khi chạy rule engine, ML predictor và tạo alert. Với Redis, cơ chế này dùng thao tác kiểu `SET NX`; với in-memory, cơ chế này an toàn trong phạm vi một process backend.
+
 Có thể chạy riêng Redis bằng Docker trước khi làm Docker Compose:
 
 ```powershell
@@ -194,20 +201,30 @@ docker compose up --build
 
 Các việc nên làm sau khi frontend/ML bắt đầu ổn:
 
-- Thêm JWT authentication cho protected endpoints.
+- Hoàn thiện authentication: hiện đã có `X-API-Key` guard cơ bản cho `predict`, `alerts`, `rules`; nếu cần phân quyền/user session thì nâng cấp sang JWT hoặc API key validation có danh sách key hợp lệ.
 - Thêm CORS config cho frontend.
 - Thêm error response format thống nhất.
-- Thêm pagination cho `GET /alerts`.
+- Quyết định response chuẩn cho trường hợp idempotency key đang được xử lý quá lâu.
+- Thêm pagination cho `GET /api/v1/alerts`.
 - Thêm filter theo ngày, status, risk level.
 - Persist prediction logs.
 - Persist review labels.
 
 ## 6. Testing Còn Cần Làm
 
-Hiện backend đã có unit tests cho các phần chính.
+Hiện backend đã có unit tests cho các phần chính, bao gồm regression test cho concurrent idempotency để đảm bảo hai request cùng key không tạo duplicate alert.
+
+Đã validate gần nhất:
+
+```powershell
+$env:OPENAI_API_KEY='test-openai-key'; $env:JWT_SECRET_KEY='test-jwt-secret'; python -m pytest backend/tests
+```
+
+Kết quả: `27 passed`.
 
 Vẫn nên làm thêm:
 
+- Integration test với Redis thật cho atomic idempotency `SET NX`.
 - Integration test với Supabase.
 - Contract test từ OpenAPI.
 - Load test cho `/predict`.

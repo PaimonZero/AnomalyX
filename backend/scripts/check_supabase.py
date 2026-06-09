@@ -33,6 +33,8 @@ def supabase_request(path: str, query: dict[str, str] | None = None) -> tuple[in
             return response.status, response.read().decode("utf-8", errors="replace")
     except error.HTTPError as exc:
         return exc.code, exc.read().decode("utf-8", errors="replace")
+    except error.URLError as exc:
+        return 0, f"Network error: {exc.reason}"
 
 
 def main() -> int:
@@ -43,7 +45,7 @@ def main() -> int:
 
     print(f"Supabase URL: {settings.supabase_url.rstrip('/')}")
     print(f"Schema: {settings.supabase_schema}")
-    print(f"Key prefix: {settings.supabase_service_role_key[:10]}...")
+    print(f"Service role key configured: {bool(settings.supabase_service_role_key)}")
 
     status, body = supabase_request("")
     if status != 200:

@@ -16,6 +16,10 @@ class SupabaseError(RuntimeError):
     """Raised when Supabase returns an unexpected response."""
 
 
+class AlertCreationError(SupabaseError):
+    """Raised when Supabase does not return a created alert row."""
+
+
 class SupabaseAlertRepository:
     def __init__(
         self,
@@ -29,6 +33,9 @@ class SupabaseAlertRepository:
         self.schema = schema or settings.supabase_schema
         if not self.supabase_url or not self.service_role_key:
             raise SupabaseError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.")
+        parsed_url = parse.urlparse(self.supabase_url)
+        if parsed_url.scheme != "https" or not parsed_url.netloc:
+            raise SupabaseError("SUPABASE_URL must be an https URL with a network location.")
 
     def create(
         self,
@@ -60,7 +67,19 @@ class SupabaseAlertRepository:
             body=row,
             extra_headers={"Prefer": "return=representation"},
         )
-        return row_to_alert(rows[0])
+        if not rows:
+            raise AlertCreationError(
+                "SupabaseAlertRepository.create() expected self._request(...) "
+                "to return a created alert row for row_to_alert(), got an empty response."
+            )
+
+        alert = row_to_alert(rows[0])
+        if alert is None:
+            raise AlertCreationError(
+                "SupabaseAlertRepository.create() received no Alert from row_to_alert() "
+                "after self._request(...) returned a row."
+            )
+        return alert
 
     def list(self, status: AlertStatus | None = None) -> list[Alert]:
         query = {
@@ -134,7 +153,7 @@ class SupabaseAlertRepository:
         body: dict[str, Any] | None = None,
         extra_headers: dict[str, str] | None = None,
     ) -> list[dict[str, Any]]:
-        url = f"{self.supabase_url}/rest/v1/{table}"
+        url = self._build_table_url(table)
         if query:
             url = f"{url}?{parse.urlencode(query)}"
 
@@ -168,6 +187,26 @@ class SupabaseAlertRepository:
         if isinstance(decoded, dict):
             return [decoded]
         raise SupabaseError(f"Unexpected Supabase response shape: {type(decoded).__name__}")
+
+    def _build_table_url(self, table: str) -> str:
+        table_name = table.strip()
+        parsed_table = parse.urlparse(table_name)
+        if (
+            not table_name
+            or parsed_table.scheme
+            or parsed_table.netloc
+            or parsed_table.query
+            or parsed_table.fragment
+            or ".." in table_name.split("/")
+        ):
+            raise SupabaseError("Supabase table path must not override the base URL.")
+
+        url = parse.urljoin(f"{self.supabase_url}/", f"rest/v1/{table_name.lstrip('/')}")
+        parsed_url = parse.urlparse(url)
+        parsed_base_url = parse.urlparse(self.supabase_url)
+        if parsed_url.scheme != parsed_base_url.scheme or parsed_url.netloc != parsed_base_url.netloc:
+            raise SupabaseError("Supabase request URL must stay on the configured base host.")
+        return url
 
 
 def row_to_alert(row: dict[str, Any]) -> Alert:

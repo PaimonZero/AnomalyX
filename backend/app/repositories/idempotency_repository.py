@@ -12,6 +12,12 @@ class IdempotencyRepository(Protocol):
     def set(self, key: str, value: str, ttl_seconds: int) -> None:
         """Store a response payload for a limited time."""
 
+    def set_if_absent(self, key: str, value: str, ttl_seconds: int) -> bool:
+        """Store a value only when the key does not already exist."""
+
+    def delete(self, key: str) -> None:
+        """Delete a stored key when supported."""
+
     def clear(self) -> None:
         """Clear stored keys when supported."""
 
@@ -37,6 +43,22 @@ class InMemoryIdempotencyRepository:
         expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
         with self._lock:
             self._items[key] = (value, expires_at)
+
+    def set_if_absent(self, key: str, value: str, ttl_seconds: int) -> bool:
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(seconds=ttl_seconds)
+        with self._lock:
+            item = self._items.get(key)
+            if item is not None:
+                _, existing_expires_at = item
+                if existing_expires_at > now:
+                    return False
+            self._items[key] = (value, expires_at)
+            return True
+
+    def delete(self, key: str) -> None:
+        with self._lock:
+            self._items.pop(key, None)
 
     def clear(self) -> None:
         with self._lock:

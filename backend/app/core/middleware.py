@@ -20,14 +20,17 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         call_next: RequestResponseEndpoint,
     ) -> Response:
         request_id = request.headers.get("X-Request-ID", uuid4().hex)
+        request.state.request_id = request_id
         start_time = time.perf_counter()
         status_code = 500
+        response: Response | None = None
 
         try:
             response = await call_next(request)
             status_code = response.status_code
-            return response
         finally:
+            if response is not None:
+                response.headers["X-Request-ID"] = request_id
             latency_ms = round((time.perf_counter() - start_time) * 1000, 3)
             route_path = request.scope.get("route").path if request.scope.get("route") else request.url.path
             REQUEST_COUNT.labels(
@@ -49,3 +52,4 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
                     "latency_ms": latency_ms,
                 },
             )
+        return response

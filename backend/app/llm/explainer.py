@@ -1,13 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from json import JSONDecodeError
+import logging
 from typing import Protocol
 
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 
 from app.core.config import get_settings
 from app.schemas.alert import Alert
 from app.schemas.prediction import TransactionRequest
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -59,8 +63,18 @@ class OpenAIAlertExplainer:
                 return template_explanation(alert)
 
             return ExplanationResult(text=explanation, source="openai")
-        except Exception:
+        except (OpenAIError, TimeoutError, ConnectionError, JSONDecodeError):
+            logger.exception(
+                "Handled OpenAI alert explanation failure",
+                extra=log_context(alert, transaction),
+            )
             return template_explanation(alert)
+        except Exception:
+            logger.exception(
+                "Unexpected OpenAI alert explanation failure",
+                extra=log_context(alert, transaction),
+            )
+            raise
 
 
 def build_prompt(alert: Alert, transaction: TransactionRequest, language: str) -> str:
@@ -111,6 +125,14 @@ def template_explanation(alert: Alert) -> ExplanationResult:
         f"features: {feature_names}."
     )
     return ExplanationResult(text=text, source="template")
+
+
+def log_context(alert: Alert, transaction: TransactionRequest) -> dict[str, object]:
+    return {
+        "transaction_id": transaction.transaction_id,
+        "risk_level": alert.risk_level.value,
+        "risk_score": alert.risk_score,
+    }
 
 
 def mask_value(value: str) -> str:

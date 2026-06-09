@@ -1,7 +1,10 @@
+import logging
+
 from fastapi import APIRouter, HTTPException
 
 from app.rules.engine import RuleEngineError, rule_engine_manager
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/rules")
 
@@ -16,7 +19,8 @@ def reload_rules() -> dict:
     try:
         engine = rule_engine_manager.reload()
     except RuleEngineError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        logger.error("Failed to reload rules", exc_info=True)
+        raise HTTPException(status_code=400, detail="Rule processing error") from exc
 
     return {
         "status": "reloaded",

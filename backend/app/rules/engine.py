@@ -50,11 +50,19 @@ class Rule:
         except ValueError as exc:
             raise RuleEngineError(f"Invalid severity for rule {data.get('id')!r}.") from exc
 
+        raw_enabled = data.get("enabled", True)
+        if isinstance(raw_enabled, bool):
+            enabled = raw_enabled
+        elif isinstance(raw_enabled, str) and raw_enabled.lower() in ("true", "false"):
+            enabled = raw_enabled.lower() == "true"
+        else:
+            raise RuleEngineError(f"Invalid 'enabled' value for rule {data.get('id')!r}: {raw_enabled!r}")
+
         return cls(
             id=str(data["id"]),
             typology=str(data["typology"]),
             severity=severity,
-            enabled=bool(data.get("enabled", True)),
+            enabled=enabled,
             condition=str(data["condition"]),
             action_hint=data.get("action_hint"),
         )
@@ -124,11 +132,10 @@ class SafeConditionEvaluator(ast.NodeVisitor):
         if isinstance(node, ast.Name):
             return context[node.id]
         if isinstance(node, ast.BoolOp):
-            values = [self._eval_node(value, context) for value in node.values]
             if isinstance(node.op, ast.And):
-                return all(values)
+                return all(self._eval_node(value, context) for value in node.values)
             if isinstance(node.op, ast.Or):
-                return any(values)
+                return any(self._eval_node(value, context) for value in node.values)
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
             return not self._eval_node(node.operand, context)
         if isinstance(node, ast.BinOp):
@@ -155,7 +162,10 @@ class SafeConditionEvaluator(ast.NodeVisitor):
         if isinstance(node.op, ast.Mult):
             return left * right
         if isinstance(node.op, ast.Div):
-            return left / right
+            try:
+                return left / right
+            except ZeroDivisionError as exc:
+                raise RuleEngineError("Division by zero in rule condition.") from exc
         if isinstance(node.op, ast.Mod):
             return left % right
 

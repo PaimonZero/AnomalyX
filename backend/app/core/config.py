@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from functools import lru_cache
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -13,6 +14,7 @@ class ConfigError(ValueError):
     """Raised when runtime configuration is invalid."""
 
 
+@lru_cache(maxsize=1)
 def _load_dotenv(path: Path = ENV_FILE) -> None:
     if not path.exists():
         return
@@ -25,7 +27,8 @@ def _load_dotenv(path: Path = ENV_FILE) -> None:
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip().strip('"').strip("'")
-        os.environ[key] = value
+        if key not in os.environ:
+            os.environ[key] = value
 
 
 def _get_bool(name: str, default: bool) -> bool:
@@ -82,6 +85,12 @@ class Settings:
     supabase_schema: str
     alert_repository: str
     redis_url: str
+    redis_socket_connect_timeout_seconds: float
+    redis_socket_timeout_seconds: float
+    redis_retry_on_timeout: bool
+    redis_retry_attempts: int
+    redis_retry_backoff_base_seconds: float
+    redis_retry_backoff_cap_seconds: float
     idempotency_store: str
     idempotency_ttl_seconds: int
     jwt_secret_key: str
@@ -107,13 +116,14 @@ class Settings:
             )
 
 
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
     _load_dotenv()
 
-    return Settings(
+    settings = Settings(
         app_env=os.getenv("APP_ENV", "development"),
         app_name=os.getenv("APP_NAME", "AnomalyX"),
-        api_host=os.getenv("API_HOST", "0.0.0.0"),
+        api_host=os.getenv("API_HOST", "127.0.0.1"),
         api_port=_get_int("API_PORT", 8000),
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
@@ -127,6 +137,12 @@ def get_settings() -> Settings:
         supabase_schema=os.getenv("SUPABASE_SCHEMA", "public"),
         alert_repository=os.getenv("ALERT_REPOSITORY", "in_memory"),
         redis_url=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
+        redis_socket_connect_timeout_seconds=_get_float("REDIS_SOCKET_CONNECT_TIMEOUT_SECONDS", 2.0),
+        redis_socket_timeout_seconds=_get_float("REDIS_SOCKET_TIMEOUT_SECONDS", 2.0),
+        redis_retry_on_timeout=_get_bool("REDIS_RETRY_ON_TIMEOUT", True),
+        redis_retry_attempts=_get_int("REDIS_RETRY_ATTEMPTS", 2),
+        redis_retry_backoff_base_seconds=_get_float("REDIS_RETRY_BACKOFF_BASE_SECONDS", 0.05),
+        redis_retry_backoff_cap_seconds=_get_float("REDIS_RETRY_BACKOFF_CAP_SECONDS", 0.5),
         idempotency_store=os.getenv("IDEMPOTENCY_STORE", "in_memory"),
         idempotency_ttl_seconds=_get_int("IDEMPOTENCY_TTL_SECONDS", 86400),
         jwt_secret_key=os.getenv("JWT_SECRET_KEY", ""),
@@ -135,3 +151,11 @@ def get_settings() -> Settings:
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         metrics_enabled=_get_bool("METRICS_ENABLED", True),
     )
+
+    settings.validate_for_runtime()
+    return settings
+
+
+def reset_settings_cache() -> None:
+    get_settings.cache_clear()
+    _load_dotenv.cache_clear()

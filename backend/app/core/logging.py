@@ -28,6 +28,10 @@ class JsonLogFormatter(logging.Formatter):
         ):
             if hasattr(record, key):
                 payload[key] = getattr(record, key)
+        if record.exc_info:
+            payload["exception"] = self.formatException(record.exc_info)
+        if record.stack_info:
+            payload["stack"] = self.formatStack(record.stack_info)
         return json.dumps(payload, ensure_ascii=True)
 
 
