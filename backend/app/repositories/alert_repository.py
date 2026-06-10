@@ -151,15 +151,6 @@ class InMemoryAlertRepository:
                 }
             )
             self._alerts[alert_id] = updated_alert
-            if status in {AlertStatus.ESCALATED, AlertStatus.DISMISSED}:
-                self._review_labels.append(
-                    {
-                        "alert_id": alert_id,
-                        "status": status.value,
-                        "reviewer_id": reviewer_id,
-                        "created_at": reviewed_at,
-                    }
-                )
 
         return updated_alert
 

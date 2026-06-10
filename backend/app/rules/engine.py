@@ -25,13 +25,13 @@ ALLOWED_CONTEXT_NAMES = {
     "is_round_amount",
     "log_amount",
     "amount_to_threshold_ratio",
-    "count_just_below_threshold_24h",
-    "sum_just_below_threshold_24h",
-    "distinct_receivers_1h",
-    "sum_amount_1h",
-    "rapid_inout_count_1h",
-    "chain_depth",
-    "velocity_vs_baseline_ratio",
+    "count_just_below_threshold_24h_proxy",
+    "sum_just_below_threshold_24h_proxy",
+    "distinct_receivers_1h_proxy",
+    "sum_amount_1h_proxy",
+    "rapid_inout_count_1h_proxy",
+    "chain_depth_proxy",
+    "velocity_vs_baseline_ratio_proxy",
 }
 
 

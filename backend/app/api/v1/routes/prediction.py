@@ -30,10 +30,12 @@ def batch_score_transactions(
     payload: BatchScoreRequest,
     background_tasks: BackgroundTasks,
 ) -> BatchScoreResponse:
-    predictions = PredictionService().batch_predict(
+    results = PredictionService().batch_predict(
         payload.transactions,
         background_tasks=background_tasks,
     )
+    predictions = [result.prediction for result in results if result.prediction is not None]
+    errors = [result.error for result in results if result.error is not None]
     flagged_predictions = [prediction for prediction in predictions if prediction.is_flagged]
     alert_ids = [
         prediction.alert_id
@@ -42,9 +44,11 @@ def batch_score_transactions(
     ]
     return BatchScoreResponse(
         batch_id=payload.batch_id,
-        total_transactions=len(predictions),
+        total_transactions=len(payload.transactions),
         flagged_count=len(flagged_predictions),
         predictions=predictions,
         flagged_predictions=flagged_predictions,
+        errors=errors,
+        results=results,
         alert_ids=alert_ids,
     )

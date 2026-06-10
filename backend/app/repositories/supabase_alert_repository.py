@@ -124,7 +124,6 @@ class SupabaseAlertRepository:
                 "updated_at": reviewed_at.isoformat(),
             },
         )
-        self.add_review_label(alert_id=alert_id, status=status, reviewer_id=reviewer_id)
         return alert
 
     def add_review_label(

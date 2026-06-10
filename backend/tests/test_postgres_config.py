@@ -26,8 +26,8 @@ _ENV_KEYS = [
 def clean_settings(monkeypatch: pytest.MonkeyPatch):
     for key in _ENV_KEYS:
         monkeypatch.setenv(key, "")
-    monkeypatch.setenv("AUTH_TOKEN", "test-service-token")
-    monkeypatch.setenv("JWT_SECRET_KEY", "test-jwt-secret")
+    monkeypatch.setenv("AUTH_TOKEN", "test-service-token-strong-000000000000")
+    monkeypatch.setenv("JWT_SECRET_KEY", "test-jwt-secret-strong-000000000000")
     reset_settings_cache()
     reset_alert_repository_cache()
     yield
@@ -73,6 +73,7 @@ def test_postgres_config_can_build_url_from_parts(clean_settings, monkeypatch: p
 
 def test_postgres_config_requires_url_or_password(clean_settings, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ALERT_REPOSITORY", "postgres")
+    monkeypatch.setenv("DATABASE_URL", " ")
     reset_settings_cache()
 
     with pytest.raises(ConfigError, match="DATABASE_URL"):

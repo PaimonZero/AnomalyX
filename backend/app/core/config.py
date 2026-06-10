@@ -138,6 +138,34 @@ class Settings:
             joined = ", ".join(missing)
             raise ConfigError(f"Missing required runtime secret(s): {joined}.")
 
+        insecure = []
+        known_dev_values = {
+            "dev-service-token",
+            "dev-jwt-secret",
+            "test-service-token",
+            "test-jwt-secret",
+            "changeme",
+            "change-me",
+            "secret",
+            "password",
+        }
+        secret_requirements = {
+            "JWT_SECRET_KEY": self.jwt_secret_key,
+            "AUTH_TOKEN": self.auth_token,
+        }
+        for name, value in secret_requirements.items():
+            normalized = value.strip().lower()
+            reasons = []
+            if normalized in known_dev_values:
+                reasons.append("uses a known dev/default value")
+            if len(value.strip()) < 32:
+                reasons.append("must be at least 32 characters")
+            if reasons:
+                insecure.append(f"{name} ({'; '.join(reasons)})")
+        if insecure:
+            joined = ", ".join(insecure)
+            raise ConfigError(f"Insecure runtime secret(s): {joined}.")
+
         if self.alert_repository not in {"in_memory", "postgres", "supabase"}:
             raise ConfigError("ALERT_REPOSITORY must be one of: in_memory, postgres, supabase.")
 

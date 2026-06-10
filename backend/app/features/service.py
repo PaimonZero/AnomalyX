@@ -25,14 +25,17 @@ class FeatureService:
 
         near_threshold_lower = CTR_THRESHOLD_VND * 0.90
         is_just_below_threshold = near_threshold_lower <= amount < CTR_THRESHOLD_VND
-        count_just_below_threshold_24h = 3 if is_just_below_threshold else 0
-        sum_just_below_threshold_24h = amount * count_just_below_threshold_24h if is_just_below_threshold else 0.0
+        # TODO: replace proxy values with historical transaction/Redis rolling aggregate service.
+        count_just_below_threshold_24h_proxy = 3 if is_just_below_threshold else 0
+        sum_just_below_threshold_24h_proxy = (
+            amount * count_just_below_threshold_24h_proxy if is_just_below_threshold else 0.0
+        )
 
-        distinct_receivers_1h = 4 if transaction.channel.value == "TRANSFER" and amount >= 50_000_000 else 1
-        sum_amount_1h = amount * distinct_receivers_1h if distinct_receivers_1h > 1 else amount
-        rapid_inout_count_1h = 2 if transaction.channel.value == "TRANSFER" and amount >= 100_000_000 else 0
-        chain_depth = 3 if transaction.channel.value == "TRANSFER" and amount >= 120_000_000 else 1
-        velocity_vs_baseline_ratio = max(1.0, round((amount / max(sender_balance, 1.0)) * 12, 4))
+        distinct_receivers_1h_proxy = 4 if transaction.channel.value == "TRANSFER" and amount >= 50_000_000 else 1
+        sum_amount_1h_proxy = amount * distinct_receivers_1h_proxy if distinct_receivers_1h_proxy > 1 else amount
+        rapid_inout_count_1h_proxy = 2 if transaction.channel.value == "TRANSFER" and amount >= 100_000_000 else 0
+        chain_depth_proxy = 3 if transaction.channel.value == "TRANSFER" and amount >= 120_000_000 else 1
+        velocity_vs_baseline_ratio_proxy = max(1.0, round((amount / max(sender_balance, 1.0)) * 12, 4))
 
         values = {
             "amount": amount,
@@ -45,13 +48,13 @@ class FeatureService:
             "is_round_amount": amount > 0 and amount % 1_000_000 == 0,
             "log_amount": round(log1p(amount), 4),
             "amount_to_threshold_ratio": round(amount / CTR_THRESHOLD_VND, 4),
-            "count_just_below_threshold_24h": count_just_below_threshold_24h,
-            "sum_just_below_threshold_24h": sum_just_below_threshold_24h,
-            "distinct_receivers_1h": distinct_receivers_1h,
-            "sum_amount_1h": sum_amount_1h,
-            "rapid_inout_count_1h": rapid_inout_count_1h,
-            "chain_depth": chain_depth,
-            "velocity_vs_baseline_ratio": velocity_vs_baseline_ratio,
+            "count_just_below_threshold_24h_proxy": count_just_below_threshold_24h_proxy,
+            "sum_just_below_threshold_24h_proxy": sum_just_below_threshold_24h_proxy,
+            "distinct_receivers_1h_proxy": distinct_receivers_1h_proxy,
+            "sum_amount_1h_proxy": sum_amount_1h_proxy,
+            "rapid_inout_count_1h_proxy": rapid_inout_count_1h_proxy,
+            "chain_depth_proxy": chain_depth_proxy,
+            "velocity_vs_baseline_ratio_proxy": velocity_vs_baseline_ratio_proxy,
         }
         return TransactionFeatures(values=values)
 

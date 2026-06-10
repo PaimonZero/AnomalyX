@@ -44,8 +44,8 @@ class MockModelPredictor:
                 contribution=round(0.28 * balance_component, 4),
             ),
             TopFeature(
-                name="amount_to_threshold_ratio",
-                value=features["amount_to_threshold_ratio"],
+                name="channel_type",
+                value=features["channel"],
                 contribution=round(0.20 * channel_component, 4),
             ),
         ]

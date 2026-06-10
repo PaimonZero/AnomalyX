@@ -1,4 +1,4 @@
-from app.llm.explainer import build_prompt, mask_value, template_explanation
+from app.llm.explainer import build_prompt, is_grounded, mask_value, template_explanation
 from app.llm.secure_data_wrapper import secure_data_wrapper
 from app.schemas.alert import AlertStatus
 from app.schemas.prediction import RiskLevel, RuleSeverity, TopFeature, TransactionRequest, TriggeredRule
@@ -33,7 +33,7 @@ def alert():
             )
         ],
         top_features=[
-            TopFeature(name="mock_log_amount", value=19.7, contribution=0.41),
+            TopFeature(name="log_amount", value=19.7, contribution=0.41),
         ],
     )
 
@@ -52,7 +52,7 @@ def test_template_explanation_uses_supplied_evidence() -> None:
 
     assert result.source == "template"
     assert "R-THRESHOLD-01" in result.text
-    assert "mock_log_amount" in result.text
+    assert "log_amount" in result.text
 
 
 def test_mask_short_values() -> None:
@@ -66,3 +66,27 @@ def test_secure_data_wrapper_masks_prompt_context() -> None:
     assert context["receiver_id"] == "h:r***001"
     assert "sender_secret_001" not in str(context)
     assert "receiver_secret_001" not in str(context)
+
+
+def test_grounding_rejects_unmasked_identifiers() -> None:
+    text = "R-THRESHOLD-01 was triggered for sender h:sender_secret_001 with log_amount."
+
+    assert is_grounded(text, alert(), transaction()) is False
+
+
+def test_grounding_rejects_unsupported_rules() -> None:
+    text = "R-UNKNOWN-01 was triggered with log_amount."
+
+    assert is_grounded(text, alert(), transaction()) is False
+
+
+def test_grounding_rejects_unsupported_features() -> None:
+    text = "R-THRESHOLD-01 was triggered with velocity_score."
+
+    assert is_grounded(text, alert(), transaction()) is False
+
+
+def test_grounding_accepts_supported_evidence() -> None:
+    text = "R-THRESHOLD-01 was triggered with log_amount."
+
+    assert is_grounded(text, alert(), transaction()) is True

@@ -14,7 +14,12 @@ from app.core.metrics import (
 from app.llm.explainer import AlertExplainer, OpenAIAlertExplainer
 from app.ml.factory import get_model_predictor
 from app.rules.engine import rule_engine_manager
-from app.schemas.prediction import PredictionResponse, TransactionRequest
+from app.schemas.prediction import (
+    BatchPredictionError,
+    BatchPredictionResult,
+    PredictionResponse,
+    TransactionRequest,
+)
 from app.services.alert_service import AlertService
 from app.services.idempotency_service import IdempotencyClaim, IdempotencyService
 
@@ -116,13 +121,43 @@ class PredictionService:
         self,
         transactions: list[TransactionRequest],
         background_tasks: BackgroundTasks | None = None,
-    ) -> list[PredictionResponse]:
-        return [
-            self.predict(transaction, background_tasks=background_tasks)
-            for transaction in transactions
-        ]
+    ) -> list[BatchPredictionResult]:
+        results = []
+        for index, transaction in enumerate(transactions):
+            try:
+                prediction = self.predict(transaction, background_tasks=background_tasks)
+                results.append(
+                    BatchPredictionResult(
+                        index=index,
+                        transaction_id=transaction.transaction_id,
+                        prediction=prediction,
+                    )
+                )
+            except Exception as exc:
+                logger.exception(
+                    "Batch prediction item failed",
+                    extra={"transaction_id": transaction.transaction_id, "index": index},
+                )
+                error = BatchPredictionError(
+                    index=index,
+                    transaction_id=transaction.transaction_id,
+                    code=exc.__class__.__name__,
+                    message=str(exc),
+                )
+                results.append(
+                    BatchPredictionResult(
+                        index=index,
+                        transaction_id=transaction.transaction_id,
+                        error=error,
+                    )
+                )
+        return results
 
     def _claim_or_wait_for_response(self, idempotency_key: str) -> IdempotencyClaim:
+        cached_response = self._get_cached_response(idempotency_key)
+        if cached_response is not None:
+            return IdempotencyClaim(is_claimed=False, response=cached_response)
+
         deadline = time.monotonic() + IDEMPOTENCY_PROCESSING_WAIT_SECONDS
         while True:
             claim = self.idempotency_service.claim_response(idempotency_key)

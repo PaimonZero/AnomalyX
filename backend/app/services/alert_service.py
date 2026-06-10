@@ -38,7 +38,10 @@ class AlertService:
         status: AlertStatus,
         reviewer_id: str | None = None,
     ) -> Alert:
-        return self.repository.update_status(alert_id, status, reviewer_id)
+        alert = self.repository.update_status(alert_id, status, reviewer_id)
+        if status in {AlertStatus.ESCALATED, AlertStatus.DISMISSED}:
+            self.repository.add_review_label(alert_id, status, reviewer_id)
+        return alert
 
     def update_explanation(
         self,

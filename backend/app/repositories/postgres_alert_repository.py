@@ -88,7 +88,6 @@ class PostgresAlertRepository:
             raise PostgresRepositoryError("DATABASE_URL is required for PostgreSQL persistence.")
         self.engine = engine or create_engine(
             self.database_url,
-            future=True,
             pool_pre_ping=True,
         )
 
@@ -104,7 +103,7 @@ class PostgresAlertRepository:
     ) -> Alert:
         now = datetime.now(timezone.utc)
         row = {
-            "alert_id": f"al_{uuid4().hex[:12]}",
+            "alert_id": f"al_{uuid4().hex}",
             "transaction_id": transaction_id,
             "risk_score": risk_score,
             "risk_level": risk_level.value,
@@ -173,17 +172,6 @@ class PostgresAlertRepository:
                 ).mappings().first()
                 if row is None:
                     raise AlertNotFoundError(alert_id)
-                if status in {AlertStatus.ESCALATED, AlertStatus.DISMISSED}:
-                    connection.execute(
-                        insert(review_labels).values(
-                            label_id=uuid4(),
-                            alert_id=alert_id,
-                            transaction_id=row["transaction_id"],
-                            label=status.value,
-                            reviewer_id=reviewer_id,
-                            created_at=reviewed_at,
-                        )
-                    )
         except AlertNotFoundError:
             raise
         except SQLAlchemyError as exc:
@@ -222,14 +210,15 @@ class PostgresAlertRepository:
     ) -> None:
         if status not in {AlertStatus.ESCALATED, AlertStatus.DISMISSED}:
             return
-        alert = self.get(alert_id)
         try:
             with self.engine.begin() as connection:
+                transaction_id = select(alerts.c.transaction_id).where(
+                    alerts.c.alert_id == alert_id
+                ).scalar_subquery()
                 connection.execute(
                     insert(review_labels).values(
-                        label_id=uuid4(),
                         alert_id=alert_id,
-                        transaction_id=alert.transaction_id,
+                        transaction_id=transaction_id,
                         label=status.value,
                         reviewer_id=reviewer_id,
                         created_at=datetime.now(timezone.utc),
@@ -253,7 +242,6 @@ class PostgresAlertRepository:
             with self.engine.begin() as connection:
                 connection.execute(
                     insert(prediction_logs).values(
-                        prediction_id=uuid4(),
                         transaction_id=transaction_id,
                         risk_score=risk_score,
                         risk_level=risk_level.value,

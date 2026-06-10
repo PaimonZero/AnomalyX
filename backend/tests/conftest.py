@@ -3,10 +3,10 @@ import os
 
 import pytest
 
-os.environ.setdefault("AUTH_TOKEN", "test-service-token")
-os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret")
-os.environ.setdefault("ALERT_REPOSITORY", "in_memory")
-os.environ.setdefault("IDEMPOTENCY_STORE", "in_memory")
+os.environ["AUTH_TOKEN"] = "test-service-token-strong-000000000000"
+os.environ["JWT_SECRET_KEY"] = "test-jwt-secret-strong-000000000000"
+os.environ["ALERT_REPOSITORY"] = "in_memory"
+os.environ["IDEMPOTENCY_STORE"] = "in_memory"
 
 from app.llm.explainer import ExplanationResult, OpenAIAlertExplainer
 from app.repositories.idempotency_repository import idempotency_repository

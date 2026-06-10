@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+
+
+logger = logging.getLogger(__name__)
 
 
 def error_body(code: str, message: str, details: Any | None = None) -> dict[str, Any]:
@@ -70,6 +74,10 @@ async def _unhandled_exception_handler(
     request: Request,
     exc: Exception,
 ) -> JSONResponse:
+    logger.exception(
+        "Unhandled exception in request",
+        extra={"path": request.url.path},
+    )
     return JSONResponse(
         status_code=500,
         content=error_body(
