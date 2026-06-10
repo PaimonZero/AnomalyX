@@ -11,6 +11,7 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from app.core.config import get_settings
 
+
 def _mask_redis_url(url: str) -> str:
     parts = urlsplit(url)
     if "@" not in parts.netloc:
@@ -20,14 +21,18 @@ def _mask_redis_url(url: str) -> str:
     safe_netloc = f"{user}:***@{host}" if user else f"***@{host}"
     return urlunsplit((parts.scheme, safe_netloc, parts.path, parts.query, parts.fragment))
 
+
 def main() -> int:
+    settings = get_settings()
+    if settings.idempotency_store != "redis":
+        print(f"Redis check skipped: IDEMPOTENCY_STORE={settings.idempotency_store}.")
+        return 0
+
     try:
         from redis import Redis
     except ModuleNotFoundError:
         print("redis package is not installed. Run: pip install -r backend/requirements.txt")
         return 1
-
-    settings = get_settings()
 
     redis_url_str = str(settings.redis_url) if settings.redis_url else ""
     if not redis_url_str or not redis_url_str.startswith(("redis://", "rediss://")):

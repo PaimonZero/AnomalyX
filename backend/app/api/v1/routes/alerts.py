@@ -24,6 +24,10 @@ def get_alert(alert_id: str) -> Alert:
 @router.patch("/{alert_id}/status", response_model=Alert)
 def update_alert_status(alert_id: str, payload: AlertStatusUpdate) -> Alert:
     try:
-        return AlertService().update_status(alert_id, payload.status)
+        return AlertService().update_status(
+            alert_id,
+            payload.status,
+            reviewer_id=payload.reviewer_id,
+        )
     except AlertNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Alert not found.") from exc

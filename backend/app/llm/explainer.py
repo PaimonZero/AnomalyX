@@ -8,6 +8,7 @@ from typing import Protocol
 from openai import OpenAI, OpenAIError
 
 from app.core.config import get_settings
+from app.llm.secure_data_wrapper import mask_value as secure_mask_value, secure_data_wrapper
 from app.schemas.alert import Alert
 from app.schemas.prediction import TransactionRequest
 
@@ -59,7 +60,7 @@ class OpenAIAlertExplainer:
                 return template_explanation(alert)
 
             explanation = content.strip()
-            if not is_grounded(explanation, alert):
+            if not is_grounded(explanation, alert, transaction):
                 return template_explanation(alert)
 
             return ExplanationResult(text=explanation, source="openai")
@@ -95,15 +96,7 @@ def build_prompt(alert: Alert, transaction: TransactionRequest, language: str) -
         for feature in alert.top_features
     ]
 
-    safe_context = {
-        "transaction_id": mask_value(transaction.transaction_id),
-        "sender_id": mask_value(transaction.sender_id),
-        "receiver_id": mask_value(transaction.receiver_id),
-        "amount": transaction.amount,
-        "currency": transaction.currency,
-        "channel": transaction.channel.value,
-        "timestamp_hour": transaction.timestamp.hour,
-    }
+    safe_context = secure_data_wrapper.sanitize_transaction_context(transaction)
 
     return (
         f"Language requirement: {language}.\n"
@@ -136,33 +129,38 @@ def log_context(alert: Alert, transaction: TransactionRequest) -> dict[str, obje
 
 
 def mask_value(value: str) -> str:
-    if len(value) <= 8:
-        return "***"
-    return f"{value[:3]}***{value[-3:]}"
+    return secure_mask_value(value)
 
 
-def is_grounded(explanation: str, alert: Alert) -> bool:
+def is_grounded(explanation: str, alert: Alert, transaction: TransactionRequest) -> bool:
     if not explanation.strip():
+        return False
+
+    safe_context = secure_data_wrapper.sanitize_transaction_context(transaction)
+    if secure_data_wrapper.contains_unmasked_identifier(explanation, transaction):
+        return False
+    if secure_data_wrapper.contains_pii_like_token(explanation):
         return False
 
     allowed_rule_ids = {rule.id for rule in alert.triggered_rules}
     allowed_feature_names = {feature.name for feature in alert.top_features}
-    suspicious_prefixes = {"user_", "acct_", "phone", "address", "passport"}
-    lowered = explanation.lower()
-    if any(prefix in lowered for prefix in suspicious_prefixes):
-        return False
-
-    referenced_rules = {
+    tokens = {
         token.strip(".,;:()[]{}")
         for token in explanation.replace("\n", " ").split()
-        if token.startswith("R-")
     }
-    if not referenced_rules.issubset(allowed_rule_ids):
+
+    referenced_rules = {token for token in tokens if token.startswith("R-")}
+    if not secure_data_wrapper.all_supported(referenced_rules, allowed_rule_ids):
         return False
 
-    referenced_mock_features = {
-        token.strip(".,;:()[]{}")
-        for token in explanation.replace("\n", " ").split()
-        if token.startswith("mock_")
+    referenced_features = {token for token in tokens if token in allowed_feature_names}
+    unsupported_feature_like_tokens = {
+        token
+        for token in tokens
+        if "_" in token
+        and token not in allowed_feature_names
+        and not secure_data_wrapper.is_masked_context_value(token, safe_context)
     }
-    return referenced_mock_features.issubset(allowed_feature_names)
+    if unsupported_feature_like_tokens:
+        return False
+    return secure_data_wrapper.all_supported(referenced_features, allowed_feature_names)

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from app.rules.engine import RuleEngine, RuleEngineError
+from app.rules.engine import RuleEngine, RuleEngineError, RuleEngineManager
 from app.schemas.prediction import RuleSeverity, TransactionRequest
 
 
@@ -105,3 +105,54 @@ rules:
 
     with pytest.raises(RuleEngineError, match="Unknown feature"):
         RuleEngine.from_file(path)
+
+
+def test_function_calls_in_condition_are_rejected(tmp_path: Path) -> None:
+    path = write_rules(
+        tmp_path,
+        """
+version: 1
+rules:
+  - id: R-BAD-CALL-01
+    typology: bad
+    severity: HIGH
+    condition: "__import__('os').system('echo unsafe')"
+""",
+    )
+
+    with pytest.raises(RuleEngineError, match="Unsupported expression node"):
+        RuleEngine.from_file(path)
+
+
+def test_reload_rejects_invalid_rules_and_keeps_previous_engine(tmp_path: Path) -> None:
+    path = write_rules(
+        tmp_path,
+        """
+version: 1
+rules:
+  - id: R-OK-01
+    typology: ok
+    severity: HIGH
+    condition: "amount >= 1"
+""",
+    )
+    manager = RuleEngineManager(path)
+    previous_engine = manager.engine
+
+    path.write_text(
+        """
+version: 2
+rules:
+  - id: R-BAD-01
+    typology: bad
+    severity: HIGH
+    condition: "unknown_feature >= 1"
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuleEngineError, match="Unknown feature"):
+        manager.reload()
+
+    assert manager.engine is previous_engine
+    assert manager.engine.version == 1

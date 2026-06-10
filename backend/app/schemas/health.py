@@ -8,3 +8,7 @@ class HealthResponse(BaseModel):
     app: str
     environment: str
     timestamp: datetime
+    checks: dict[str, bool]
+    storage: dict[str, str]
+    model: dict[str, str | bool]
+    metrics_enabled: bool

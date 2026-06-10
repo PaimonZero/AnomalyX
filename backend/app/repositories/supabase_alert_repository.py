@@ -53,11 +53,13 @@ class SupabaseAlertRepository:
             "transaction_id": transaction_id,
             "risk_score": risk_score,
             "risk_level": risk_level.value,
-            "status": AlertStatus.OPEN.value,
+            "status": AlertStatus.NEW.value,
             "triggered_rules": [rule.model_dump(mode="json") for rule in triggered_rules],
             "top_features": [feature.model_dump(mode="json") for feature in top_features],
             "explanation": explanation,
             "explanation_source": explanation_source,
+            "reviewer_id": None,
+            "reviewed_at": None,
             "created_at": now.isoformat(),
             "updated_at": now.isoformat(),
         }
@@ -106,13 +108,69 @@ class SupabaseAlertRepository:
             raise AlertNotFoundError(alert_id)
         return row_to_alert(rows[0])
 
-    def update_status(self, alert_id: str, status: AlertStatus) -> Alert:
-        return self._patch_alert(
+    def update_status(
+        self,
+        alert_id: str,
+        status: AlertStatus,
+        reviewer_id: str | None = None,
+    ) -> Alert:
+        reviewed_at = datetime.now(timezone.utc)
+        alert = self._patch_alert(
             alert_id=alert_id,
             values={
                 "status": status.value,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "reviewer_id": reviewer_id,
+                "reviewed_at": reviewed_at.isoformat(),
+                "updated_at": reviewed_at.isoformat(),
             },
+        )
+        return alert
+
+    def add_review_label(
+        self,
+        alert_id: str,
+        status: AlertStatus,
+        reviewer_id: str | None = None,
+    ) -> None:
+        if status not in {AlertStatus.ESCALATED, AlertStatus.DISMISSED}:
+            return
+
+        self._request(
+            method="POST",
+            table="review_labels",
+            body={
+                "alert_id": alert_id,
+                "status": status.value,
+                "reviewer_id": reviewer_id,
+            },
+            extra_headers={"Prefer": "return=minimal"},
+        )
+
+    def create_prediction_log(
+        self,
+        transaction_id: str,
+        risk_score: float,
+        risk_level: RiskLevel,
+        is_flagged: bool,
+        model_version: str,
+        triggered_rules: list[TriggeredRule],
+        top_features: list[TopFeature],
+        alert_id: str | None = None,
+    ) -> None:
+        self._request(
+            method="POST",
+            table="prediction_logs",
+            body={
+                "transaction_id": transaction_id,
+                "risk_score": risk_score,
+                "risk_level": risk_level.value,
+                "is_flagged": is_flagged,
+                "model_version": model_version,
+                "triggered_rules": [rule.model_dump(mode="json") for rule in triggered_rules],
+                "top_features": [feature.model_dump(mode="json") for feature in top_features],
+                "alert_id": alert_id,
+            },
+            extra_headers={"Prefer": "return=minimal"},
         )
 
     def update_explanation(
@@ -220,6 +278,8 @@ def row_to_alert(row: dict[str, Any]) -> Alert:
         top_features=[TopFeature(**feature) for feature in row.get("top_features", [])],
         explanation=row.get("explanation"),
         explanation_source=row.get("explanation_source"),
+        reviewer_id=row.get("reviewer_id"),
+        reviewed_at=row.get("reviewed_at"),
         created_at=row["created_at"],
         updated_at=row["updated_at"],
     )

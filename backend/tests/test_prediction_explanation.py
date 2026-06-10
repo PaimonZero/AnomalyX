@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 import logging
+import os
 
 from app.llm.explainer import ExplanationResult
 from app.repositories.alert_repository import alert_repository
@@ -41,7 +42,7 @@ def test_prediction_service_updates_alert_explanation_with_injected_explainer() 
     alert = alert_repository.get(prediction.alert_id)
 
     assert alert.explanation == f"Fake explanation for {prediction.alert_id}"
-    assert alert.explanation_source == "openai"
+    assert alert.explanation_source == "llm"
 
 
 def test_openai_explainer_logs_handled_failure_and_returns_template(monkeypatch, caplog) -> None:
@@ -63,7 +64,7 @@ def test_openai_explainer_logs_handled_failure_and_returns_template(monkeypatch,
         transaction_id="tx_explain_timeout",
         risk_score=0.91,
         risk_level=RiskLevel.HIGH,
-        status=AlertStatus.OPEN,
+        status=AlertStatus.NEW,
         triggered_rules=[
             TriggeredRule(
                 id="R-001",
@@ -77,6 +78,12 @@ def test_openai_explainer_logs_handled_failure_and_returns_template(monkeypatch,
     )
     transaction = flagged_payload()
     monkeypatch.setattr(explainer, "OpenAI", FakeOpenAI)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
+    monkeypatch.setattr(explainer, "get_settings", lambda: type("Settings", (), {
+        "openai_api_key": os.environ["OPENAI_API_KEY"],
+        "openai_model": "gpt-4o-mini",
+        "openai_explanation_language": "vi,en",
+    })())
 
     with caplog.at_level(logging.ERROR):
         result = explainer.OpenAIAlertExplainer().explain(alert, transaction)

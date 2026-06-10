@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -61,3 +62,43 @@ class PredictionResponse(BaseModel):
     explanation: str | None = None
     explanation_source: str | None = None
     alert_id: str | None = None
+
+
+class BatchScoreRequest(BaseModel):
+    transactions: list[TransactionRequest] = Field(..., min_length=1)
+    batch_id: str | None = None
+
+
+class BatchPredictionError(BaseModel):
+    index: int
+    transaction_id: str | None = None
+    code: str
+    message: str
+
+
+class BatchPredictionResult(BaseModel):
+    index: int
+    transaction_id: str | None = None
+    prediction: PredictionResponse | None = None
+    error: BatchPredictionError | None = None
+
+
+class BatchScoreResponse(BaseModel):
+    batch_id: str | None = None
+    total_transactions: int
+    flagged_count: int
+    predictions: list[PredictionResponse] = Field(default_factory=list)
+    flagged_predictions: list[PredictionResponse] = Field(default_factory=list)
+    errors: list[BatchPredictionError] = Field(default_factory=list)
+    results: list[BatchPredictionResult] = Field(default_factory=list)
+    alert_ids: list[str] = Field(default_factory=list)
+
+
+class ErrorBody(BaseModel):
+    code: str
+    message: str
+    details: Any | None = None
+
+
+class ErrorEnvelope(BaseModel):
+    error: ErrorBody
