@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import logging
 import time
 
 from fastapi import BackgroundTasks
 
 from app.core.decision import DecisionEngine
-from app.core.metrics import LLM_EXPLANATION_COUNT, LLM_LATENCY, record_prediction
+from app.core.metrics import (
+    observe_explanation_latency,
+    record_explanation_result,
+    record_prediction,
+)
 from app.llm.explainer import AlertExplainer, OpenAIAlertExplainer
 from app.ml.factory import get_model_predictor
 from app.rules.engine import rule_engine_manager
@@ -15,6 +20,8 @@ from app.services.idempotency_service import IdempotencyClaim, IdempotencyServic
 
 IDEMPOTENCY_PROCESSING_WAIT_SECONDS = 10.0
 IDEMPOTENCY_PROCESSING_POLL_SECONDS = 0.05
+
+logger = logging.getLogger(__name__)
 
 
 class PredictionService:
@@ -81,12 +88,39 @@ class PredictionService:
             self.idempotency_service.release_response_claim(effective_idempotency_key)
             raise
 
+        self._create_prediction_log(response)
         record_prediction(
             risk_level=response.risk_level.value,
             is_flagged=response.is_flagged,
             triggered_rules=response.triggered_rules,
         )
         return response
+
+    def _create_prediction_log(self, response: PredictionResponse) -> None:
+        try:
+            self.alert_service.create_prediction_log(response)
+        except Exception:
+            logger.exception(
+                "Prediction audit log write failed",
+                extra={"transaction_id": response.transaction_id},
+            )
+
+    @staticmethod
+    def _normalize_explanation_source(source: str) -> str:
+        return "template" if source == "template" else "llm"
+
+    def _get_cached_response(self, idempotency_key: str) -> PredictionResponse | None:
+        return self.idempotency_service.get_response(idempotency_key)
+
+    def batch_predict(
+        self,
+        transactions: list[TransactionRequest],
+        background_tasks: BackgroundTasks | None = None,
+    ) -> list[PredictionResponse]:
+        return [
+            self.predict(transaction, background_tasks=background_tasks)
+            for transaction in transactions
+        ]
 
     def _claim_or_wait_for_response(self, idempotency_key: str) -> IdempotencyClaim:
         deadline = time.monotonic() + IDEMPOTENCY_PROCESSING_WAIT_SECONDS
@@ -102,11 +136,12 @@ class PredictionService:
         start_time = time.perf_counter()
         alert = self.alert_service.get_alert(alert_id)
         explanation = self.explainer.explain(alert, transaction)
+        explanation_source = self._normalize_explanation_source(explanation.source)
         self.alert_service.update_explanation(
             alert_id=alert_id,
             explanation=explanation.text,
-            explanation_source=explanation.source,
+            explanation_source=explanation_source,
         )
         latency_seconds = time.perf_counter() - start_time
-        LLM_EXPLANATION_COUNT.labels(source=explanation.source).inc()
-        LLM_LATENCY.labels(source=explanation.source).observe(latency_seconds)
+        record_explanation_result(explanation_source)
+        observe_explanation_latency(explanation_source, latency_seconds)

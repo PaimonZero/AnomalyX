@@ -61,3 +61,21 @@ class PredictionResponse(BaseModel):
     explanation: str | None = None
     explanation_source: str | None = None
     alert_id: str | None = None
+
+
+class BatchScoreRequest(BaseModel):
+    transactions: list[TransactionRequest] = Field(..., min_length=1)
+    batch_id: str | None = None
+
+
+class BatchScoreResponse(BaseModel):
+    batch_id: str | None = None
+    total_transactions: int
+    flagged_count: int
+    predictions: list[PredictionResponse] = Field(default_factory=list)
+    flagged_predictions: list[PredictionResponse] = Field(default_factory=list)
+    alert_ids: list[str] = Field(default_factory=list)
+
+
+class ErrorEnvelope(BaseModel):
+    error: dict

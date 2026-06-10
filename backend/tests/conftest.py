@@ -1,6 +1,12 @@
 from collections.abc import Iterator
+import os
 
 import pytest
+
+os.environ.setdefault("AUTH_TOKEN", "test-service-token")
+os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret")
+os.environ.setdefault("ALERT_REPOSITORY", "in_memory")
+os.environ.setdefault("IDEMPOTENCY_STORE", "in_memory")
 
 from app.llm.explainer import ExplanationResult, OpenAIAlertExplainer
 from app.repositories.idempotency_repository import idempotency_repository

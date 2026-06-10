@@ -7,9 +7,9 @@ from app.schemas.prediction import RiskLevel, TopFeature, TriggeredRule
 
 
 class AlertStatus(StrEnum):
-    OPEN = "OPEN"
-    DISMISSED = "DISMISSED"
+    NEW = "NEW"
     ESCALATED = "ESCALATED"
+    DISMISSED = "DISMISSED"
 
 
 class Alert(BaseModel):
@@ -22,9 +22,12 @@ class Alert(BaseModel):
     top_features: list[TopFeature] = Field(default_factory=list)
     explanation: str | None = None
     explanation_source: str | None = None
+    reviewer_id: str | None = None
+    reviewed_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
 
 
 class AlertStatusUpdate(BaseModel):
     status: AlertStatus
+    reviewer_id: str | None = Field(default=None, max_length=128)

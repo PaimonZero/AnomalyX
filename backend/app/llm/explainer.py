@@ -8,6 +8,7 @@ from typing import Protocol
 from openai import OpenAI, OpenAIError
 
 from app.core.config import get_settings
+from app.llm.secure_data_wrapper import mask_value as secure_mask_value, secure_data_wrapper
 from app.schemas.alert import Alert
 from app.schemas.prediction import TransactionRequest
 
@@ -95,15 +96,7 @@ def build_prompt(alert: Alert, transaction: TransactionRequest, language: str) -
         for feature in alert.top_features
     ]
 
-    safe_context = {
-        "transaction_id": mask_value(transaction.transaction_id),
-        "sender_id": mask_value(transaction.sender_id),
-        "receiver_id": mask_value(transaction.receiver_id),
-        "amount": transaction.amount,
-        "currency": transaction.currency,
-        "channel": transaction.channel.value,
-        "timestamp_hour": transaction.timestamp.hour,
-    }
+    safe_context = secure_data_wrapper.sanitize_transaction_context(transaction)
 
     return (
         f"Language requirement: {language}.\n"
@@ -136,9 +129,7 @@ def log_context(alert: Alert, transaction: TransactionRequest) -> dict[str, obje
 
 
 def mask_value(value: str) -> str:
-    if len(value) <= 8:
-        return "***"
-    return f"{value[:3]}***{value[-3:]}"
+    return secure_mask_value(value)
 
 
 def is_grounded(explanation: str, alert: Alert) -> bool:

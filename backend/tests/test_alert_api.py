@@ -37,7 +37,7 @@ def test_flagged_prediction_creates_alert() -> None:
     alert = alert_response.json()
     assert alert["id"] == prediction["alert_id"]
     assert alert["transaction_id"] == "tx_alert_001"
-    assert alert["status"] == "OPEN"
+    assert alert["status"] == "NEW"
     assert alert["risk_level"] == "HIGH"
 
 
@@ -48,7 +48,7 @@ def test_list_and_filter_alerts() -> None:
     client.post("/api/v1/predict", json=flagged_payload(transaction_id="tx_alert_002"))
 
     all_alerts = client.get("/api/v1/alerts")
-    open_alerts = client.get("/api/v1/alerts", params={"status": "OPEN"})
+    open_alerts = client.get("/api/v1/alerts", params={"status": "NEW"})
     dismissed_alerts = client.get("/api/v1/alerts", params={"status": "DISMISSED"})
 
     assert all_alerts.status_code == 200

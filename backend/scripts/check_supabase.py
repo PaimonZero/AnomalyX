@@ -39,6 +39,10 @@ def supabase_request(path: str, query: dict[str, str] | None = None) -> tuple[in
 
 def main() -> int:
     settings = get_settings()
+    if settings.alert_repository != "supabase":
+        print(f"Supabase check skipped: ALERT_REPOSITORY={settings.alert_repository}.")
+        return 0
+
     if not settings.supabase_url or not settings.supabase_service_role_key:
         print("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.", file=sys.stderr)
         return 1

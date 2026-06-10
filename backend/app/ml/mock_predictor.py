@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from math import log1p
 
+from app.features.service import feature_service
 from app.ml.predictor import ModelPrediction
 from app.schemas.prediction import TopFeature, TransactionChannel, TransactionRequest
 
@@ -14,6 +15,7 @@ class MockModelPredictor:
         self.seed = seed
 
     def predict(self, transaction: TransactionRequest) -> ModelPrediction:
+        features = feature_service.compute(transaction).values
         amount_component = self._amount_component(transaction.amount)
         balance_component = self._balance_component(
             transaction.amount,
@@ -32,18 +34,18 @@ class MockModelPredictor:
 
         top_features = [
             TopFeature(
-                name="mock_log_amount",
-                value=round(log1p(transaction.amount), 4),
+                name="log_amount",
+                value=features["log_amount"],
                 contribution=round(0.42 * amount_component, 4),
             ),
             TopFeature(
-                name="mock_amount_to_sender_balance_ratio",
+                name="amount_to_sender_balance_ratio",
                 value=round(self._safe_ratio(transaction.amount, transaction.sender_balance), 4),
                 contribution=round(0.28 * balance_component, 4),
             ),
             TopFeature(
-                name="mock_channel_risk",
-                value=transaction.channel.value,
+                name="amount_to_threshold_ratio",
+                value=features["amount_to_threshold_ratio"],
                 contribution=round(0.20 * channel_component, 4),
             ),
         ]

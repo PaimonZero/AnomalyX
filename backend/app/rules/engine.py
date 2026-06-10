@@ -8,6 +8,7 @@ from typing import Any
 import yaml
 
 from app.core.config import PROJECT_ROOT
+from app.features.service import feature_service
 from app.schemas.prediction import RuleSeverity, TransactionRequest, TriggeredRule
 
 
@@ -22,6 +23,15 @@ ALLOWED_CONTEXT_NAMES = {
     "currency",
     "timestamp_hour",
     "is_round_amount",
+    "log_amount",
+    "amount_to_threshold_ratio",
+    "count_just_below_threshold_24h",
+    "sum_just_below_threshold_24h",
+    "distinct_receivers_1h",
+    "sum_amount_1h",
+    "rapid_inout_count_1h",
+    "chain_depth",
+    "velocity_vs_baseline_ratio",
 }
 
 
@@ -276,22 +286,7 @@ class RuleEngineManager:
 
 
 def build_rule_context(transaction: TransactionRequest) -> dict[str, Any]:
-    sender_balance = transaction.sender_balance
-    if sender_balance <= 0:
-        amount_to_sender_balance_ratio = 1.0 if transaction.amount > 0 else 0.0
-    else:
-        amount_to_sender_balance_ratio = transaction.amount / sender_balance
-
-    return {
-        "amount": transaction.amount,
-        "sender_balance": sender_balance,
-        "receiver_balance": transaction.receiver_balance,
-        "amount_to_sender_balance_ratio": amount_to_sender_balance_ratio,
-        "channel": transaction.channel.value,
-        "currency": transaction.currency,
-        "timestamp_hour": transaction.timestamp.hour,
-        "is_round_amount": transaction.amount > 0 and transaction.amount % 1_000_000 == 0,
-    }
+    return feature_service.compute(transaction).values
 
 
 rule_engine_manager = RuleEngineManager()

@@ -62,4 +62,8 @@ def test_predict_rejects_invalid_payload() -> None:
 
     response = client.post("/api/v1/predict", json=payload)
 
-    assert response.status_code == 422
+    assert response.status_code == 400
+    body = response.json()
+    assert body["error"]["code"] == "validation_error"
+    assert body["error"]["message"] == "Request validation failed."
+    assert body["error"]["details"]["errors"]

@@ -1,12 +1,27 @@
-from fastapi import Security, HTTPException, status
-from fastapi.security import APIKeyHeader
+from fastapi import Header, HTTPException, status
 
-api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+from app.core.config import get_settings
 
-async def require_api_auth(api_key: str = Security(api_key_header)):
-    if not api_key:
+
+async def require_api_auth(authorization: str | None = Header(default=None)) -> str:
+    if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or invalid API key"
+            detail="Missing bearer token.",
         )
-    return api_key
+
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid bearer token.",
+        )
+
+    settings = get_settings()
+    if token != settings.auth_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid bearer token.",
+        )
+
+    return token

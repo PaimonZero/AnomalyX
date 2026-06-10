@@ -1,4 +1,5 @@
 from app.llm.explainer import build_prompt, mask_value, template_explanation
+from app.llm.secure_data_wrapper import secure_data_wrapper
 from app.schemas.alert import AlertStatus
 from app.schemas.prediction import RiskLevel, RuleSeverity, TopFeature, TransactionRequest, TriggeredRule
 from app.repositories.alert_repository import InMemoryAlertRepository
@@ -56,3 +57,12 @@ def test_template_explanation_uses_supplied_evidence() -> None:
 
 def test_mask_short_values() -> None:
     assert mask_value("short") == "***"
+
+
+def test_secure_data_wrapper_masks_prompt_context() -> None:
+    context = secure_data_wrapper.sanitize_transaction_context(transaction())
+
+    assert context["sender_id"] == "h:s***001"
+    assert context["receiver_id"] == "h:r***001"
+    assert "sender_secret_001" not in str(context)
+    assert "receiver_secret_001" not in str(context)

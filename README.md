@@ -1,719 +1,315 @@
-# AnomalyX - Transaction Anomaly Detector (AML) Prototype
+# AnomalyX - AML Transaction Anomaly Detector Backend
 
-AnomalyX is an Anti-Money Laundering (AML) transaction anomaly detection prototype designed for digital wallet systems. The system combines a rule-based engine, a machine learning classifier, and an LLM-based explanation layer to detect suspicious transactions and provide clear, human-readable explanations for compliance review.
+AnomalyX is a backend-only FastAPI prototype for Anti-Money Laundering (AML) transaction scoring. It validates transactions, computes serving-time features, runs YAML rules and mock ML inference, reconciles risk with a decision engine, persists audit/alert records, and asynchronously generates grounded alert explanations.
 
-The project is developed as part of the Internship 2026 program and focuses on validating an end-to-end AML detection workflow using synthetic / benchmark transaction data.
+This repository currently does **not** include a React frontend or real ML training pipeline/model artifact. Docker Compose currently provides PostgreSQL and Redis only.
 
----
+## Current capabilities
 
-## 1. Project Overview
+- Real-time scoring: `POST /api/v1/predict`
+- Batch scoring over supplied transactions: `POST /api/v1/batch-score`
+- Alert listing/detail/status update
+- Rule hot reload from `configs/rules.yaml`
+- Prometheus metrics and health/readiness endpoint
+- Bearer service-token auth for protected endpoints
+- PostgreSQL primary alert/audit storage (`ALERT_REPOSITORY=postgres`)
+- Optional in-memory alert/audit storage for tests and quick local runs
+- Optional legacy Supabase REST alert/audit adapter
+- In-memory or Redis-backed idempotency store
+- OpenAI-based LLM explainer with deterministic template fallback
+- Mock ML predictor fallback (`mock-ml-v1`); no calibrated XGBoost/LightGBM artifact is present yet
 
-Money laundering detection is challenging because suspicious transactions are rare, patterns constantly change, and compliance teams require explainable alerts rather than black-box predictions.
-
-AnomalyX addresses this problem by using a hybrid detection approach:
-
-* **Rule Engine**: Detects known AML patterns such as structuring, smurfing, rapid movement, threshold avoidance, and layering.
-* **Machine Learning Model**: Detects complex or uncodified anomalous transaction behavior.
-* **Decision Engine**: Combines rule severity and ML risk score into a final risk level.
-* **LLM Explainer**: Generates natural-language explanations for flagged alerts.
-* **Compliance Dashboard**: Allows users to review alerts, inspect explanations, and update alert status.
-
----
-
-## 2. Key Features
-
-### Real-time Transaction Scoring
-
-The Wallet Backend Service can call the prediction API to evaluate a transaction before or during the transaction processing flow.
-
-The system returns:
-
-* `risk_score`
-* `risk_level`
-* `is_flagged`
-* triggered AML rules
-* top contributing features
-* alert explanation if available
-
-### Batch Scoring
-
-Compliance Officers can run batch scoring over historical transactions to detect suspicious patterns that may not be obvious in a single real-time transaction.
-
-### LLM-based Alert Explanation
-
-For flagged transactions, the system generates a natural-language explanation based on:
-
-* triggered rule IDs
-* rule severity
-* top SHAP features
-* transaction risk level
-* decision result
-
-The explanation is generated asynchronously so that the main prediction API remains fast.
-
-### Alert Review Workflow
-
-Compliance Officers can update alert status:
-
-* `NEW`
-* `ESCALATED`
-* `DISMISSED`
-
-These review actions create feedback labels that can later be used for model retraining.
-
-### Rule Configuration Hot Reload
-
-ML/Risk Engineers can update AML detection rules through YAML/JSON configuration files without redeploying the entire system.
-
-### Monitoring and Metrics
-
-The system exposes health and performance metrics for monitoring:
-
-* request count
-* request latency
-* alert rate
-* rule trigger count
-* LLM fallback count
-* model drift indicators
-
----
-
-## 3. System Actors
-
-| Actor                  | Description                                                                         |
-| ---------------------- | ----------------------------------------------------------------------------------- |
-| Compliance Officer     | Reviews alerts, reads explanations, escalates or dismisses suspicious transactions. |
-| Wallet Backend Service | Sends transaction data to the AML API and receives risk decisions.                  |
-| ML/Risk Engineer       | Updates rules, monitors model metrics, and maintains ML pipeline quality.           |
-| LLM Provider           | External service used to generate natural-language explanations.                    |
-
----
-
-## 4. System Architecture
-
-AnomalyX follows a layered hybrid architecture.
-
-```mermaid
-flowchart TD
-    Wallet["Wallet Backend"] -->|POST /api/v1/predict| Backend["AML Backend Service"]
-    React["React Dashboard"] -->|Alert Review / Rule Management| Backend
-
-    Backend --> Feature["Feature Service"]
-    Feature <--> Redis[("Redis")]
-
-    Backend --> Rule["Rule Engine"]
-    Backend --> ML["ML Inference"]
-    Rule --> Decision["Decision Engine"]
-    ML --> Decision
-
-    Decision --> Backend
-    Backend --> Postgres[("PostgreSQL")]
-
-    Backend -. async .-> SDW["SecureDataWrapper"]
-    SDW --> LLM["LLM Explainer"]
-    LLM --> Provider["External LLM Provider"]
-    LLM --> Postgres
-
-    Prometheus["Prometheus"] -. scrape .-> Backend
-```
-
-### Main Components
-
-| Component           | Responsibility                                                                        | Technology               |
-| ------------------- | ------------------------------------------------------------------------------------- | ------------------------ |
-| AML Backend Service | API routing, request validation, authentication, prediction orchestration, alert CRUD | FastAPI, Uvicorn         |
-| Presentation Layer  | Compliance dashboard for reviewing alerts and explanations                            | ReactJS                  |
-| Feature Service     | Computes transaction, velocity, behavioral, and sequence features                     | Python, Redis            |
-| Rule Engine         | Evaluates YAML/JSON AML rules using a safe DSL                                        | YAML, Python             |
-| ML Inference        | Loads trained model and returns risk score + SHAP explanation features                | XGBoost / LightGBM, SHAP |
-| Decision Engine     | Combines rule result and ML score into final risk level                               | Python                   |
-| LLM Explainer       | Generates bilingual natural-language alert explanation                                | OpenAI / Claude API      |
-| Data Layer          | Stores alerts, labels, feature snapshots, model registry, rule versions               | PostgreSQL, Redis        |
-| Monitoring          | Tracks API health, latency, rule triggers, drift, and system metrics                  | Prometheus               |
-
----
-
-## 5. Real-time Scoring Flow
-
-```mermaid
-sequenceDiagram
-    participant Wallet as Wallet Backend
-    participant API as AML Backend Service
-    participant FS as Feature Service
-    participant Core as Rule Engine + ML Model
-    participant DE as Decision Engine
-    participant DB as PostgreSQL
-    participant LLM as LLM Explainer
-
-    Wallet->>API: POST /api/v1/predict
-    API->>API: Validate payload
-    API->>FS: Compute features
-    FS-->>API: Return feature vector
-    API->>Core: Run rules and ML inference
-    Core-->>API: triggered_rules + risk_score
-    API->>DE: Reconcile rule severity and ML score
-    DE-->>API: risk_level + is_flagged
-    API->>DB: Write audit log
-    API-->>Wallet: Return prediction response
-
-    opt If is_flagged == true
-        API-->>LLM: Enqueue explanation task
-        LLM->>LLM: Mask PII and build grounded prompt
-        LLM->>DB: Save natural-language explanation
-    end
-```
-
-The LLM explanation branch runs asynchronously. This ensures the prediction response is not blocked by the external LLM API.
-
----
-
-## 6. Decision Logic
-
-The Decision Engine combines deterministic rule outputs and probabilistic ML outputs.
-
-| Rule Engine Output      |               ML Risk Score | Final Risk Level | Flagged |
-| ----------------------- | --------------------------: | ---------------- | ------- |
-| CRITICAL rule triggered |                   Any score | CRITICAL         | Yes     |
-| HIGH rule triggered     |                   Any score | HIGH             | Yes     |
-| None or MINOR rule      |        `risk_score >= 0.70` | HIGH             | Yes     |
-| MINOR rule triggered    | `0.40 <= risk_score < 0.70` | MEDIUM           | No      |
-| None                    | `0.40 <= risk_score < 0.70` | MEDIUM           | No      |
-| None or MINOR rule      |         `risk_score < 0.40` | LOW              | No      |
-
-The thresholds are configurable and can be calibrated by the Risk/Data Science team.
-
----
-
-## 7. AML Patterns Covered
-
-AnomalyX is designed to detect several common AML typologies:
-
-| Pattern              | Description                                                                   |
-| -------------------- | ----------------------------------------------------------------------------- |
-| Structuring          | Splitting large transactions into smaller ones to avoid reporting thresholds. |
-| Smurfing             | Using multiple accounts to disperse funds.                                    |
-| Rapid Movement       | Moving funds quickly across accounts or wallets.                              |
-| Layering             | Passing funds through multiple intermediary accounts to hide the source.      |
-| Threshold Avoidance  | Sending transactions just below regulatory or internal thresholds.            |
-| Velocity Anomaly     | Unusual transaction frequency or amount compared with user history.           |
-| Geo / Device Anomaly | Suspicious behavior from new devices or impossible travel patterns.           |
-
----
-
-## 8. Machine Learning Pipeline
-
-The ML pipeline is designed for supervised binary classification: suspicious vs. legitimate transactions.
-
-### Pipeline Stages
+## Repository layout
 
 ```text
-generate / load data
-        ↓
-validate data
-        ↓
-feature extraction
-        ↓
-train / validation / test split
-        ↓
-preprocessing
-        ↓
-model training
-        ↓
-evaluation
-        ↓
-calibration
-        ↓
-serialization
-        ↓
-model registry
+backend/
+  app/
+    api/                 FastAPI routers and auth dependency
+    core/                config, logging, middleware, metrics, errors
+    features/            shared serving-time feature computation
+    llm/                 SecureDataWrapper + explainer/fallback guardrails
+    ml/                  predictor interface + deterministic mock predictor
+    repositories/        in-memory, PostgreSQL, Supabase, Redis-backed adapters
+    rules/               YAML safe-DSL rule engine and hot-reload manager
+    schemas/             Pydantic API models
+    services/            prediction, alert, idempotency orchestration
+  db/schema.sql          PostgreSQL schema
+  scripts/               config/PostgreSQL/Supabase/Redis preflight checks
+  tests/                 pytest suite
+configs/rules.yaml       Active AML rule configuration
+supabase/schema.sql      Optional legacy Supabase schema
+docker-compose.yml       PostgreSQL + Redis for local infrastructure
+.env.example             Root-level environment template
 ```
 
-### Models
+## Setup
 
-The project uses:
-
-* **Logistic Regression** as an interpretable baseline.
-* **XGBoost / LightGBM** as the primary model for tabular transaction anomaly detection.
-
-### Explainability
-
-The ML model uses SHAP to identify the top contributing features for each prediction. These features are included in the alert payload and used by the LLM Explainer.
-
----
-
-## 9. Data Design
-
-### Transaction Input Schema
-
-Example request payload:
-
-```json
-{
-  "transaction_id": "8f1c...e9",
-  "sender_id": "h:3a9f...",
-  "receiver_id": "h:7b2c...",
-  "sender_balance": 15000000,
-  "receiver_balance": 200000,
-  "amount": 9500000,
-  "currency": "VND",
-  "timestamp": "2026-05-30T09:14:03+07:00",
-  "channel": "TRANSFER"
-}
-```
-
-### Privacy Principles
-
-The system follows strict privacy and PII protection rules:
-
-* No raw PII is stored.
-* Sender and receiver identifiers are hashed or pseudonymized.
-* Logs contain only hashed IDs, transaction IDs, and prediction results.
-* External LLM providers receive only masked or non-PII context.
-* API keys and secrets must be stored in environment variables, not in source code.
-
----
-
-## 10. API Overview
-
-Base path:
-
-```text
-/api/v1
-```
-
-### Main Endpoints
-
-| Method | Endpoint                    | Description                              |
-| ------ | --------------------------- | ---------------------------------------- |
-| POST   | `/predict`                  | Score a single transaction in real time. |
-| POST   | `/batch-score`              | Score a batch of transactions.           |
-| GET    | `/alerts`                   | Retrieve generated alerts.               |
-| GET    | `/alerts/{alert_id}`        | View alert details.                      |
-| PATCH  | `/alerts/{alert_id}/status` | Update alert status.                     |
-| POST   | `/rules/reload`             | Reload AML rule configuration.           |
-| GET    | `/health`                   | Check service health.                    |
-| GET    | `/metrics`                  | Expose Prometheus metrics.               |
-
-### Example Prediction Response
-
-```json
-{
-  "transaction_id": "8f1c...e9",
-  "risk_score": 0.82,
-  "risk_level": "HIGH",
-  "is_flagged": true,
-  "triggered_rules": [
-    {
-      "rule_id": "R-STRUCT-01",
-      "severity": "HIGH",
-      "typology": "structuring"
-    }
-  ],
-  "top_features": [
-    {
-      "name": "count_just_below_threshold_24h",
-      "value": 4,
-      "contribution": 0.31
-    },
-    {
-      "name": "amount_to_threshold_ratio",
-      "value": 0.96,
-      "contribution": 0.24
-    }
-  ],
-  "explanation_source": "llm"
-}
-```
-
----
-
-## 11. Tech Stack
-
-| Layer                      | Technology                        |
-| -------------------------- | --------------------------------- |
-| Backend API                | FastAPI, Uvicorn                  |
-| Frontend                   | ReactJS, Vite                     |
-| Database                   | PostgreSQL                        |
-| Cache / Rolling Aggregates | Redis                             |
-| ML Model                   | XGBoost / LightGBM                |
-| Explainability             | SHAP                              |
-| LLM Integration            | OpenAI API / Claude API           |
-| Monitoring                 | Prometheus                        |
-| Containerization           | Docker, Docker Compose            |
-| Testing                    | pytest, schemathesis, k6 / Locust |
-
----
-
-## 12. Project Structure
-
-Suggested repository structure:
-
-```text
-anomalyx/
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── features/
-│   │   ├── rules/
-│   │   ├── ml/
-│   │   ├── llm/
-│   │   ├── db/
-│   │   └── main.py
-│   ├── tests/
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── frontend/
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── Dockerfile
-│
-├── ml_pipeline/
-│   ├── data/
-│   ├── notebooks/
-│   ├── training/
-│   ├── evaluation/
-│   └── model_registry/
-│
-├── configs/
-│   ├── rules.yaml
-│   └── model_config.yaml
-│
-├── monitoring/
-│   └── prometheus.yml
-│
-├── docker-compose.yml
-├── .env.example
-├── Makefile
-└── README.md
-```
-
----
-
-## 13. Getting Started
-
-### Prerequisites
-
-Make sure the following tools are installed:
-
-* Docker
-* Docker Compose
-* Python 3.10+
-* Node.js 18+
-* PostgreSQL client, optional
-* Redis client, optional
-
----
-
-## 14. Environment Variables
-
-Create a `.env` file from the example file:
+Use Python 3.10+.
 
 ```bash
+python -m pip install -r backend/requirements.txt
 cp .env.example .env
 ```
 
-Example `.env` values:
+`.env` lives at the repository root, not inside `backend/`.
+
+For quick local development without external services, use:
 
 ```env
-APP_ENV=development
-API_PORT=8000
-
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_DB=anomalyx
-POSTGRES_USER=anomalyx_user
-POSTGRES_PASSWORD=anomalyx_password
-
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-JWT_SECRET=change_me
-
-LLM_PROVIDER=openai
-OPENAI_API_KEY=your_api_key_here
-ANTHROPIC_API_KEY=your_api_key_here
-
-RISK_THRESHOLD_MEDIUM=0.40
-RISK_THRESHOLD_HIGH=0.70
+ALERT_REPOSITORY=in_memory
+IDEMPOTENCY_STORE=in_memory
+AUTH_TOKEN=dev-service-token
+JWT_SECRET_KEY=dev-jwt-secret
+MOCK_ML_ENABLED=true
 ```
 
-Do not commit `.env` to GitHub.
+`OPENAI_API_KEY` is optional. If missing, the explainer uses deterministic template output.
 
----
+## Local PostgreSQL + Redis
 
-## 15. Run with Docker Compose
-
-Start all services:
+Start local infrastructure:
 
 ```bash
-docker-compose up --build
+docker compose up -d postgres redis
 ```
 
-After startup:
+Use PostgreSQL persistence:
 
-```text
-Backend API:        http://localhost:8000
-Frontend Dashboard: http://localhost:5173
-API Docs:           http://localhost:8000/docs
-Prometheus:         http://localhost:9090
+```env
+ALERT_REPOSITORY=postgres
+DATABASE_URL=postgresql+psycopg://anomalyx_user:anomalyx_password@localhost:5432/anomalyx
+IDEMPOTENCY_STORE=redis
+REDIS_URL=redis://localhost:6379/0
+AUTH_TOKEN=dev-service-token
+JWT_SECRET_KEY=dev-jwt-secret
+MOCK_ML_ENABLED=true
 ```
 
-Stop services:
+`backend/db/schema.sql` is mounted into the Postgres container as an init script. For an existing database, apply that schema manually.
 
-```bash
-docker-compose down
-```
-
----
-
-## 16. Run Backend Locally
+## Run backend
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-For Windows PowerShell:
+Swagger UI: <http://localhost:8000/docs>
 
-```powershell
+## Test and preflight
+
+No linter/formatter is configured. Use pytest and the preflight scripts as quality gates.
+
+```bash
 cd backend
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+python -m pytest tests -q
+python -m pytest tests/test_prediction_api.py -q
+python -m pytest tests/test_prediction_api.py::test_predict_rejects_invalid_payload -q
+
+python scripts/check_config.py
+python scripts/check_postgres.py  # active only when ALERT_REPOSITORY=postgres
+python scripts/check_supabase.py  # active only when ALERT_REPOSITORY=supabase
+python scripts/check_redis.py     # active only when IDEMPOTENCY_STORE=redis
 ```
 
----
+## Authentication
 
-## 17. Run Frontend Locally
+Protected endpoints require:
 
-```bash
-cd frontend
-npm install
-npm run dev
+```http
+Authorization: Bearer <AUTH_TOKEN>
 ```
 
----
+Public endpoints:
 
-## 18. Example API Request
+- `GET /api/v1/health`
+- `GET /api/v1/metrics`
+
+Protected endpoints:
+
+- `POST /api/v1/predict`
+- `POST /api/v1/batch-score`
+- `GET /api/v1/alerts`
+- `GET /api/v1/alerts/{alert_id}`
+- `PATCH /api/v1/alerts/{alert_id}/status`
+- `GET /api/v1/rules`
+- `POST /api/v1/rules/reload`
+
+## API examples
+
+### Predict
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/predict" \
+curl -X POST http://localhost:8000/api/v1/predict \
+  -H "Authorization: Bearer dev-service-token" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_token>" \
   -d '{
-    "transaction_id": "8f1c-example",
+    "transaction_id": "tx_demo_001",
     "sender_id": "h:sender001",
     "receiver_id": "h:receiver001",
-    "sender_balance": 15000000,
+    "sender_balance": 500000000,
     "receiver_balance": 200000,
-    "amount": 9500000,
+    "amount": 380000000,
     "currency": "VND",
     "timestamp": "2026-05-30T09:14:03+07:00",
     "channel": "TRANSFER"
   }'
 ```
 
----
+Response includes:
 
-## 19. Testing
+- `transaction_id`
+- `risk_score`
+- `risk_level`
+- `is_flagged`
+- `model_version`
+- `triggered_rules`
+- `top_features`
+- `explanation_source`
+- `alert_id`
 
-Run backend tests:
+Malformed payloads return HTTP 400 with:
 
-```bash
-cd backend
-pytest
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "Request validation failed.",
+    "details": {}
+  }
+}
 ```
 
-Run API contract tests:
+Repeated `transaction_id` or `Idempotency-Key` returns the original prediction without rerunning scoring.
+
+### Batch score
 
 ```bash
-schemathesis run http://localhost:8000/openapi.json
+curl -X POST http://localhost:8000/api/v1/batch-score \
+  -H "Authorization: Bearer dev-service-token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "batch_id": "batch_demo_001",
+    "transactions": [
+      {
+        "transaction_id": "tx_batch_001",
+        "sender_id": "h:sender001",
+        "receiver_id": "h:receiver001",
+        "sender_balance": 500000000,
+        "receiver_balance": 200000,
+        "amount": 380000000,
+        "currency": "VND",
+        "timestamp": "2026-05-30T09:14:03+07:00",
+        "channel": "TRANSFER"
+      }
+    ]
+  }'
 ```
 
-Run performance test:
+Batch scoring currently scores transactions supplied in the request. It does not yet query historical time windows from PostgreSQL.
+
+### Alert review
 
 ```bash
-k6 run tests/performance/predict_load_test.js
+curl -X PATCH http://localhost:8000/api/v1/alerts/al_example/status \
+  -H "Authorization: Bearer dev-service-token" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"ESCALATED","reviewer_id":"reviewer_001"}'
 ```
 
-or:
+Allowed statuses:
+
+- `NEW`
+- `ESCALATED`
+- `DISMISSED`
+
+Escalated/dismissed reviews create review-label records for future retraining.
+
+### Rules
 
 ```bash
-locust -f tests/performance/locustfile.py
+curl -H "Authorization: Bearer dev-service-token" http://localhost:8000/api/v1/rules
+
+curl -X POST \
+  -H "Authorization: Bearer dev-service-token" \
+  http://localhost:8000/api/v1/rules/reload
 ```
 
-Target testing goals:
+Rules live in `configs/rules.yaml`. The rule engine uses a safe AST-based DSL. If reload fails, the previous valid rule set remains active.
 
-* Unit test core modules.
-* Integration test API + PostgreSQL + Redis + ML model.
-* End-to-end test transaction scoring to alert review.
-* Validate rule coverage for each AML typology.
-* Ensure API p95 latency remains under 500 ms excluding LLM calls.
-* Maintain at least 70% test coverage across core modules.
+Initial rules cover threshold avoidance, structuring, smurfing, rapid movement, layering, velocity anomaly, and large cash-out patterns using available request-derived features.
 
----
+## Persistence
 
-## 20. Success Metrics
+### In-memory mode
 
-### Model Metrics
+Use this for tests and quick local development:
 
-| Metric                     |  Target |
-| -------------------------- | ------: |
-| Precision suspicious class | >= 0.70 |
-| Recall suspicious class    | >= 0.60 |
-| F1 suspicious class        | >= 0.65 |
-| AUC-ROC                    | >= 0.85 |
-| AUC-PR                     | >= 0.50 |
-| False positive rate        |   <= 5% |
+```env
+ALERT_REPOSITORY=in_memory
+IDEMPOTENCY_STORE=in_memory
+```
 
-### Rule Engine Metrics
+### PostgreSQL mode
 
-| Metric                   |                                        Target |
-| ------------------------ | --------------------------------------------: |
-| Number of deployed rules |                                          >= 6 |
-| Rule coverage            | Each AML pattern covered by at least one rule |
-| Rule false positive rate |                                         <= 8% |
+PostgreSQL is the primary persistent alert/audit backend:
 
-### Service Metrics
+```env
+ALERT_REPOSITORY=postgres
+DATABASE_URL=postgresql+psycopg://anomalyx_user:anomalyx_password@localhost:5432/anomalyx
+```
 
-| Metric                               |                  Target |
-| ------------------------------------ | ----------------------: |
-| p95 `/predict` latency excluding LLM |               <= 500 ms |
-| p95 latency with LLM explanation     |            <= 3 seconds |
-| Single-instance throughput           | >= 50 requests / second |
-| Test coverage                        |                  >= 70% |
+Stored data is limited to transaction IDs, prediction outputs, derived feature/rule evidence, alert review metadata, explanations, and timestamps. Raw transaction payloads and raw PII are not stored.
 
----
+PostgreSQL schema includes:
 
-## 21. Security and Privacy
+- `alerts`
+- `review_labels`
+- `prediction_logs`
+- `feature_snapshots` (schema-ready, not wired into scoring flow yet)
+- `rule_versions` (schema-ready, not wired into rule reload yet)
+- `model_registry` (schema-ready, no real model artifact yet)
 
-AnomalyX is designed with privacy and security as core requirements.
+### Optional legacy Supabase adapter
 
-Security principles:
+Supabase REST remains available as a legacy adapter:
 
-* No raw PII in logs.
-* Hashed or masked sender and receiver IDs.
-* JWT required for private endpoints.
-* External secrets loaded from `.env`.
-* No hardcoded API keys.
-* LLM prompts contain only non-PII and grounded context.
-* Failed LLM calls fall back to deterministic template explanations.
+```env
+ALERT_REPOSITORY=supabase
+SUPABASE_URL=https://...
+SUPABASE_SERVICE_ROLE_KEY=...
+SUPABASE_SCHEMA=public
+```
 
----
+Run `supabase/schema.sql` in Supabase SQL Editor before use.
 
-## 22. LLM Explanation Guardrails
+### Redis
 
-The LLM Explainer must only explain based on provided system evidence.
+Redis can store idempotency keys:
 
-Allowed context:
+```env
+IDEMPOTENCY_STORE=redis
+REDIS_URL=redis://localhost:6379/0
+```
 
-* triggered rule IDs
-* rule severity
-* risk score
-* risk level
-* top contributing SHAP features
-* transaction metadata without PII
+Redis rolling aggregate features and explanation cache are planned but not fully implemented yet.
 
-If the LLM response introduces unsupported details, the system rejects it and falls back to a template explanation.
+## LLM explanation behavior
 
----
+Flagged alerts trigger a FastAPI background task. Before calling the LLM, `SecureDataWrapper` masks identifiers and sends only grounded context:
 
-## 23. Roadmap
+- triggered rule IDs/severity/typology
+- risk score and risk level
+- top features
+- masked non-PII transaction metadata
 
-### Phase 1: Product and Requirement Definition
+If the provider fails or produces unsupported claims, the system stores a deterministic template explanation with `explanation_source = "template"`. Successful provider output is stored as `explanation_source = "llm"`.
 
-* Define project scope.
-* Identify AML use cases.
-* Define actors and functional requirements.
-* Define success metrics and risks.
+## Remaining gaps vs PRD/TDD
 
-### Phase 2: Technical Design
-
-* Design system architecture.
-* Define API contracts.
-* Design rule engine and ML pipeline.
-* Define data schema and privacy model.
-
-### Phase 3: Core Implementation
-
-* Implement backend API.
-* Implement feature service.
-* Implement rule engine.
-* Train baseline and primary ML models.
-* Implement decision engine.
-
-### Phase 4: Dashboard and Explanation
-
-* Build Compliance Officer dashboard.
-* Implement alert list and alert detail page.
-* Integrate LLM Explainer.
-* Add explanation fallback template.
-
-### Phase 5: Testing and Evaluation
-
-* Run unit, integration, and end-to-end tests.
-* Evaluate model metrics.
-* Test latency and throughput.
-* Review LLM explanation quality.
-
-### Phase 6: Final Demo
-
-* Demonstrate real-time scoring.
-* Demonstrate batch scoring.
-* Demonstrate alert explanation.
-* Demonstrate rule hot reload.
-* Present metrics and limitations.
-
----
-
-## 24. Known Limitations
-
-This project is a prototype and has several limitations:
-
-* It does not process real e-wallet production data.
-* It does not submit actual Suspicious Transaction Reports to authorities.
-* It does not implement full production-grade CI/CD.
-* It does not provide production-scale streaming by default.
-* Model quality depends heavily on the synthetic or benchmark dataset.
-* LLM explanation quality depends on prompt grounding and provider reliability.
-
----
-
-## 25. Team
-
-| Member            | Student ID  |
-| ----------------- | ----------- |
-| Phạm Lê Hoàng Nam | 2A202600416 |
-| Đinh Thái Tuấn    | 2A202600360 |
-| Nguyễn Trọng Tín  | 2A202600229 |
-
-### Mentors
-
-| Role            | Name              |
-| --------------- | ----------------- |
-| Mentor          | Trần Quang Hiển   |
-| External Mentor | Phan Công Huân    |
-| External Mentor | Nguyễn Nam Trường |
-
----
-
-## 26. References
-
-* Law on Anti-Money Laundering No. 14/2022/QH15
-* FATF Recommendations
-* PaySim synthetic financial dataset
-* IBM Anti-Money Laundering Synthetic Dataset
-* Internship 2026 Handbook
-
----
-
-## 27. License
-
-This project is developed for educational and prototype demonstration purposes. Please update this section with the appropriate license before publishing the repository.
+- No React/Vite compliance dashboard is included.
+- No real calibrated XGBoost/LightGBM + SHAP model artifact is included; `MOCK_ML_ENABLED=true` is the working mode.
+- No reproducible ML pipeline/Makefile is included yet.
+- Redis rolling aggregate features and explanation cache are placeholders/TODOs.
+- Real drift detection is a Prometheus placeholder metric, not a PSI/KS implementation.
+- PostgreSQL `feature_snapshots`, `rule_versions`, and `model_registry` tables are schema-ready but not fully wired into application workflows yet.
