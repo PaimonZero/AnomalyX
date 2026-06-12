@@ -31,7 +31,7 @@
 - `backend/app/llm/` — secure masking wrapper, prompt/explainer logic, LLM fallback behavior.
 - `backend/app/repositories/` — alert and idempotency repository protocols plus in-memory/PostgreSQL/Supabase/Redis implementations.
 - `backend/db/` — PostgreSQL schema and database migration baseline.
-- `backend/configs/` — runtime YAML rule configuration.
+- `configs/` — repo-root runtime YAML rule configuration read by the service.
 - `backend/scripts/` — operator preflight checks for config and external services.
 - `backend/tests/` — self-contained unit/API tests with external services stubbed or forced in memory.
 - `documents/` — PRD, TDD, roadmap, and run guide used as source requirements.

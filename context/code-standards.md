@@ -76,8 +76,8 @@
 
 - `CRITICAL` rule severity takes precedence over all ML scores and flags as `CRITICAL`.
 - `HIGH` rule severity takes precedence over ML score and flags as `HIGH`.
-- ML score above `RISK_THRESHOLD_FLAG` flags as `HIGH` only when no higher rule override exists.
-- ML score above `RISK_THRESHOLD_MEDIUM` but below flag threshold produces `MEDIUM` and does not create alert.
+- ML score greater than or equal to `RISK_THRESHOLD_FLAG` flags as `HIGH` only when no higher rule override exists.
+- ML score greater than or equal to `RISK_THRESHOLD_MEDIUM` but below flag threshold produces `MEDIUM` and does not create alert.
 - Update decision tests before/with any threshold or precedence changes.
 
 ## Repositories and Storage
