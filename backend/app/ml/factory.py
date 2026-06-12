@@ -10,4 +10,9 @@ def get_model_predictor() -> ModelPredictor:
     if settings.mock_ml_enabled:
         return MockModelPredictor(seed=settings.mock_ml_seed)
 
-    raise NotImplementedError("Real ML predictor is not implemented yet.")
+    from app.ml.xgb_predictor import XGBPredictor
+
+    return XGBPredictor(
+        model_path=settings.model_path,
+        config_path=settings.model_config_path,
+    )

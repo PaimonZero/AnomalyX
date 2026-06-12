@@ -1,0 +1,77 @@
+version: "1.0"
+rules:
+  - id: RULE_STRUCTURING
+    name: Structuring / Smurfing
+    description: Multiple transactions just below CTR threshold within 24h window
+    pattern: structuring
+    conditions:
+      transaction_count_24h: { gte: 3 }
+      amount_max: { lt: 10000000 }
+      amount_min: { gte: 8000000 }
+      total_amount_24h: { gte: 20000000 }
+    severity: HIGH
+    action: FLAG
+
+  - id: RULE_THRESHOLD_AVOIDANCE
+    name: Threshold Avoidance
+    description: Single transaction just below reporting threshold
+    pattern: threshold_avoidance
+    conditions:
+      amount: { gte: 9000000, lt: 10000000 }
+    severity: MEDIUM
+    action: FLAG
+
+  - id: RULE_RAPID_MOVEMENT
+    name: Rapid Movement
+    description: Funds received and re-sent within 1 hour
+    pattern: rapid_movement
+    conditions:
+      time_between_in_out_minutes: { lte: 60 }
+      amount_ratio_out_in: { gte: 0.9 }
+    severity: HIGH
+    action: FLAG
+
+  - id: RULE_HIGH_VELOCITY
+    name: High Velocity
+    description: Transaction volume > 10x user baseline
+    pattern: velocity_anomaly
+    conditions:
+      tx_count_24h_vs_baseline_ratio: { gte: 10 }
+    severity: HIGH
+    action: FLAG
+
+  - id: RULE_ZERO_BALANCE_DRAIN
+    name: Zero Balance Drain
+    description: Account fully drained (balance goes to 0)
+    pattern: account_drain
+    conditions:
+      new_balance_orig: { lte: 0 }
+      amount: { gte: 100000 }
+      type: { in: [CASH_OUT, TRANSFER] }
+    severity: HIGH
+    action: FLAG
+
+  - id: RULE_LAYERING
+    name: Layering Chain
+    description: Receiver immediately sends to another account (chain A->B->C)
+    pattern: layering
+    conditions:
+      dest_tx_within_1h_ratio: { gte: 0.8 }
+      chain_depth: { gte: 2 }
+    severity: HIGH
+    action: FLAG
+
+  - id: RULE_LARGE_CASHOUT
+    name: Large Cash Out
+    description: Large CASH_OUT or TRANSFER above absolute threshold
+    pattern: large_transaction
+    conditions:
+      amount: { gte: 200000000 }
+      type: { in: [CASH_OUT, TRANSFER] }
+    severity: MEDIUM
+    action: FLAG
+
+thresholds:
+  ctr_threshold_vnd: 10000000
+  risk_score_flag: 0.5
+  risk_score_block: 0.85
