@@ -252,9 +252,13 @@ def get_settings() -> Settings:
         access_token_expire_minutes=_get_int("ACCESS_TOKEN_EXPIRE_MINUTES", 60),
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         metrics_enabled=_get_bool("METRICS_ENABLED", True),
-        model_path=os.getenv("MODEL_PATH", "ml/models/artifacts/xgb_aml_v1.json"),
+        model_path=os.getenv(
+            "MODEL_PATH",
+            str(PROJECT_ROOT / "ml" / "models" / "artifacts" / "xgb_aml_v1.json"),
+        ),
         model_config_path=os.getenv(
-            "MODEL_CONFIG_PATH", "ml/models/artifacts/model_config.json"
+            "MODEL_CONFIG_PATH",
+            str(PROJECT_ROOT / "ml" / "models" / "artifacts" / "model_config.json"),
         ),
     )
 

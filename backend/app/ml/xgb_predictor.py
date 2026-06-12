@@ -22,7 +22,7 @@ _CHANNEL_ENCODING: dict[TransactionChannel, int] = {
 _PAYSIM_THRESHOLD = 200_000.0
 
 
-def _compute_features(tx: TransactionRequest, feature_cols: list[str]) -> dict[str, Any]:
+def _compute_features(tx: TransactionRequest) -> dict[str, Any]:
     amount = tx.amount
     old_bal_orig = tx.sender_balance
     old_bal_dest = tx.receiver_balance
@@ -83,7 +83,7 @@ class XGBPredictor:
         self._model.load_model(model_path)
 
     def predict(self, transaction: TransactionRequest) -> ModelPrediction:
-        features = _compute_features(transaction, self.feature_cols)
+        features = _compute_features(transaction)
         X = np.array([[features[c] for c in self.feature_cols]], dtype=np.float32)
 
         risk_score = float(self._model.predict_proba(X)[0, 1])

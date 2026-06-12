@@ -9,9 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install ML dependencies for real predictor
-RUN pip install --no-cache-dir xgboost==2.1.1 shap==0.45.1
-
 COPY backend/ ./
 
 ENV PYTHONPATH=/app
