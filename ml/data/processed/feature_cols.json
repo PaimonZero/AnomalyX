@@ -1,0 +1,31 @@
+{
+  "features": [
+    "type_encoded",
+    "is_transfer_or_cashout",
+    "log_amount",
+    "amount",
+    "oldbalanceOrg",
+    "newbalanceOrig",
+    "oldbalanceDest",
+    "newbalanceDest",
+    "balance_diff_orig",
+    "balance_diff_dest",
+    "balance_drain_orig",
+    "amount_to_balance_ratio",
+    "dest_balance_change_ratio",
+    "step",
+    "tx_count_sender",
+    "total_amount_sender",
+    "avg_amount_sender",
+    "amount_vs_avg",
+    "unique_dest_sender",
+    "fan_out_orig",
+    "fan_in_dest",
+    "flag_near_threshold",
+    "flag_large_tx",
+    "flag_high_velocity",
+    "flag_high_fanout",
+    "flag_balance_inconsist"
+  ],
+  "target": "isFraud"
+}
