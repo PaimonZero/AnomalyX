@@ -145,9 +145,11 @@ Update relevant context file whenever implementation changes:
 
 ## Current Known Gaps To Respect
 
-- Real ML training/model artifact integration not complete.
-- Redis rolling aggregates not implemented; feature service uses proxy values.
+- `XGBPredictor` is implemented; however cold-start defaults for velocity/fan-out features bias scores toward false negatives until W4 Redis rolling aggregates are wired.
+- `balance_diff_dest` feature is always 0 when computed from request fields alone (PaySim CSV inconsistency signal lost at API boundary).
+- `_PAYSIM_THRESHOLD` is calibrated to PaySim synthetic units, not VND; rule-engine threshold and ML flag features are not on the same scale.
+- Redis rolling aggregates not implemented; `_compute_features` uses constant cold-start defaults.
 - React frontend not present.
 - Explanation cache not fully wired.
 - Real drift detection not fully wired.
-- Docker Compose currently provides PostgreSQL + Redis infrastructure, not full production stack.
+- Docker Compose now starts the full stack (PostgreSQL + Redis + API), but is not production-hardened.
