@@ -48,7 +48,7 @@ Update this file after every meaningful implementation change.
 ## In Progress
 
 - Context docs now reflect backend-only current state and intended future scope.
-- Source tree has existing uncommitted changes outside this context update: `CLAUDE.md` modified and `context/` untracked at session start.
+- If you need to track local changes or temporary state, save them in PR notes or session notes rather than in this tracker.
 
 ## Next Up
 
