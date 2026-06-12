@@ -19,3 +19,7 @@ def get_model_predictor() -> ModelPredictor:
         model_path=settings.model_path,
         config_path=settings.model_config_path,
     )
+
+
+def reset_model_predictor_cache() -> None:
+    get_model_predictor.cache_clear()

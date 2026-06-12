@@ -15,6 +15,14 @@ from app.schemas.alert import Alert
 from app.schemas.prediction import TransactionRequest
 from app.main import app
 from app.api.dependencies.auth import require_api_auth
+from app.ml.factory import reset_model_predictor_cache
+
+@pytest.fixture(autouse=True)
+def reset_ml_cache() -> Iterator[None]:
+    reset_model_predictor_cache()
+    yield
+    reset_model_predictor_cache()
+
 
 @pytest.fixture(autouse=True)
 def override_auth_dependency() -> Iterator[None]:

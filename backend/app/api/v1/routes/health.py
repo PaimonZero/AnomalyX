@@ -48,6 +48,15 @@ def _model_configured(settings: Settings) -> bool:
         return False
 
 
+def _model_version(settings: Settings) -> str:
+    if settings.mock_ml_enabled:
+        return "mock-ml-v1"
+    try:
+        return get_model_predictor().model_version
+    except Exception:
+        return "unknown"
+
+
 @router.get("/health", response_model=HealthResponse)
 def health_check() -> HealthResponse:
     settings = get_settings()
@@ -73,7 +82,7 @@ def health_check() -> HealthResponse:
         },
         model={
             "mock_enabled": settings.mock_ml_enabled,
-            "version": "mock-ml-v1" if settings.mock_ml_enabled else "external",
+            "version": _model_version(settings),
         },
         metrics_enabled=settings.metrics_enabled,
     )

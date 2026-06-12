@@ -20,7 +20,7 @@ rules:
 		--output notebooks/04_rules_executed.ipynb \
 		--ExecutePreprocessor.timeout=120
 
-pipeline: features train rules
+pipeline: train rules
 	@echo "✓ ML pipeline complete. Artifacts saved to models/artifacts/"
 
 # ─── Clean ───────────────────────────────────────────────────

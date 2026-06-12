@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+_logger = logging.getLogger(__name__)
 
 from app.ml.predictor import ModelPrediction
 from app.schemas.prediction import TopFeature, TransactionChannel, TransactionRequest
@@ -18,7 +21,10 @@ _CHANNEL_ENCODING: dict[TransactionChannel, int] = {
     TransactionChannel.CASH_IN: 4,
 }
 
-# PaySim training threshold used for flag_near_threshold / flag_large_tx features.
+# PaySim training threshold for flag_near_threshold / flag_large_tx.
+# This is a PaySim dataset artifact (~200 K synthetic USD-like units), NOT a VND business
+# threshold. The rule engine uses CTR_THRESHOLD_VND=400_000_000 for Vietnamese Dong.
+# If the model is retrained on VND data this constant must be updated to match.
 _PAYSIM_THRESHOLD = 200_000.0
 
 
@@ -30,6 +36,9 @@ def _compute_features(tx: TransactionRequest) -> dict[str, Any]:
     new_bal_dest = old_bal_dest + amount
 
     eps = 1.0
+    # balance_diff_orig is non-zero only when sender is over-drafted (amount > old_bal_orig).
+    # balance_diff_dest is always 0 when new_bal_dest is computed from the same request fields;
+    # in the original PaySim dataset these caught reporting inconsistencies in raw CSV records.
     balance_diff_orig = abs(old_bal_orig - new_bal_orig - amount)
     balance_diff_dest = abs(old_bal_dest + amount - new_bal_dest)
 
@@ -51,7 +60,10 @@ def _compute_features(tx: TransactionRequest) -> dict[str, Any]:
         "dest_balance_change_ratio": (new_bal_dest - old_bal_dest) / (amount + eps),
         # step: PaySim time-step proxy — use hour-of-day (0-23)
         "step": tx.timestamp.hour,
-        # Historical/velocity features — cold-start defaults (no Redis history)
+        # Historical/velocity features — cold-start defaults (no Redis history yet).
+        # Using these constants suppresses fraud signals for repeat offenders; real rolling
+        # aggregates will be wired from Redis in W4. Until then scores on high-velocity
+        # patterns will be biased toward false negatives.
         "tx_count_sender": 1,
         "total_amount_sender": amount,
         "avg_amount_sender": amount,
@@ -120,4 +132,5 @@ class XGBPredictor:
                 for name, val in ranked
             ]
         except Exception:
+            _logger.warning("SHAP explanation failed; returning empty top_features", exc_info=True)
             return []
