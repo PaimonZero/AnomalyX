@@ -38,7 +38,7 @@ Update this file after every meaningful implementation change.
 - Backend run guide in `documents/Backend_Run_Guide.md`.
 - Remaining roadmap in `documents/Remaining_Project_Roadmap.md`.
 - Six context files populated from templates on 2026-06-12.
-- **ML model integration (branch `model`, 2026-06-12)**:
+- ML model integration (branch `model`, 2026-06-12):
   - `ml/` folder added: training notebooks (01–05), trained artifacts (`xgb_aml_v1.json` AUC-ROC=0.9999, `lgb_aml_v1.txt`, `rf_baseline.pkl` via Git LFS), `model_config.json`, `aml_rules.yaml`, `Makefile` with `make pipeline`.
   - `XGBPredictor` implemented in `backend/app/ml/xgb_predictor.py`; maps `TransactionRequest` to 26 PaySim features, runs XGBoost inference, returns SHAP top-5.
   - `backend/app/ml/factory.py` updated: `@lru_cache(maxsize=1)` + lazy `XGBPredictor` load when `MOCK_ML_ENABLED=false`.

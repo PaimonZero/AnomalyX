@@ -61,9 +61,9 @@ def _compute_features(tx: TransactionRequest) -> dict[str, Any]:
         # step: PaySim time-step proxy — use hour-of-day (0-23)
         "step": tx.timestamp.hour,
         # Historical/velocity features — cold-start defaults (no Redis history yet).
-        # Using these constants suppresses fraud signals for repeat offenders; real rolling
-        # aggregates will be wired from Redis in W4. Until then scores on high-velocity
-        # patterns will be biased toward false negatives.
+        # Using these constants suppresses fraud signals for repeat offenders; scores on
+        # high-velocity patterns are biased toward false negatives until Redis rolling
+        # aggregates are wired (see context/progress-tracker.md "Next Up").
         "tx_count_sender": 1,
         "total_amount_sender": amount,
         "avg_amount_sender": amount,

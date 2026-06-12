@@ -145,11 +145,13 @@ Update relevant context file whenever implementation changes:
 
 ## Current Known Gaps To Respect
 
-- `XGBPredictor` is implemented; however cold-start defaults for velocity/fan-out features bias scores toward false negatives until W4 Redis rolling aggregates are wired.
-- `balance_diff_dest` feature is always 0 when computed from request fields alone (PaySim CSV inconsistency signal lost at API boundary).
-- `_PAYSIM_THRESHOLD` is calibrated to PaySim synthetic units, not VND; rule-engine threshold and ML flag features are not on the same scale.
-- Redis rolling aggregates not implemented; `_compute_features` uses constant cold-start defaults.
+See `context/progress-tracker.md` Open Questions for the full list and resolution tracking. Guard rails for implementation work:
+
+- Cold-start velocity/fan-out defaults in `_compute_features` are intentional; do not remove them without wiring Redis aggregates first.
+- `_PAYSIM_THRESHOLD` is in PaySim synthetic units, not VND; do not align it to `CTR_THRESHOLD_VND` without retraining.
+- `balance_diff_dest` is structurally zero at the API boundary; do not add logic that depends on it varying without sourcing real account state.
+- Redis rolling aggregates not implemented; feature service uses constant cold-start defaults.
 - React frontend not present.
 - Explanation cache not fully wired.
 - Real drift detection not fully wired.
-- Docker Compose now starts the full stack (PostgreSQL + Redis + API), but is not production-hardened.
+- Docker Compose starts full stack but is not production-hardened.
