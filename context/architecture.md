@@ -8,7 +8,7 @@
 | Language/runtime | Python 3.11+ | Backend service, rule engine, feature service, ML adapter, repositories |
 | Schemas | Pydantic | Request/response validation and OpenAPI schema generation |
 | Rules | YAML + sandboxed AST DSL | Declarative AML typology detection over whitelisted feature context |
-| ML | `ModelPredictor` interface + mock predictor | Probabilistic `risk_score`, `model_version`, `top_features`; real model pending |
+| ML | `ModelPredictor` interface + `XGBPredictor` (real) + `MockModelPredictor` | Probabilistic `risk_score`, `model_version`, `top_features`; real XGBoost model trained on PaySim dataset (AUC-ROC=0.9999) |
 | Decision | Python service | Reconcile rule severity and ML thresholds into final risk level |
 | Persistence | PostgreSQL + SQLAlchemy/psycopg | Alerts, review labels, prediction logs; schema-ready feature/model/rule tables |
 | Local/test persistence | In-memory repositories | Self-contained tests and quick local mode |
@@ -16,7 +16,7 @@
 | Idempotency | In-memory or Redis | Claim-before-work and response cache keyed by idempotency key |
 | LLM | OpenAI explainer adapter + template fallback | Async alert explanations with masked context |
 | Observability | JSON logging + Prometheus client | Request, prediction, explanation, and service metrics |
-| Infrastructure | Docker Compose | PostgreSQL + Redis local infrastructure |
+| Infrastructure | Docker Compose | PostgreSQL + Redis + FastAPI `api` service; single `docker compose up` starts full stack |
 
 ## System Boundaries
 

@@ -37,40 +37,42 @@ Update this file after every meaningful implementation change.
 - Preflight scripts for config, PostgreSQL, Redis, and Supabase.
 - Backend run guide in `documents/Backend_Run_Guide.md`.
 - Remaining roadmap in `documents/Remaining_Project_Roadmap.md`.
-- Six context files populated from templates on 2026-06-12:
-  - `context/project-overview.md`
-  - `context/architecture.md`
-  - `context/ui-context.md`
-  - `context/code-standards.md`
-  - `context/ai-workflow-rules.md`
-  - `context/progress-tracker.md`
+- Six context files populated from templates on 2026-06-12.
+- ML model integration (branch `model`, 2026-06-12):
+  - `ml/` folder added: training notebooks (01–05), trained artifacts (`xgb_aml_v1.json` AUC-ROC=0.9999, `lgb_aml_v1.txt`, `rf_baseline.pkl` via Git LFS), `model_config.json`, `aml_rules.yaml`, `Makefile` with `make pipeline`.
+  - `XGBPredictor` implemented in `backend/app/ml/xgb_predictor.py`; maps `TransactionRequest` to 26 PaySim features, runs XGBoost inference, returns SHAP top-5.
+  - `backend/app/ml/factory.py` updated: `@lru_cache(maxsize=1)` + lazy `XGBPredictor` load when `MOCK_ML_ENABLED=false`.
+  - `backend/app/core/config.py`: `model_path`/`model_config_path` settings with `PROJECT_ROOT`-based defaults; fail-fast validation checks artifact files exist at startup when `MOCK_ML_ENABLED=false`.
+  - `backend/Dockerfile` added: non-root `appuser`, production-ready uvicorn CMD.
+  - `docker-compose.yml` updated: `api` service added; full stack starts with a single `docker compose up`.
+  - `backend/requirements.txt` updated: `xgboost>=2.1`, `shap>=0.45`, `numpy>=1.26`.
+  - `.gitattributes` added: Git LFS tracking for `*.pkl`, `*.parquet`, `*.csv`.
+  - `.env.example` updated with `MODEL_PATH`, `MODEL_CONFIG_PATH`, `MOCK_ML_ENABLED` guidance.
+  - `backend/tests/conftest.py`: `reset_ml_cache` autouse fixture added for predictor cache isolation.
+  - `/health` endpoint now reports real `model_version` from predictor instead of static `"external"`.
 
 ## In Progress
 
-- Context docs now reflect backend-only current state and intended future scope.
-- If you need to track local changes or temporary state, save them in PR notes or session notes rather than in this tracker.
+- Training data (`ml/data/raw/*.csv`, `ml/data/processed/*.parquet`) not committed; must run `make pipeline` inside `ml/` to regenerate artifacts locally. Raw PaySim CSV is excluded from version control because of its 493 MB size.
 
 ## Next Up
 
-1. Run backend tests from `backend/` after context-doc update if validation is required:
-   `python -m pytest tests -q`
-2. Decide next implementation unit:
-   - real ML predictor adapter and artifact contract,
-   - Redis-backed rolling aggregate feature service,
-   - frontend dashboard scaffold,
-   - explanation cache,
-   - drift metric implementation,
-   - Docker backend service packaging.
-3. Update `.env.example` or docs if runtime configuration changes.
-4. Keep context files synchronized as implementation evolves.
+1. **W4 — Redis rolling aggregates**: wire real `tx_count_sender`, `fan_out_orig`, etc. from Redis into `_compute_features`; cold-start defaults currently bias scores toward false negatives on high-velocity patterns.
+2. **W5 — Unit tests for `XGBPredictor`**: add pytest tests covering feature mapping, prediction contract, SHAP fallback, and cold-start path.
+3. **Frontend dashboard scaffold**: React + Vite + Tailwind + shadcn/ui per `ui-context.md` spec.
+4. **Explanation cache**: wire schema-ready `feature_snapshots`/explanation store.
+5. **Drift metric implementation**: wire real drift detection from `model_registry` and metrics.
+6. Update `.env.example` or docs if runtime configuration changes.
+7. Keep context files synchronized as implementation evolves.
 
 ## Open Questions
 
-- Should next milestone prioritize real ML model integration or frontend dashboard for demo value?
+- Cold-start historical features (`tx_count_sender`, `fan_out_orig`, etc.) use constant defaults — when will Redis rolling aggregates be implemented? Until then fraud scores for high-velocity patterns are suppressed.
+- `_PAYSIM_THRESHOLD = 200_000` is in PaySim synthetic units; if model is retrained on VND data this constant and related flag features must be recalibrated against `CTR_THRESHOLD_VND`.
+- `balance_diff_dest` is always 0 when `new_bal_dest` is computed from the same request; this feature only has variance in the raw PaySim CSV due to reporting inconsistencies. Consider removing it from the live feature vector or sourcing real account state.
 - Should Supabase remain as legacy optional adapter or be removed from product docs and dependency expectations?
 - Should auth stay service-token only for the prototype, or should frontend work introduce user/session-based auth?
 - Should batch scoring stay request-body based, or should it support stored time-window queries after prediction logs mature?
-- What exact artifact format should real ML use: pickle/joblib pipeline, ONNX, or separate preprocessor + model files?
 - Should explanation language remain `vi,en`, Vietnamese-only, or user-selectable per request?
 
 ## Architecture Decisions
@@ -91,9 +93,11 @@ Update this file after every meaningful implementation change.
 - Context files were templates before this update and now contain project-specific content based on PRD/TDD, roadmap, run guide, and inspected backend source.
 - Current implementation differs from early TDD in some areas:
   - backend exists, frontend does not;
-  - mock ML is current working mode;
-  - Redis rolling aggregates are not wired, feature service uses proxy values;
-  - PostgreSQL is now primary persistence, Supabase optional legacy;
+  - real `XGBPredictor` now available; mock ML (`MOCK_ML_ENABLED=true`) remains default for tests and local quick mode;
+  - Redis rolling aggregates are not wired, `_compute_features` uses cold-start constant defaults;
+  - PostgreSQL is primary persistence, Supabase optional legacy;
   - explanation cache and real drift detection remain gaps.
 - Use `CLAUDE.md` command guidance: backend commands run from `backend/` unless noted.
 - Quick local `.env` mode should use in-memory alert/idempotency stores and `MOCK_ML_ENABLED=true`.
+- Full Docker stack (PostgreSQL + Redis + API): `docker compose up` from repo root.
+- To use real ML: run `make pipeline` inside `ml/`, then set `MOCK_ML_ENABLED=false` with `MODEL_PATH` pointing to `ml/models/artifacts/xgb_aml_v1.json`.

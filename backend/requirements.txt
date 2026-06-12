@@ -8,3 +8,7 @@ SQLAlchemy>=2.0,<3.0
 # Binary extra keeps prototype/dev installs simple; production may switch to psycopg[c] for system libpq/libssl lifecycle.
 psycopg[binary]>=3.0,<4.0
 uvicorn[standard]>=0.49,<1.0
+# Real ML predictor (optional — only required when MOCK_ML_ENABLED=false)
+xgboost>=2.1,<3.0
+shap>=0.45,<1.0
+numpy>=1.26,<3.0

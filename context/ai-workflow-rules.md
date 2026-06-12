@@ -145,9 +145,13 @@ Update relevant context file whenever implementation changes:
 
 ## Current Known Gaps To Respect
 
-- Real ML training/model artifact integration not complete.
-- Redis rolling aggregates not implemented; feature service uses proxy values.
+See `context/progress-tracker.md` Open Questions for the full list and resolution tracking. Guard rails for implementation work:
+
+- Cold-start velocity/fan-out defaults in `_compute_features` are intentional; do not remove them without wiring Redis aggregates first.
+- `_PAYSIM_THRESHOLD` is in PaySim synthetic units, not VND; do not align it to `CTR_THRESHOLD_VND` without retraining.
+- `balance_diff_dest` is structurally zero at the API boundary; do not add logic that depends on it varying without sourcing real account state.
+- Redis rolling aggregates not implemented; feature service uses constant cold-start defaults.
 - React frontend not present.
 - Explanation cache not fully wired.
 - Real drift detection not fully wired.
-- Docker Compose currently provides PostgreSQL + Redis infrastructure, not full production stack.
+- Docker Compose starts full stack but is not production-hardened.
