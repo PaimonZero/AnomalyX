@@ -32,6 +32,10 @@ ALLOWED_CONTEXT_NAMES = {
     "rapid_inout_count_1h_proxy",
     "chain_depth_proxy",
     "velocity_vs_baseline_ratio_proxy",
+    "geo_device_evidence_available",
+    "new_device_proxy",
+    "geo_anomaly_proxy",
+    "impossible_travel_proxy",
 }
 
 

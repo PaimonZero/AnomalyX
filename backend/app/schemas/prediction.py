@@ -37,6 +37,9 @@ class TransactionRequest(BaseModel):
     currency: str = Field(default="VND", min_length=3, max_length=3)
     timestamp: datetime
     channel: TransactionChannel
+    device_id: str | None = Field(default=None, min_length=1)
+    location_country: str | None = Field(default=None, min_length=2, max_length=2)
+    location_region: str | None = Field(default=None, min_length=1)
 
 
 class TriggeredRule(BaseModel):

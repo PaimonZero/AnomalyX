@@ -48,6 +48,7 @@ Update this file after every meaningful implementation change.
 ## In Progress
 
 - Context docs now reflect backend-only current state and intended future scope.
+- Optional geo/device transaction fields and neutral geo/device rule evidence were added to align with PRD/TDD geo/device anomaly scope without breaking existing payloads.
 - If you need to track local changes or temporary state, save them in PR notes or session notes rather than in this tracker.
 
 ## Next Up
@@ -93,6 +94,7 @@ Update this file after every meaningful implementation change.
   - backend exists, frontend does not;
   - mock ML is current working mode;
   - Redis rolling aggregates are not wired, feature service uses proxy values;
+  - optional geo/device fields exist, but true geo/device anomaly detection still needs historical device/location profiles or Redis-backed aggregate history;
   - PostgreSQL is now primary persistence, Supabase optional legacy;
   - explanation cache and real drift detection remain gaps.
 - Use `CLAUDE.md` command guidance: backend commands run from `backend/` unless noted.

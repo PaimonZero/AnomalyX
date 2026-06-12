@@ -50,6 +50,57 @@ rules:
     assert triggered[0].severity == RuleSeverity.MEDIUM
 
 
+def test_optional_geo_device_fields_are_backward_compatible() -> None:
+    request = transaction()
+
+    assert request.device_id is None
+    assert request.location_country is None
+    assert request.location_region is None
+
+
+def test_optional_geo_device_rule_uses_neutral_missing_values(tmp_path: Path) -> None:
+    path = write_rules(
+        tmp_path,
+        """
+version: 1
+rules:
+  - id: R-GEO-01
+    typology: geo_device_anomaly
+    severity: MEDIUM
+    enabled: true
+    condition: "geo_device_evidence_available and (new_device_proxy or geo_anomaly_proxy or impossible_travel_proxy)"
+""",
+    )
+
+    engine = RuleEngine.from_file(path)
+
+    assert engine.evaluate(transaction()) == []
+
+
+def test_optional_geo_device_fields_do_not_create_proxy_risk_without_history(tmp_path: Path) -> None:
+    path = write_rules(
+        tmp_path,
+        """
+version: 1
+rules:
+  - id: R-GEO-01
+    typology: geo_device_anomaly
+    severity: MEDIUM
+    enabled: true
+    condition: "geo_device_evidence_available and (new_device_proxy or geo_anomaly_proxy or impossible_travel_proxy)"
+""",
+    )
+
+    engine = RuleEngine.from_file(path)
+
+    assert engine.evaluate(
+        transaction(
+            device_id="device-demo-001",
+            location_country="ZZ",
+        )
+    ) == []
+
+
 def test_disabled_rule_does_not_trigger(tmp_path: Path) -> None:
     path = write_rules(
         tmp_path,

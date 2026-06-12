@@ -509,6 +509,21 @@ The `<mark>/api/v1/predict</mark>` payload is the canonical input contract. Iden
         <td>enum</td>
         <td>PAYMENT | TRANSFER | CASH_OUT | CASH_IN | DEBIT</td>
     </tr>
+    <tr>
+        <td>device_id</td>
+        <td>string (optional)</td>
+        <td>Optional device/hardware identifier for anomaly detection; backward-compatible.<br/>Omit if device evidence is unavailable.</td>
+    </tr>
+    <tr>
+        <td>location_country</td>
+        <td>string (optional, ISO 3166-1 alpha-2)</td>
+        <td>Optional 2-letter country code for geo anomaly detection; backward-compatible.<br/>Omit if geo evidence is unavailable.</td>
+    </tr>
+    <tr>
+        <td>location_region</td>
+        <td>string (optional)</td>
+        <td>Optional region/province/city code or name; backward-compatible.<br/>Omit if geo evidence is unavailable.</td>
+    </tr>
   </tbody>
 </table>
 
@@ -526,9 +541,14 @@ Example payload:
   "amount": 9500000,
   "currency": "VND",
   "timestamp": "2026-05-30T09:14:03+07:00",
-  "channel": "TRANSFER"
+  "channel": "TRANSFER",
+  "device_id": "device-demo-001",
+  "location_country": "VN",
+  "location_region": "HN"
 }
 ```
+
+> **Note:** The optional geo/device fields are accepted but **backward-compatible** — clients may omit them and the system still processes the transaction normally. Prototype support for geo/device anomaly is **partial** (see §4.3).
 
 ## 2.2 Alert & Label Schema
 
@@ -816,13 +836,15 @@ At least six rules ship in v1 (PRD §6.2), one per injected typology, giving ful
     <tr>
         <td>R-GEO-01</td>
         <td>Geo/device anomaly</td>
-        <td>impossible_travel or (new_device and high<br/>amount)</td>
+        <td>geo/device evidence available and (new_device<br/>or geo anomaly or impossible travel)</td>
         <td>MEDIUM</td>
     </tr>
   </tbody>
 </table>
 
 Table 8. Initial rule set (thresholds N, X, k tuned on the validation set)
+
+> **Geo/device implementation status (prototype):** The `device_id`, `location_country`, and `location_region` fields are **optional** and backward-compatible. The current prototype does **not** maintain per-user device/location history or Redis rolling aggregates; therefore all geo/device proxy features default to `False`. Rule `R-GEO-01` will only fire after a historical profile or Redis-backed aggregate service is implemented. Without those, sending geo/device fields alone does **not** create risk. This is a **partial implementation** — the schema and pipeline accept the input, but true geo/device anomaly detection requires the future aggregate/Redis layer.
 
 # 5. Machine Learning Pipeline Design
 

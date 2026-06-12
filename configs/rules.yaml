@@ -42,6 +42,13 @@ rules:
     condition: "velocity_vs_baseline_ratio_proxy > 10"
     action_hint: REVIEW
 
+  - id: R-GEO-01
+    typology: geo_device_anomaly
+    severity: MEDIUM
+    enabled: true
+    condition: "geo_device_evidence_available and (new_device_proxy or geo_anomaly_proxy or impossible_travel_proxy)"
+    action_hint: REVIEW
+
   - id: R-LARGE-CASHOUT-01
     typology: large_cash_out
     severity: HIGH

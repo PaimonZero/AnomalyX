@@ -14,14 +14,15 @@ Tài liệu này tóm tắt những phần lớn còn lại của dự án sau k
 - API `POST /api/v1/predict`.
 - Alert workflow.
 - OpenAI LLM explanation với template fallback.
-- Supabase persistence implementation.
+- PostgreSQL persistence implementation là hướng primary cho alerts, review labels, và prediction logs.
+- Supabase persistence implementation hiện là adapter legacy tùy chọn.
 - Redis/in-memory idempotency implementation với atomic claim-before-work để tránh tạo duplicate alert khi request trùng idempotency key chạy đồng thời.
 - JSON logging và Prometheus metrics.
 - Log JSON đã ghi thêm exception/stack info khi có lỗi.
-- Runtime config validation cho các secret bắt buộc như `OPENAI_API_KEY` và `JWT_SECRET_KEY`.
-- API key protection cho các endpoint nghiệp vụ bằng header `X-API-Key`; `health` và `metrics` vẫn public.
+- Runtime config validation cho các secret bắt buộc như `AUTH_TOKEN` và `JWT_SECRET_KEY`.
+- Bearer-token protection cho các endpoint nghiệp vụ bằng header `Authorization: Bearer <AUTH_TOKEN>`; `health` và `metrics` vẫn public.
 - Rule reload đã có error handling và logging khi rule config lỗi.
-- Script kiểm tra Redis/Supabase đã tránh in secret trực tiếp và xử lý lỗi kết nối rõ hơn.
+- Script kiểm tra Redis/PostgreSQL/Supabase đã tránh in secret trực tiếp và xử lý lỗi kết nối rõ hơn.
 - Các API chính:
   - `GET /api/v1/health`
   - `POST /api/v1/predict`
@@ -82,7 +83,7 @@ Cách gắn vào backend:
 - Backend hiện đã có interface `ModelPredictor`.
 - ML team chỉ cần implement `RealModelPredictor`.
 - `RealModelPredictor` load model artifact và preprocessor.
-- Output phải cùng format với `MockModelPredictor`.
+- Output phải cùng format với `MockPredictor` hiện tại.
 - Sau đó đổi factory từ mock predictor sang real predictor.
 
 Các file backend liên quan:
@@ -139,9 +140,9 @@ GET /api/v1/metrics
 
 ## 4. Docker Và Deployment
 
-Docker chưa cần làm ngay.
+Repo hiện đã có `docker-compose.yml` để chạy PostgreSQL và Redis local infrastructure. Backend Dockerfile/service backend trong Compose vẫn chưa có, nên Docker Compose hiện chưa phải full production/demo stack một lệnh.
 
-Nên làm Docker khi:
+Nên hoàn thiện Docker backend/frontend packaging khi:
 
 - Backend đã ổn định.
 - ML model thật đã được tích hợp.
@@ -183,13 +184,14 @@ Dừng Redis:
 docker stop anomalyx-redis
 ```
 
-Docker cần có:
+Docker packaging còn cần có:
 
 - Backend Dockerfile.
-- `docker-compose.yml`.
-- Service backend.
-- Service Redis.
-- Không cần Postgres vì đã dùng Supabase.
+- Service backend trong `docker-compose.yml` hiện có.
+- Optional frontend service khi dashboard được triển khai.
+- PostgreSQL service hiện đã có trong Compose và là primary persistence local mode.
+- Redis service hiện đã có trong Compose cho idempotency/rolling aggregate future mode.
+- Supabase chỉ là legacy optional adapter, không phải persistence chính trong roadmap hiện tại.
 
 Lệnh demo dự kiến:
 
@@ -201,14 +203,14 @@ docker compose up --build
 
 Các việc nên làm sau khi frontend/ML bắt đầu ổn:
 
-- Hoàn thiện authentication: hiện đã có `X-API-Key` guard cơ bản cho `predict`, `alerts`, `rules`; nếu cần phân quyền/user session thì nâng cấp sang JWT hoặc API key validation có danh sách key hợp lệ.
+- Hoàn thiện authentication: hiện đã có bearer-token guard cơ bản cho `predict`, `batch-score`, `alerts`, `rules` bằng `Authorization: Bearer <AUTH_TOKEN>`; nếu cần phân quyền/user session thì nâng cấp sang JWT hoặc API key validation có danh sách key hợp lệ.
 - Thêm CORS config cho frontend.
-- Thêm error response format thống nhất.
+- Duy trì error response format thống nhất `{ error: { code, message, details } }` cho validation/domain errors.
 - Quyết định response chuẩn cho trường hợp idempotency key đang được xử lý quá lâu.
 - Thêm pagination cho `GET /api/v1/alerts`.
-- Thêm filter theo ngày, status, risk level.
-- Persist prediction logs.
-- Persist review labels.
+- Thêm filter theo ngày và risk level; filter theo status đã có.
+- Tiếp tục harden prediction logs và review labels trong PostgreSQL path.
+- Tích hợp geo/device anomaly thật khi có historical profile hoặc Redis rolling aggregates; input hiện chỉ hỗ trợ optional `device_id`, `location_country`, `location_region` và dùng default neutral, nên chỉ gửi các field này không tự tạo risk.
 
 ## 6. Testing Còn Cần Làm
 
@@ -220,12 +222,13 @@ Hiện backend đã có unit tests cho các phần chính, bao gồm regression 
 $env:OPENAI_API_KEY='test-openai-key'; $env:JWT_SECRET_KEY='test-jwt-secret'; python -m pytest backend/tests
 ```
 
-Kết quả: `27 passed`.
+Kết quả trong tài liệu này cần được cập nhật theo lần chạy test gần nhất; xem `Backend_Run_Guide.md` hoặc CI/local pytest output hiện tại thay vì giữ số cũ.
 
 Vẫn nên làm thêm:
 
 - Integration test với Redis thật cho atomic idempotency `SET NX`.
-- Integration test với Supabase.
+- Integration test với PostgreSQL thật cho alerts/review labels/prediction logs.
+- Integration test với Supabase nếu vẫn giữ adapter legacy.
 - Contract test từ OpenAPI.
 - Load test cho `/predict`.
 - E2E test:

@@ -41,7 +41,7 @@
 
 1. `POST /api/v1/predict` enters through `backend/app/api/v1/routes/prediction.py`.
 2. `require_api_auth` checks `Authorization: Bearer <AUTH_TOKEN>` for protected routes.
-3. `TransactionRequest` validates required transaction fields.
+3. `TransactionRequest` validates required transaction fields plus optional `device_id`, `location_country`, and `location_region` when provided.
 4. `PredictionService.predict` claims idempotency key, defaulting to `transaction_id`.
 5. Rule engine evaluates `configs/rules.yaml` over `FeatureService.compute(transaction).values`.
 6. Predictor factory returns current predictor, normally `MockPredictor` when `MOCK_ML_ENABLED=true`.
@@ -113,8 +113,9 @@
 7. LLM explanation must run off the synchronous prediction path.
 8. Rule DSL must stay sandboxed through AST validation; never use `eval` or arbitrary Python execution.
 9. Adding rule input requires updating both `ALLOWED_CONTEXT_NAMES` and `FeatureService.compute`.
-10. Invalid rule reload must not replace previous valid rule set.
-11. Prediction audit write failure must be logged but must not fail successful prediction.
-12. PostgreSQL schema must remain limited to transaction IDs, prediction outputs, derived feature/rule evidence, alert review metadata, explanations, and timestamps.
-13. External service credentials must come from env only and must not be printed by scripts/logs.
-14. If architecture, scope, or standards change, update relevant `context/*.md` before continuing implementation.
+10. Optional geo/device inputs must remain backward-compatible; missing fields produce neutral feature values and must not trigger geo/device risk by themselves.
+11. Invalid rule reload must not replace previous valid rule set.
+12. Prediction audit write failure must be logged but must not fail successful prediction.
+13. PostgreSQL schema must remain limited to transaction IDs, prediction outputs, derived feature/rule evidence, alert review metadata, explanations, and timestamps.
+14. External service credentials must come from env only and must not be printed by scripts/logs.
+15. If architecture, scope, or standards change, update relevant `context/*.md` before continuing implementation.

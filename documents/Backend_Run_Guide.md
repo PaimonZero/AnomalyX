@@ -101,6 +101,8 @@ Các endpoint như `/predict`, `/batch-score`, `/alerts`, `/rules` cần bearer 
 $headers = @{ Authorization = "Bearer local-service-token-change-me-000000" }
 ```
 
+Payload predict bắt buộc các field transaction cơ bản. Các field `device_id`, `location_country`, và `location_region` là optional; nếu không có hoặc chưa có historical profile/Redis aggregate hỗ trợ, rule geo/device dùng giá trị neutral và không tự tạo rủi ro giả.
+
 Alerts:
 
 ```powershell
@@ -124,6 +126,10 @@ $body = @{
   currency = "VND"
   timestamp = "2026-05-30T09:14:03+07:00"
   channel = "TRANSFER"
+  # Optional geo/device evidence; omit these fields if not available.
+  device_id = "device-demo-001"
+  location_country = "VN"
+  location_region = "HN"
 } | ConvertTo-Json
 
 Invoke-RestMethod `

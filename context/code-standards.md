@@ -60,6 +60,7 @@
 - Rule reload must parse, validate, compile, and then atomically replace active engine only on success.
 - Duplicate rule IDs must remain invalid.
 - Invalid rule config must keep previous valid config active.
+- Optional evidence fields such as geo/device inputs must default to neutral feature values when omitted.
 - Add tests for new DSL operators, feature names, or rule failure modes.
 
 ## ML Integration

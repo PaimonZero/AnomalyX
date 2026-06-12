@@ -24,7 +24,7 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 
 1. Wallet backend sends transaction payload to `POST /api/v1/predict` with bearer auth and optional `Idempotency-Key`.
 2. API validates schema and claims idempotency key, defaulting to `transaction_id` when no header is supplied.
-3. Feature service builds current feature context from transaction fields and proxy rolling-aggregate features.
+3. Feature service builds current feature context from transaction fields, optional geo/device evidence, and proxy rolling-aggregate features.
 4. Rule engine evaluates active YAML rules over sandboxed DSL conditions.
 5. ML predictor returns `risk_score`, `model_version`, and `top_features`; current working mode is deterministic mock ML.
 6. Decision engine applies rule overrides and ML thresholds to produce `LOW`, `MEDIUM`, `HIGH`, or `CRITICAL`.
@@ -46,6 +46,8 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 
 - YAML rules loaded from `configs/rules.yaml`.
 - Sandboxed AST-based condition evaluator with whitelisted names and operators.
+- Current rules cover threshold avoidance, structuring, smurfing, rapid movement, layering, velocity anomaly, optional geo/device anomaly, and large cash-out.
+- Optional geo/device rule evidence is neutral without historical profile/Redis aggregate support; providing `device_id`, `location_country`, or `location_region` alone does not create risk.
 - Hot reload via `POST /api/v1/rules/reload`; invalid configs must be rejected without replacing previous valid rules.
 - Active rule inspection via `GET /api/v1/rules`.
 

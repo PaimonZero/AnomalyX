@@ -36,6 +36,14 @@ class FeatureService:
         rapid_inout_count_1h_proxy = 2 if transaction.channel.value == "TRANSFER" and amount >= 100_000_000 else 0
         chain_depth_proxy = 3 if transaction.channel.value == "TRANSFER" and amount >= 120_000_000 else 1
         velocity_vs_baseline_ratio_proxy = max(1.0, round((amount / max(sender_balance, 1.0)) * 12, 4))
+        geo_device_evidence_available = bool(
+            transaction.device_id
+            or transaction.location_country
+            or transaction.location_region
+        )
+        new_device_proxy = False
+        geo_anomaly_proxy = False
+        impossible_travel_proxy = False
 
         values = {
             "amount": amount,
@@ -55,6 +63,10 @@ class FeatureService:
             "rapid_inout_count_1h_proxy": rapid_inout_count_1h_proxy,
             "chain_depth_proxy": chain_depth_proxy,
             "velocity_vs_baseline_ratio_proxy": velocity_vs_baseline_ratio_proxy,
+            "geo_device_evidence_available": geo_device_evidence_available,
+            "new_device_proxy": new_device_proxy,
+            "geo_anomaly_proxy": geo_anomaly_proxy,
+            "impossible_travel_proxy": impossible_travel_proxy,
         }
         return TransactionFeatures(values=values)
 
