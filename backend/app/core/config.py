@@ -191,6 +191,20 @@ class Settings:
                 "0 <= RISK_THRESHOLD_MEDIUM < RISK_THRESHOLD_FLAG <= 1."
             )
 
+        if not self.mock_ml_enabled:
+            from pathlib import Path as _Path
+
+            for label, path in (
+                ("MODEL_PATH", self.model_path),
+                ("MODEL_CONFIG_PATH", self.model_config_path),
+            ):
+                if not _Path(path).is_file():
+                    raise ConfigError(
+                        f"{label}={path!r} does not exist. "
+                        "Run 'make pipeline' in ml/ to generate model artifacts, "
+                        "or set MOCK_ML_ENABLED=true to use the mock predictor."
+                    )
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

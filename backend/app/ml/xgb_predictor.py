@@ -81,6 +81,7 @@ class XGBPredictor:
 
         self._model = xgb.XGBClassifier()
         self._model.load_model(model_path)
+        self._shap_explainer = None
 
     def predict(self, transaction: TransactionRequest) -> ModelPrediction:
         features = _compute_features(transaction)
@@ -91,7 +92,7 @@ class XGBPredictor:
         top_features = self._shap_top_features(X, features)
 
         return ModelPrediction(
-            risk_score=round(risk_score, 4),
+            risk_score=risk_score,
             top_features=top_features,
             model_version=self.model_version,
         )
@@ -102,8 +103,9 @@ class XGBPredictor:
         try:
             import shap  # optional at runtime
 
-            explainer = shap.TreeExplainer(self._model)
-            shap_vals = explainer.shap_values(X)[0]
+            if self._shap_explainer is None:
+                self._shap_explainer = shap.TreeExplainer(self._model)
+            shap_vals = self._shap_explainer.shap_values(X)[0]
             ranked = sorted(
                 zip(self.feature_cols, shap_vals),
                 key=lambda pair: abs(pair[1]),

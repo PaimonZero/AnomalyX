@@ -40,6 +40,10 @@ services:
       MODEL_CONFIG_PATH: /app/ml/models/artifacts/model_config.json
       # Infra endpoints inside Docker network
       POSTGRES_HOST: postgres
+      POSTGRES_DB: anomalyx
+      POSTGRES_USER: anomalyx_user
+      POSTGRES_PASSWORD: anomalyx_password
+      DATABASE_URL: postgresql+psycopg://anomalyx_user:anomalyx_password@postgres:5432/anomalyx
       REDIS_URL: redis://redis:6379/0
       ALERT_REPOSITORY: postgres
       IDEMPOTENCY_STORE: redis

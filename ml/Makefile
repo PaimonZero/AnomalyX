@@ -10,7 +10,7 @@ features:
 		--output notebooks/02_features_executed.ipynb \
 		--ExecutePreprocessor.timeout=600
 
-train:
+train: features
 	jupyter nbconvert --to notebook --execute notebooks/03_model_training.ipynb \
 		--output notebooks/03_train_executed.ipynb \
 		--ExecutePreprocessor.timeout=600
