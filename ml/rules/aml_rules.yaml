@@ -1,0 +1,55 @@
+version: 1
+rules:
+  - id: RULE_STRUCTURING
+    typology: structuring
+    severity: HIGH
+    enabled: true
+    condition: "amount >= 8_000_000 and amount < 10_000_000 and count_just_below_threshold_24h_proxy >= 3 and sum_just_below_threshold_24h_proxy >= 20_000_000"
+    action_hint: FLAG
+
+  - id: RULE_THRESHOLD_AVOIDANCE
+    typology: threshold_avoidance
+    severity: MEDIUM
+    enabled: true
+    condition: "amount >= 9_000_000 and amount < 10_000_000"
+    action_hint: FLAG
+
+  - id: RULE_RAPID_MOVEMENT
+    typology: rapid_movement
+    severity: HIGH
+    enabled: true
+    condition: "rapid_inout_count_1h_proxy >= 2 and amount_to_threshold_ratio >= 0.9"
+    action_hint: FLAG
+
+  - id: RULE_HIGH_VELOCITY
+    typology: velocity_anomaly
+    severity: HIGH
+    enabled: true
+    condition: "velocity_vs_baseline_ratio_proxy >= 10"
+    action_hint: FLAG
+
+  - id: RULE_ZERO_BALANCE_DRAIN
+    typology: account_drain
+    severity: HIGH
+    enabled: true
+    condition: "sender_balance <= amount and amount >= 100_000 and (channel == 'CASH_OUT' or channel == 'TRANSFER')"
+    action_hint: FLAG
+
+  - id: RULE_LAYERING
+    typology: layering
+    severity: HIGH
+    enabled: true
+    condition: "chain_depth_proxy >= 2 and amount_to_sender_balance_ratio >= 0.8"
+    action_hint: FLAG
+
+  - id: RULE_LARGE_CASHOUT
+    typology: large_transaction
+    severity: MEDIUM
+    enabled: true
+    condition: "amount >= 200_000_000 and (channel == 'CASH_OUT' or channel == 'TRANSFER')"
+    action_hint: FLAG
+
+thresholds:
+  ctr_threshold_vnd: 10000000
+  risk_score_flag: 0.5
+  risk_score_block: 0.85

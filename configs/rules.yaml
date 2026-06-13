@@ -1,0 +1,57 @@
+version: 2
+rules:
+  - id: R-THRESHOLD-01
+    typology: threshold_avoidance
+    severity: HIGH
+    enabled: true
+    condition: "amount >= 360_000_000 and amount < 400_000_000"
+    action_hint: FLAG
+
+  - id: R-STRUCT-01
+    typology: structuring
+    severity: HIGH
+    enabled: true
+    condition: "count_just_below_threshold_24h_proxy >= 3 and sum_just_below_threshold_24h_proxy >= 1_000_000_000"
+    action_hint: FLAG
+
+  - id: R-SMURF-01
+    typology: smurfing
+    severity: HIGH
+    enabled: true
+    condition: "distinct_receivers_1h_proxy >= 4 and sum_amount_1h_proxy >= 200_000_000"
+    action_hint: FLAG
+
+  - id: R-RAPID-01
+    typology: rapid_movement
+    severity: HIGH
+    enabled: true
+    condition: "rapid_inout_count_1h_proxy >= 2 and amount >= 100_000_000"
+    action_hint: FLAG
+
+  - id: R-LAYER-01
+    typology: layering
+    severity: MEDIUM
+    enabled: true
+    condition: "chain_depth_proxy >= 3 and amount_to_sender_balance_ratio >= 0.50"
+    action_hint: REVIEW
+
+  - id: R-VELO-01
+    typology: velocity_anomaly
+    severity: MEDIUM
+    enabled: true
+    condition: "velocity_vs_baseline_ratio_proxy > 10"
+    action_hint: REVIEW
+
+  - id: R-GEO-01
+    typology: geo_device_anomaly
+    severity: MEDIUM
+    enabled: true
+    condition: "geo_device_evidence_available and (new_device_proxy or geo_anomaly_proxy or impossible_travel_proxy)"
+    action_hint: REVIEW
+
+  - id: R-LARGE-CASHOUT-01
+    typology: large_cash_out
+    severity: HIGH
+    enabled: true
+    condition: "channel == 'CASH_OUT' and amount >= 100_000_000"
+    action_hint: FLAG
