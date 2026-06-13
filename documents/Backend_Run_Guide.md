@@ -17,8 +17,8 @@ Quick local mode, không cần PostgreSQL/Redis/Supabase:
 ```env
 ALERT_REPOSITORY=in_memory
 IDEMPOTENCY_STORE=in_memory
-AUTH_TOKEN=local-service-token-change-me-000000
-JWT_SECRET_KEY=local-jwt-secret-change-me-0000000
+AUTH_TOKEN=<AUTH_TOKEN>
+JWT_SECRET_KEY=<JWT_SECRET_KEY>
 MOCK_ML_ENABLED=true
 ```
 
@@ -28,11 +28,16 @@ PostgreSQL + Redis mode:
 
 ```env
 ALERT_REPOSITORY=postgres
-DATABASE_URL=postgresql+psycopg://anomalyx_user:anomalyx_password@localhost:5432/anomalyx
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=anomalyx
+POSTGRES_USER=anomalyx_user
+POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
+POSTGRES_SSLMODE=disable
 IDEMPOTENCY_STORE=redis
 REDIS_URL=redis://localhost:6379/0
-AUTH_TOKEN=local-service-token-change-me-000000
-JWT_SECRET_KEY=local-jwt-secret-change-me-0000000
+AUTH_TOKEN=<AUTH_TOKEN>
+JWT_SECRET_KEY=<JWT_SECRET_KEY>
 MOCK_ML_ENABLED=true
 ```
 

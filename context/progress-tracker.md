@@ -61,6 +61,7 @@ Update this file after every meaningful implementation change.
 - Auth token validation now uses constant-time comparison; alert service calls typed prediction-log repository methods directly; health/idempotency/model diagnostics now log clearer failure details.
 - Idempotency corrupt-cache reclaim now uses atomic repository compare-and-replace; ML requirements are exact-pinned; scripts share URL masking; Docker Compose uses env-sourced PostgreSQL secrets with production secrets guidance; ML notebooks use timezone-aware timestamps and stripped feature-engineering outputs.
 - `ml/rules/aml_rules.yaml` now uses backend rule-engine schema and whitelisted feature names only.
+- README, CLAUDE guidance, backend run guide, env examples, and ML rule notebook notes now align with current ML/artifact state, `POSTGRES_*` config, placeholders, and bearer-token auth.
 
 ## In Progress
 

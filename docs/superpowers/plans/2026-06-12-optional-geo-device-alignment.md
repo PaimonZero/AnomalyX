@@ -45,7 +45,7 @@
 - Modify: `context/code-standards.md`
 - Modify: `context/progress-tracker.md`
 
-- [ ] Step 1: Replace stale `X-API-Key` language with bearer token language.
+- [x] Step 1: Confirm bearer token language: `Authorization: Bearer <AUTH_TOKEN>`.
 - [ ] Step 2: Replace stale Supabase-primary language with PostgreSQL-primary/Supabase-legacy language.
 - [ ] Step 3: Document optional geo/device fields and limitation without historical profile/Redis aggregates.
 - [ ] Step 4: Update progress tracker with completed work and remaining Report2 gaps.

@@ -2,7 +2,7 @@
 
 AnomalyX is a backend-only FastAPI prototype for Anti-Money Laundering (AML) transaction scoring. It validates transactions, computes serving-time features, runs YAML rules and mock ML inference, reconciles risk with a decision engine, persists audit/alert records, and asynchronously generates grounded alert explanations.
 
-This repository currently does **not** include a React frontend or real ML training pipeline/model artifact. Docker Compose currently provides PostgreSQL and Redis only.
+This repository currently does **not** include a React frontend or production ML training/retraining pipeline. Runtime inference implementations and pre-built model artifacts may exist; mock ML remains the default unless `MOCK_ML_ENABLED=false`.
 
 ## Current capabilities
 
@@ -17,7 +17,7 @@ This repository currently does **not** include a React frontend or real ML train
 - Optional legacy Supabase REST alert/audit adapter
 - In-memory or Redis-backed idempotency store
 - OpenAI-based LLM explainer with deterministic template fallback
-- Mock ML predictor fallback (`mock-ml-v1`); no calibrated XGBoost/LightGBM artifact is present yet
+- Mock ML predictor fallback (`mock-ml-v1`) by default; optional `XGBPredictor` runtime inference when `MOCK_ML_ENABLED=false` and artifacts are present
 
 ## Repository layout
 
@@ -83,7 +83,7 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=anomalyx
 POSTGRES_USER=anomalyx_user
-POSTGRES_PASSWORD=anomalyx_password
+POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
 POSTGRES_SSLMODE=disable
 IDEMPOTENCY_STORE=redis
 REDIS_URL=redis://localhost:6379/0
@@ -267,7 +267,7 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=anomalyx
 POSTGRES_USER=anomalyx_user
-POSTGRES_PASSWORD=anomalyx_password
+POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
 POSTGRES_SSLMODE=disable
 ```
 
@@ -320,8 +320,8 @@ If the provider fails or produces unsupported claims, the system stores a determ
 ## Remaining gaps vs PRD/TDD
 
 - No React/Vite compliance dashboard is included.
-- No real calibrated XGBoost/LightGBM + SHAP model artifact is included; `MOCK_ML_ENABLED=true` is the working mode.
-- No reproducible ML pipeline/Makefile is included yet.
+- Production ML training/retraining and artifact generation remain out of scope; `MOCK_ML_ENABLED=true` is the default working mode.
+- Runtime `XGBPredictor` inference and pre-built artifacts may exist for optional real-model mode when `MOCK_ML_ENABLED=false`.
 - Redis rolling aggregate features and explanation cache are placeholders/TODOs.
 - Real drift detection is a Prometheus placeholder metric, not a PSI/KS implementation.
 - PostgreSQL `feature_snapshots`, `rule_versions`, and `model_registry` tables are schema-ready but not fully wired into application workflows yet.
