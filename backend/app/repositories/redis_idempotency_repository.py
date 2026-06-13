@@ -37,6 +37,22 @@ class RedisIdempotencyRepository:
     def set_if_absent(self, key: str, value: str, ttl_seconds: int) -> bool:
         return bool(self.client.set(key, value, ex=ttl_seconds, nx=True))
 
+    def replace_if_value(
+        self,
+        key: str,
+        expected_value: str,
+        new_value: str,
+        ttl_seconds: int,
+    ) -> bool:
+        script = """
+        if redis.call("GET", KEYS[1]) == ARGV[1] then
+            redis.call("SET", KEYS[1], ARGV[2], "EX", ARGV[3])
+            return 1
+        end
+        return 0
+        """
+        return bool(self.client.eval(script, 1, key, expected_value, new_value, ttl_seconds))
+
     def delete(self, key: str) -> None:
         self.client.delete(key)
 

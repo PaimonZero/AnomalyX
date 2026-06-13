@@ -158,25 +158,47 @@ class PredictionService:
         if cached_response is not None:
             return IdempotencyClaim(is_claimed=False, response=cached_response)
 
-        deadline = time.monotonic() + IDEMPOTENCY_PROCESSING_WAIT_SECONDS
+        start_time = time.monotonic()
+        deadline = start_time + IDEMPOTENCY_PROCESSING_WAIT_SECONDS
         while True:
             claim = self.idempotency_service.claim_response(idempotency_key)
             if claim.is_claimed or claim.response is not None:
                 return claim
-            if time.monotonic() >= deadline:
+            now = time.monotonic()
+            if now >= deadline:
+                logger.warning(
+                    "Timed out waiting for idempotency claim response",
+                    extra={
+                        "idempotency_key": idempotency_key,
+                        "poll_seconds": IDEMPOTENCY_PROCESSING_POLL_SECONDS,
+                        "deadline": deadline,
+                        "elapsed_seconds": now - start_time,
+                    },
+                )
                 return claim
             time.sleep(IDEMPOTENCY_PROCESSING_POLL_SECONDS)
 
     def explain_alert(self, alert_id: str, transaction: TransactionRequest) -> None:
         start_time = time.perf_counter()
-        alert = self.alert_service.get_alert(alert_id)
-        explanation = self.explainer.explain(alert, transaction)
-        explanation_source = self._normalize_explanation_source(explanation.source)
-        self.alert_service.update_explanation(
-            alert_id=alert_id,
-            explanation=explanation.text,
-            explanation_source=explanation_source,
-        )
-        latency_seconds = time.perf_counter() - start_time
-        record_explanation_result(explanation_source)
-        observe_explanation_latency(explanation_source, latency_seconds)
+        explanation_source = "unknown"
+        try:
+            alert = self.alert_service.get_alert(alert_id)
+            explanation = self.explainer.explain(alert, transaction)
+            explanation_source = self._normalize_explanation_source(explanation.source)
+            self.alert_service.update_explanation(
+                alert_id=alert_id,
+                explanation=explanation.text,
+                explanation_source=explanation_source,
+            )
+        except Exception:
+            logger.exception(
+                "Alert explanation background task failed",
+                extra={
+                    "alert_id": alert_id,
+                    "transaction_id": transaction.transaction_id,
+                },
+            )
+        finally:
+            latency_seconds = time.perf_counter() - start_time
+            record_explanation_result(explanation_source)
+            observe_explanation_latency(explanation_source, latency_seconds)

@@ -44,7 +44,7 @@ docker-compose.yml       PostgreSQL + Redis for local infrastructure
 
 ## Setup
 
-Use Python 3.10+.
+Use Python 3.11+.
 
 ```bash
 python -m pip install -r backend/requirements.txt
@@ -58,8 +58,8 @@ For quick local development without external services, use:
 ```env
 ALERT_REPOSITORY=in_memory
 IDEMPOTENCY_STORE=in_memory
-AUTH_TOKEN=dev-service-token
-JWT_SECRET_KEY=dev-jwt-secret
+AUTH_TOKEN=<AUTH_TOKEN>
+JWT_SECRET_KEY=<JWT_SECRET_KEY>
 MOCK_ML_ENABLED=true
 ```
 
@@ -73,15 +73,22 @@ Start local infrastructure:
 docker compose up -d postgres redis
 ```
 
+Docker Compose reads PostgreSQL credentials from your shell or root `.env`; set `POSTGRES_PASSWORD` before starting the stack. Local Compose is for development only. Production deployments must use a secrets manager, Vault, Docker secrets, or equivalent platform secret store instead of committed literal credentials.
+
 Use PostgreSQL persistence:
 
 ```env
 ALERT_REPOSITORY=postgres
-DATABASE_URL=postgresql+psycopg://anomalyx_user:anomalyx_password@localhost:5432/anomalyx
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=anomalyx
+POSTGRES_USER=anomalyx_user
+POSTGRES_PASSWORD=anomalyx_password
+POSTGRES_SSLMODE=disable
 IDEMPOTENCY_STORE=redis
 REDIS_URL=redis://localhost:6379/0
-AUTH_TOKEN=dev-service-token
-JWT_SECRET_KEY=dev-jwt-secret
+AUTH_TOKEN=<AUTH_TOKEN>
+JWT_SECRET_KEY=<JWT_SECRET_KEY>
 MOCK_ML_ENABLED=true
 ```
 
@@ -141,7 +148,7 @@ Protected endpoints:
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/predict \
-  -H "Authorization: Bearer dev-service-token" \
+  -H "Authorization: Bearer <AUTH_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
     "transaction_id": "tx_demo_001",
@@ -186,7 +193,7 @@ Repeated `transaction_id` or `Idempotency-Key` returns the original prediction w
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/batch-score \
-  -H "Authorization: Bearer dev-service-token" \
+  -H "Authorization: Bearer <AUTH_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
     "batch_id": "batch_demo_001",
@@ -212,7 +219,7 @@ Batch scoring currently scores transactions supplied in the request. It does not
 
 ```bash
 curl -X PATCH http://localhost:8000/api/v1/alerts/al_example/status \
-  -H "Authorization: Bearer dev-service-token" \
+  -H "Authorization: Bearer <AUTH_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"status":"ESCALATED","reviewer_id":"reviewer_001"}'
 ```
@@ -228,10 +235,10 @@ Escalated/dismissed reviews create review-label records for future retraining.
 ### Rules
 
 ```bash
-curl -H "Authorization: Bearer dev-service-token" http://localhost:8000/api/v1/rules
+curl -H "Authorization: Bearer <AUTH_TOKEN>" http://localhost:8000/api/v1/rules
 
 curl -X POST \
-  -H "Authorization: Bearer dev-service-token" \
+  -H "Authorization: Bearer <AUTH_TOKEN>" \
   http://localhost:8000/api/v1/rules/reload
 ```
 
@@ -256,7 +263,12 @@ PostgreSQL is the primary persistent alert/audit backend:
 
 ```env
 ALERT_REPOSITORY=postgres
-DATABASE_URL=postgresql+psycopg://anomalyx_user:anomalyx_password@localhost:5432/anomalyx
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=anomalyx
+POSTGRES_USER=anomalyx_user
+POSTGRES_PASSWORD=anomalyx_password
+POSTGRES_SSLMODE=disable
 ```
 
 Stored data is limited to transaction IDs, prediction outputs, derived feature/rule evidence, alert review metadata, explanations, and timestamps. Raw transaction payloads and raw PII are not stored.

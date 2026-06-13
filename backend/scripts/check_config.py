@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
 
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -11,14 +10,7 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 from app.core.config import ConfigError, get_settings
-
-
-def _mask_url(url: str) -> str:
-    parts = urlsplit(url)
-    if "@" not in parts.netloc:
-        return url
-    _, host = parts.netloc.rsplit("@", 1)
-    return urlunsplit((parts.scheme, f"***@{host}", parts.path, parts.query, parts.fragment))
+from utils import _mask_url
 
 
 def main() -> int:
@@ -26,7 +18,10 @@ def main() -> int:
     parser.add_argument(
         "--runtime",
         action="store_true",
-        help="Validate runtime settings. Runtime validation is also run by default settings loading.",
+        help=(
+            "Validate runtime settings only; runtime validation is also performed "
+            "automatically when loading default settings."
+        ),
     )
     args = parser.parse_args()
 

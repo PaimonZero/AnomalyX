@@ -173,6 +173,14 @@ class SupabaseAlertRepository:
             extra_headers={"Prefer": "return=minimal"},
         )
 
+    def list_prediction_logs(self) -> list[dict[str, object]]:
+        rows = self._request(
+            method="GET",
+            table="prediction_logs",
+            query={"select": "*", "order": "created_at.desc"},
+        )
+        return rows
+
     def update_explanation(
         self,
         alert_id: str,
@@ -190,6 +198,9 @@ class SupabaseAlertRepository:
 
     def clear(self) -> None:
         raise SupabaseError("clear() is disabled for Supabase persistence.")
+
+    def ping(self) -> None:
+        self._request(method="GET", table="alerts", query={"select": "id", "limit": "1"})
 
     def _patch_alert(self, alert_id: str, values: dict[str, Any]) -> Alert:
         rows = self._request(

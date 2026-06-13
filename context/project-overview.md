@@ -61,7 +61,7 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 
 - `CRITICAL` rule severity overrides all ML scores and flags transaction as `CRITICAL`.
 - `HIGH` rule severity overrides ML score and flags transaction as `HIGH`.
-- ML score ≥ `RISK_THRESHOLD_FLAG` flags transaction as `HIGH` when no higher rule override exists.
+- ML score ≥ `RISK_THRESHOLD_FLAG` flags transaction as `HIGH` when no higher rule override exists; deprecated `RISK_THRESHOLD_HIGH` is only a fallback for unset `RISK_THRESHOLD_FLAG`.
 - ML score ≥ `RISK_THRESHOLD_MEDIUM` produces `MEDIUM` log-only risk.
 - Alerts store only derived risk evidence, status, explanations, and timestamps.
 
@@ -97,7 +97,7 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 - Real transaction processing or funds movement.
 - Regulatory STR/FIU/SBV submission; only simulated outputs.
 - Production-scale streaming and deployment hardening.
-- Real ML training/model artifacts until `RealModelPredictor` is implemented.
+- Real ML training/retraining and model artifact generation pipelines remain out of scope; runtime inference implementations such as `XGBPredictor` and pre-built inference artifacts may exist while the full `RealModelPredictor` training path remains pending.
 - React frontend in current implementation; dashboard remains future work.
 - Raw PII storage or raw transaction payload persistence.
 - Redis rolling aggregate implementation; current feature service uses proxy values.

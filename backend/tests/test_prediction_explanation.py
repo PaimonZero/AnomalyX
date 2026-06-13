@@ -17,6 +17,11 @@ class FakeExplainer:
         )
 
 
+class FailingExplainer:
+    def explain(self, alert: Alert, transaction: TransactionRequest) -> ExplanationResult:
+        raise RuntimeError("explainer unavailable")
+
+
 def flagged_payload() -> TransactionRequest:
     return TransactionRequest(
         transaction_id="tx_explain_001",
@@ -43,6 +48,25 @@ def test_prediction_service_updates_alert_explanation_with_injected_explainer() 
 
     assert alert.explanation == f"Fake explanation for {prediction.alert_id}"
     assert alert.explanation_source == "llm"
+
+
+def test_prediction_service_logs_background_explanation_failure(caplog) -> None:
+    alert_repository.clear()
+    service = PredictionService(explainer=FailingExplainer())
+
+    transaction = flagged_payload()
+    prediction = service.predict(transaction)
+    assert prediction.alert_id is not None
+
+    with caplog.at_level(logging.ERROR):
+        service.explain_alert(prediction.alert_id, transaction)
+
+    record = next(
+        record for record in caplog.records if record.message == "Alert explanation background task failed"
+    )
+    assert record.exc_info is not None
+    assert record.alert_id == prediction.alert_id
+    assert record.transaction_id == transaction.transaction_id
 
 
 def test_openai_explainer_logs_handled_failure_and_returns_template(monkeypatch, caplog) -> None:

@@ -119,7 +119,7 @@ class XGBPredictor:
                 self._shap_explainer = shap.TreeExplainer(self._model)
             shap_vals = self._shap_explainer.shap_values(X)[0]
             ranked = sorted(
-                zip(self.feature_cols, shap_vals),
+                zip(self.feature_cols, shap_vals, strict=True),
                 key=lambda pair: abs(pair[1]),
                 reverse=True,
             )[:k]

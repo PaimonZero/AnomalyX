@@ -56,11 +56,7 @@ class AlertService:
         )
 
     def create_prediction_log(self, response: PredictionResponse) -> None:
-        create_prediction_log = getattr(self.repository, "create_prediction_log", None)
-        if create_prediction_log is None:
-            return
-
-        create_prediction_log(
+        self.repository.create_prediction_log(
             transaction_id=response.transaction_id,
             risk_score=response.risk_score,
             risk_level=response.risk_level,
@@ -72,7 +68,4 @@ class AlertService:
         )
 
     def list_prediction_logs(self) -> list[dict[str, object]]:
-        list_prediction_logs = getattr(self.repository, "list_prediction_logs", None)
-        if list_prediction_logs is None:
-            return []
-        return list_prediction_logs()
+        return self.repository.list_prediction_logs()

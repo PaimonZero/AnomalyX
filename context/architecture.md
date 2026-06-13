@@ -8,7 +8,7 @@
 | Language/runtime | Python 3.11+ | Backend service, rule engine, feature service, ML adapter, repositories |
 | Schemas | Pydantic | Request/response validation and OpenAPI schema generation |
 | Rules | YAML + sandboxed AST DSL | Declarative AML typology detection over whitelisted feature context |
-| ML | `ModelPredictor` interface + `XGBPredictor` (real) + `MockModelPredictor` | Probabilistic `risk_score`, `model_version`, `top_features`; real XGBoost model trained on PaySim dataset (AUC-ROC=0.9999) |
+| ML | `ModelPredictor` interface + `XGBPredictor` (real XGB inference, optional when `MOCK_ML_ENABLED=false`) + `MockModelPredictor` (default when `MOCK_ML_ENABLED=true`) | Probabilistic `risk_score`, `model_version`, `top_features`; real XGBoost model trained on PaySim dataset (AUC-ROC≈0.9999) |
 | Decision | Python service | Reconcile rule severity and ML thresholds into final risk level |
 | Persistence | PostgreSQL + SQLAlchemy/psycopg | Alerts, review labels, prediction logs; schema-ready feature/model/rule tables |
 | Local/test persistence | In-memory repositories | Self-contained tests and quick local mode |
@@ -61,7 +61,7 @@
 - **PostgreSQL `model_registry`**: schema-ready table for model artifact metadata; not fully wired.
 - **Redis idempotency store**: atomic in-progress claim and serialized response cache with TTL.
 - **In-memory repositories**: process-local alert/idempotency data for tests and quick local runs.
-- **Supabase**: optional legacy alert repository; PostgreSQL is primary persistence target.
+- **Supabase**: optional legacy alert repository; PostgreSQL is primary persistence target. The adapter uses a service-role key that bypasses RLS, and its alert/review column names follow the current REST adapter contract rather than being a full drop-in PostgreSQL schema mirror.
 - **`.env` at repo root**: runtime configuration and secrets; never commit real secrets.
 
 ## Auth and Access Model
@@ -75,7 +75,7 @@
 
 ## Configuration Model
 
-- `backend/app/core/config.py` loads env plus repo-root `.env`.
+- `backend/app/core/config.py` loads env plus repo-root `.env`, preserving intentionally empty environment variables over `.env` values.
 - `get_settings()` is cached; tests must call `reset_settings_cache()` after env changes.
 - Repository selection:
   - `ALERT_REPOSITORY=in_memory|postgres|supabase`
@@ -86,8 +86,9 @@
 - Risk thresholds:
   - `RISK_THRESHOLD_MEDIUM`, default `0.40`
   - `RISK_THRESHOLD_FLAG`, default `0.70`
-- PostgreSQL is required only when `ALERT_REPOSITORY=postgres`.
-- Supabase credentials are required only when `ALERT_REPOSITORY=supabase`.
+  - `RISK_THRESHOLD_HIGH` is deprecated and used only as a fallback when `RISK_THRESHOLD_FLAG` is unset; use `RISK_THRESHOLD_FLAG` going forward.
+- PostgreSQL is required only when `ALERT_REPOSITORY=postgres`; `DATABASE_URL` is built from `POSTGRES_*` by default and can be explicitly overridden when needed.
+- Supabase credentials are required only when `ALERT_REPOSITORY=supabase`; the legacy adapter requires `SUPABASE_SERVICE_ROLE_KEY`, which bypasses Supabase RLS.
 - Redis is required only when `IDEMPOTENCY_STORE=redis`.
 
 ## API Surface

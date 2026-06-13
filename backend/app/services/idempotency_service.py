@@ -58,9 +58,9 @@ class IdempotencyService:
         if response is not None:
             return IdempotencyClaim(is_claimed=False, response=response)
 
-        self.repository.delete(normalized_key)
-        is_claimed = self.repository.set_if_absent(
+        is_claimed = self.repository.replace_if_value(
             normalized_key,
+            raw_value,
             PROCESSING_VALUE,
             ttl_seconds=self.ttl_seconds,
         )

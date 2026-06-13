@@ -65,7 +65,7 @@ def test_idempotency_key_header_overrides_transaction_id() -> None:
     assert len(alert_repository.list()) == 1
 
 
-def test_concurrent_same_idempotency_key_creates_single_alert(monkeypatch) -> None:
+def test_concurrent_same_idempotency_key_creates_single_alert(monkeypatch: pytest.MonkeyPatch) -> None:
     service = PredictionService()
     transaction = TransactionRequest.model_validate(flagged_payload())
     original_create_alert = service.alert_service.create_alert
@@ -115,6 +115,24 @@ def test_claim_response_reclaims_corrupt_payload() -> None:
 
     assert claim.is_claimed is True
     assert repository.get(normalized_key) == "__processing__"
+
+
+def test_claim_response_reclaims_corrupt_payload_only_if_value_unchanged() -> None:
+    repository = InMemoryIdempotencyRepository()
+    service = IdempotencyService(repository=repository, ttl_seconds=60)
+    normalized_key = normalize_key("changed-corrupt-claim-key")
+    repository.set(normalized_key, "{not-json", ttl_seconds=60)
+    repository.set(normalized_key, "claimed-by-other-request", ttl_seconds=60)
+
+    claimed = repository.replace_if_value(
+        normalized_key,
+        "{not-json",
+        "__processing__",
+        ttl_seconds=60,
+    )
+
+    assert claimed is False
+    assert service.repository.get(normalized_key) == "claimed-by-other-request"
 
 
 def test_idempotency_service_preserves_zero_ttl() -> None:

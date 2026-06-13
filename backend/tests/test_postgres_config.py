@@ -1,8 +1,9 @@
 import importlib.util
+import os
 
 import pytest
 
-from app.core.config import ConfigError, get_settings, reset_settings_cache
+from app.core.config import ConfigError, _load_dotenv, get_settings, reset_settings_cache
 from app.repositories.factory import get_alert_repository, reset_alert_repository_cache
 
 
@@ -42,6 +43,18 @@ def test_in_memory_config_does_not_require_external_database(clean_settings, mon
     settings = get_settings()
 
     assert settings.alert_repository == "in_memory"
+
+
+def test_load_dotenv_preserves_intentionally_empty_env(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+    env_file = tmp_path / ".env"
+    env_file.write_text("OPENAI_API_KEY=from-dotenv\n", encoding="utf-8")
+    monkeypatch.setenv("OPENAI_API_KEY", "")
+    _load_dotenv.cache_clear()
+
+    _load_dotenv(env_file)
+
+    assert "OPENAI_API_KEY" in os.environ
+    assert os.environ["OPENAI_API_KEY"] == ""
 
 
 def test_postgres_config_accepts_database_url_without_supabase(clean_settings, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -34,7 +34,7 @@ class TransactionRequest(BaseModel):
     sender_balance: float = Field(..., ge=0)
     receiver_balance: float = Field(..., ge=0)
     amount: float = Field(..., ge=0)
-    currency: str = Field(default="VND", min_length=3, max_length=3)
+    currency: str = Field(..., min_length=3, max_length=3)
     timestamp: datetime
     channel: TransactionChannel
     device_id: str | None = Field(default=None, min_length=1)

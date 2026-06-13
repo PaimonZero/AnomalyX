@@ -20,7 +20,7 @@ Tài liệu này tóm tắt những phần lớn còn lại của dự án sau k
 - JSON logging và Prometheus metrics.
 - Log JSON đã ghi thêm exception/stack info khi có lỗi.
 - Runtime config validation cho các secret bắt buộc như `AUTH_TOKEN` và `JWT_SECRET_KEY`.
-- Bearer-token protection cho các endpoint nghiệp vụ bằng header `Authorization: Bearer <AUTH_TOKEN>`; `health` và `metrics` vẫn public.
+- Bearer-token protection cho `/predict`, `/batch-score`, `/alerts`, và `/rules` bằng header `Authorization: Bearer <AUTH_TOKEN>` theo `backend/app/api/dependencies/auth.py`; `/health` và `/metrics` vẫn public.
 - Rule reload đã có error handling và logging khi rule config lỗi.
 - Script kiểm tra Redis/PostgreSQL/Supabase đã tránh in secret trực tiếp và xử lý lỗi kết nối rõ hơn.
 - Các API chính:

@@ -1,75 +1,53 @@
-version: "1.0"
+version: 1
 rules:
   - id: RULE_STRUCTURING
-    name: Structuring / Smurfing
-    description: Multiple transactions just below CTR threshold within 24h window
-    pattern: structuring
-    conditions:
-      transaction_count_24h: { gte: 3 }
-      amount_max: { lt: 10000000 }
-      amount_min: { gte: 8000000 }
-      total_amount_24h: { gte: 20000000 }
+    typology: structuring
     severity: HIGH
-    action: FLAG
+    enabled: true
+    condition: "amount >= 8_000_000 and amount < 10_000_000 and count_just_below_threshold_24h_proxy >= 3 and sum_just_below_threshold_24h_proxy >= 20_000_000"
+    action_hint: FLAG
 
   - id: RULE_THRESHOLD_AVOIDANCE
-    name: Threshold Avoidance
-    description: Single transaction just below reporting threshold
-    pattern: threshold_avoidance
-    conditions:
-      amount: { gte: 9000000, lt: 10000000 }
+    typology: threshold_avoidance
     severity: MEDIUM
-    action: FLAG
+    enabled: true
+    condition: "amount >= 9_000_000 and amount < 10_000_000"
+    action_hint: FLAG
 
   - id: RULE_RAPID_MOVEMENT
-    name: Rapid Movement
-    description: Funds received and re-sent within 1 hour
-    pattern: rapid_movement
-    conditions:
-      time_between_in_out_minutes: { lte: 60 }
-      amount_ratio_out_in: { gte: 0.9 }
+    typology: rapid_movement
     severity: HIGH
-    action: FLAG
+    enabled: true
+    condition: "rapid_inout_count_1h_proxy >= 2 and amount_to_threshold_ratio >= 0.9"
+    action_hint: FLAG
 
   - id: RULE_HIGH_VELOCITY
-    name: High Velocity
-    description: Transaction volume > 10x user baseline
-    pattern: velocity_anomaly
-    conditions:
-      tx_count_24h_vs_baseline_ratio: { gte: 10 }
+    typology: velocity_anomaly
     severity: HIGH
-    action: FLAG
+    enabled: true
+    condition: "velocity_vs_baseline_ratio_proxy >= 10"
+    action_hint: FLAG
 
   - id: RULE_ZERO_BALANCE_DRAIN
-    name: Zero Balance Drain
-    description: Account fully drained (balance goes to 0)
-    pattern: account_drain
-    conditions:
-      new_balance_orig: { lte: 0 }
-      amount: { gte: 100000 }
-      type: { in: [CASH_OUT, TRANSFER] }
+    typology: account_drain
     severity: HIGH
-    action: FLAG
+    enabled: true
+    condition: "sender_balance <= amount and amount >= 100_000 and (channel == 'CASH_OUT' or channel == 'TRANSFER')"
+    action_hint: FLAG
 
   - id: RULE_LAYERING
-    name: Layering Chain
-    description: Receiver immediately sends to another account (chain A->B->C)
-    pattern: layering
-    conditions:
-      dest_tx_within_1h_ratio: { gte: 0.8 }
-      chain_depth: { gte: 2 }
+    typology: layering
     severity: HIGH
-    action: FLAG
+    enabled: true
+    condition: "chain_depth_proxy >= 2 and amount_to_sender_balance_ratio >= 0.8"
+    action_hint: FLAG
 
   - id: RULE_LARGE_CASHOUT
-    name: Large Cash Out
-    description: Large CASH_OUT or TRANSFER above absolute threshold
-    pattern: large_transaction
-    conditions:
-      amount: { gte: 200000000 }
-      type: { in: [CASH_OUT, TRANSFER] }
+    typology: large_transaction
     severity: MEDIUM
-    action: FLAG
+    enabled: true
+    condition: "amount >= 200_000_000 and (channel == 'CASH_OUT' or channel == 'TRANSFER')"
+    action_hint: FLAG
 
 thresholds:
   ctr_threshold_vnd: 10000000

@@ -28,7 +28,7 @@ def _load_dotenv(path: Path = ENV_FILE) -> None:
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip().strip('"').strip("'")
-        if key not in os.environ or os.environ[key] == "":
+        if key not in os.environ:
             os.environ[key] = value
 
 
@@ -216,7 +216,7 @@ def get_settings() -> Settings:
     postgres_user = os.getenv("POSTGRES_USER", "anomalyx_user")
     postgres_password = os.getenv("POSTGRES_PASSWORD", "")
     postgres_sslmode = os.getenv("POSTGRES_SSLMODE", "disable")
-    database_url = os.getenv("DATABASE_URL", "") or _build_database_url(
+    built_database_url = _build_database_url(
         host=postgres_host,
         port=postgres_port,
         database=postgres_db,
@@ -224,6 +224,9 @@ def get_settings() -> Settings:
         password=postgres_password,
         sslmode=postgres_sslmode,
     )
+    database_url = os.getenv("DATABASE_URL", "").strip() or built_database_url
+    if "DATABASE_URL" not in os.environ and database_url:
+        os.environ["DATABASE_URL"] = database_url
 
     settings = Settings(
         app_env=os.getenv("APP_ENV", "development"),
@@ -236,6 +239,7 @@ def get_settings() -> Settings:
         mock_ml_enabled=_get_bool("MOCK_ML_ENABLED", True),
         mock_ml_seed=_get_int("MOCK_ML_SEED", 42),
         risk_threshold_medium=_get_float("RISK_THRESHOLD_MEDIUM", 0.40),
+        # RISK_THRESHOLD_HIGH is deprecated; use it only as fallback for RISK_THRESHOLD_FLAG.
         risk_threshold_flag=_get_float(
             "RISK_THRESHOLD_FLAG",
             _get_float("RISK_THRESHOLD_HIGH", 0.70),

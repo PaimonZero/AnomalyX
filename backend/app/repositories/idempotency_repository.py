@@ -15,6 +15,15 @@ class IdempotencyRepository(Protocol):
     def set_if_absent(self, key: str, value: str, ttl_seconds: int) -> bool:
         """Store a value only when the key does not already exist."""
 
+    def replace_if_value(
+        self,
+        key: str,
+        expected_value: str,
+        new_value: str,
+        ttl_seconds: int,
+    ) -> bool:
+        """Atomically replace a stored value when it still matches."""
+
     def delete(self, key: str) -> None:
         """Delete a stored key when supported."""
 
@@ -54,6 +63,28 @@ class InMemoryIdempotencyRepository:
                 if existing_expires_at > now:
                     return False
             self._items[key] = (value, expires_at)
+            return True
+
+    def replace_if_value(
+        self,
+        key: str,
+        expected_value: str,
+        new_value: str,
+        ttl_seconds: int,
+    ) -> bool:
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(seconds=ttl_seconds)
+        with self._lock:
+            item = self._items.get(key)
+            if item is None:
+                return False
+            current_value, existing_expires_at = item
+            if existing_expires_at <= now:
+                self._items.pop(key, None)
+                return False
+            if current_value != expected_value:
+                return False
+            self._items[key] = (new_value, expires_at)
             return True
 
     def delete(self, key: str) -> None:

@@ -191,8 +191,8 @@ Từ thư mục `backend/`:
 python -m pytest tests -q
 ```
 
-Kết quả hiện tại mong muốn:
+Kết quả mong muốn:
 
 ```text
-59 passed
+All tests passed
 ```

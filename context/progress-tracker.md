@@ -50,6 +50,17 @@ Update this file after every meaningful implementation change.
   - `.env.example` updated with `MODEL_PATH`, `MODEL_CONFIG_PATH`, `MOCK_ML_ENABLED` guidance.
   - `backend/tests/conftest.py`: `reset_ml_cache` autouse fixture added for predictor cache isolation.
   - `/health` endpoint now reports real `model_version` from predictor instead of static `"external"`.
+- Configuration docs now mark `RISK_THRESHOLD_HIGH` as deprecated fallback for `RISK_THRESHOLD_FLAG`.
+- Background alert explanation failures are logged with alert/transaction context and emit bounded failure/latency metrics.
+- Supabase schema now documents service-role RLS bypass, adds `alerts.is_flagged`, and includes schema-ready `feature_snapshots`, `rule_versions`, and `model_registry` tables.
+- Roadmap/run-guide docs now match bearer-token auth and avoid fixed pytest pass counts.
+- Project overview now separates ML training/artifact generation scope from existing runtime inference artifacts.
+- README/CLAUDE examples now use placeholder secrets, README targets Python 3.11+, and PostgreSQL docs prefer `POSTGRES_*` over duplicated `DATABASE_URL` examples.
+- Config loading now preserves intentionally empty environment variables over `.env`, builds `DATABASE_URL` from `POSTGRES_*` by default, and requires transaction currency in request payloads.
+- JSON log timestamps now use `LogRecord.created` rather than formatter execution time.
+- Auth token validation now uses constant-time comparison; alert service calls typed prediction-log repository methods directly; health/idempotency/model diagnostics now log clearer failure details.
+- Idempotency corrupt-cache reclaim now uses atomic repository compare-and-replace; ML requirements are exact-pinned; scripts share URL masking; Docker Compose uses env-sourced PostgreSQL secrets with production secrets guidance; ML notebooks use timezone-aware timestamps and stripped feature-engineering outputs.
+- `ml/rules/aml_rules.yaml` now uses backend rule-engine schema and whitelisted feature names only.
 
 ## In Progress
 

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter
@@ -9,6 +10,7 @@ from app.schemas.health import HealthResponse
 
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _alert_repository_ready(repository: str) -> bool:
@@ -21,20 +23,20 @@ def _alert_repository_ready(repository: str) -> bool:
             PostgresAlertRepository().ping()
             return True
         except (ImportError, ConnectionError, AttributeError, OSError, RuntimeError):
+            logger.exception("PostgreSQL health check failed")
             return False
     if repository == "supabase":
         settings = get_settings()
+        if not settings.supabase_url or not settings.supabase_service_role_key:
+            return False
         try:
             from app.repositories.supabase_alert_repository import SupabaseAlertRepository
 
-            repository_client = SupabaseAlertRepository()
-            ping = getattr(repository_client, "ping", None)
-            if ping is not None:
-                ping()
-                return True
+            SupabaseAlertRepository().ping()
+            return True
         except (ImportError, ConnectionError, AttributeError, OSError, RuntimeError):
+            logger.exception("Supabase health check failed")
             return False
-        return bool(settings.supabase_url and settings.supabase_service_role_key)
     return False
 
 
@@ -53,7 +55,8 @@ def _model_version(settings: Settings) -> str:
         return "mock-ml-v1"
     try:
         return get_model_predictor().model_version
-    except Exception:
+    except (ImportError, AttributeError, NotImplementedError, RuntimeError):
+        logger.exception("Model version health check failed")
         return "unknown"
 
 

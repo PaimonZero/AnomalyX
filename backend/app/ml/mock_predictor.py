@@ -75,7 +75,10 @@ class MockModelPredictor:
             TransactionChannel.PAYMENT: 0.30,
             TransactionChannel.DEBIT: 0.25,
         }
-        return channel_weights[channel]
+        weight = channel_weights.get(channel)
+        if weight is None:
+            raise ValueError(f"Unsupported transaction channel for mock predictor: {channel!r}")
+        return weight
 
     @staticmethod
     def _safe_ratio(numerator: float, denominator: float) -> float:
