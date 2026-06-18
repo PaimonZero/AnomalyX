@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-base:#0D0F17;--bg-surface:#151720;--bg-elevated:#1E2130;--bg-subtle:#252838;
+  --text-primary:#F2F0EB;--text-secondary:#C8C5BC;--text-muted:#8A8880;
+  --border-default:#2A2D3E;--border-subtle:#1E2130;
+  --accent-primary:#CC785C;--accent-primary-hover:#D98B70;--accent-primary-muted:#3D2820;
+  --accent-secondary:#9B8AFB;--accent-secondary-muted:#28243D;
+  --risk-low:#3DB87A;--risk-medium:#E8A842;--risk-high:#E86A2E;--risk-critical:#E84040;
+  --risk-low-muted:#0F2B1C;--risk-medium-muted:#2B1E08;--risk-high-muted:#2B1208;--risk-critical-muted:#2B0808;
+  --state-success:#3DB87A;--state-warning:#E8A842;--state-error:#E84040;--state-info:#5AADDC;
+}
+[data-theme="light"]{
+  --bg-base:#F5F4EF;--bg-surface:#FFFFFF;--bg-elevated:#FAFAF7;--bg-subtle:#EEECEA;
+  --text-primary:#1A1B26;--text-secondary:#3D3E4E;--text-muted:#7A7A80;
+  --border-default:#DDDBD4;--border-subtle:#EEECEA;
+  --accent-primary:#CC785C;--accent-primary-hover:#B8674D;--accent-primary-muted:#FAE8E2;
+  --accent-secondary:#6B5FD6;--accent-secondary-muted:#EDEAFC;
+  --risk-low:#1E8A55;--risk-medium:#C07A10;--risk-high:#C04E18;--risk-critical:#C01C1C;
+  --risk-low-muted:#E6F5EE;--risk-medium-muted:#FDF2E0;--risk-high-muted:#FDEEE6;--risk-critical-muted:#FDEAEA;
+  --state-success:#1E8A55;--state-warning:#C07A10;--state-error:#C01C1C;--state-info:#1E7FAD;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:6px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes ax-shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+@keyframes ax-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes ax-spin{to{transform:rotate(360deg)}}
+@keyframes ax-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes ax-scalein{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes ax-stripe{to{background-position:28px 0}}
+select,textarea,input{font-family:inherit;}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="display:flex;height:100vh;overflow:hidden;font-family:'Inter',system-ui,sans-serif;background:var(--bg-base);color:var(--text-primary);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="flex:none;width:240px;height:100vh;background:var(--bg-surface);border-right:1px solid var(--border-default);display:flex;flex-direction:column;">
+    <div style="height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--border-subtle);">
+      <div style="width:30px;height:30px;border-radius:8px;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(204,120,92,.35);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>
+      <div style="line-height:1.05;"><div style="font-size:15px;font-weight:700;letter-spacing:-.2px;">AnomalyX</div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--accent-primary);margin-top:2px;">AML&nbsp;CONSOLE</div></div>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Operations</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="AnomalyX App Shell.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</a>
+          <a href="AnomalyX Alerts Queue.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span style="flex:1;">Alerts</span><span style="font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--risk-critical);background:var(--risk-critical-muted);padding:1px 6px;border-radius:6px;">12</span></a>
+          <a href="#" style="position:relative;display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--text-primary);background:var(--accent-primary-muted);text-decoration:none;">
+            <span style="position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--accent-primary);"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>Predict Batch
+          </a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Engineering</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>API Testing</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Rule Engine</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Model &amp; Metrics</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Governance</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>Audit Log</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Settings</a>
+        </div>
+      </div>
+    </nav>
+    <div style="flex:none;padding:12px 16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--state-success);flex:none;"></span><span style="font-size:11px;color:var(--text-muted);">All systems operational</span></div>
+  </aside>
+
+  <!-- ============ RIGHT COLUMN ============ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;">
+    <header style="height:56px;flex:none;background:var(--bg-surface);border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:16px;padding:0 20px;position:relative;z-index:30;">
+      <div style="min-width:0;"><h1 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.3px;">Predict Batch</h1><div style="font-size:12px;color:var(--text-muted);margin-top:1px;">Score a batch of transactions through the AML engine</div></div>
+      <div style="flex:1;"></div>
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.8px;font-family:'JetBrains Mono',monospace;color:var(--accent-secondary);background:var(--accent-secondary-muted);border:1px solid var(--accent-secondary);padding:4px 9px;border-radius:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent-secondary);"></span>DEMO</span>
+      <button aria-label="Notifications" style="position:relative;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span style="position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--risk-critical);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-surface);">3</span></button>
+      <button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);">
+        <sc-if value="{{ isLight }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if>
+        <sc-if value="{{ isDark }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if>
+      </button>
+      <div style="display:flex;align-items:center;gap:9px;height:38px;padding:0 8px 0 4px;border-radius:9px;cursor:pointer;" style-hover="background:var(--bg-elevated);"><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex:none;">MT</span><span style="line-height:1.15;"><span style="display:block;font-size:12.5px;font-weight:600;">Mai Tran</span><span style="display:block;font-size:10.5px;color:var(--text-muted);">Compliance Officer</span></span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+    </header>
+
+    <!-- CONTENT -->
+    <main style="flex:1;overflow-y:auto;background:var(--bg-base);">
+      <div style="display:flex;flex-wrap:wrap;gap:16px;padding:20px 24px;align-items:flex-start;">
+
+        <!-- ===================== LEFT PANEL ===================== -->
+        <div style="flex:2 1 360px;min-width:320px;display:flex;flex-direction:column;gap:16px;">
+
+          <!-- INPUT CARD -->
+          <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;overflow:hidden;">
+            <!-- tabs -->
+            <div style="display:flex;gap:4px;padding:10px 12px 0;border-bottom:1px solid var(--border-subtle);">
+              <button onClick="{{ setTabUpload }}" style="{{ tabUploadStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>Upload file</button>
+              <button onClick="{{ setTabPaste }}" style="{{ tabPasteStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="8" y="2" rx="1"/></svg>Paste JSON</button>
+            </div>
+            <div style="padding:14px;">
+              <!-- upload tab -->
+              <sc-if value="{{ tabUpload }}">
+                <sc-if value="{{ hasFile }}">
+                  <div style="display:flex;align-items:center;gap:11px;border:1px solid var(--border-default);border-radius:10px;padding:12px 13px;background:var(--bg-base);">
+                    <span style="width:34px;height:34px;border-radius:8px;background:var(--accent-primary-muted);display:flex;align-items:center;justify-content:center;flex:none;color:var(--accent-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6"/></svg></span>
+                    <div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;font-family:'JetBrains Mono',monospace;">sample_batch.json</div><div style="font-size:11px;color:var(--text-muted);margin-top:1px;">24 records · 18.4 KB</div></div>
+                    <button onClick="{{ removeFile }}" aria-label="Remove file" style="width:28px;height:28px;border-radius:7px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:var(--bg-subtle);color:var(--text-primary);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ noFile }}">
+                  <div onClick="{{ dropSample }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1.5px dashed var(--border-default);border-radius:12px;padding:34px 18px;cursor:pointer;background:var(--bg-base);" style-hover="border-color:var(--accent-primary);background:var(--accent-primary-muted);">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:11px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                    <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Drop a JSON or CSV file here</div>
+                    <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">or paste a JSON array in the next tab.<br/>Click to load a sample batch.</div>
+                  </div>
+                </sc-if>
+              </sc-if>
+              <!-- paste tab -->
+              <sc-if value="{{ tabPaste }}">
+                <textarea value="{{ pasteValue }}" onInput="{{ onPaste }}" spellcheck="false" style="width:100%;height:188px;resize:vertical;border-radius:10px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:11.5px;line-height:1.55;font-family:'JetBrains Mono',monospace;padding:11px 12px;outline:none;white-space:pre;overflow:auto;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);"></textarea>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:7px;">Paste a JSON array of <code style="font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">TransactionRequest</code> objects.</div>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- CONFIG CARD -->
+          <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px;">
+            <div style="font-size:12.5px;font-weight:600;margin-bottom:14px;">Batch configuration</div>
+            <div style="display:flex;flex-direction:column;gap:13px;">
+              <div>
+                <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;">Batch name <span style="color:var(--text-muted);opacity:.7;">(optional)</span></label>
+                <input value="{{ batchName }}" onInput="{{ onBatchName }}" placeholder="e.g. june-vip-review" style="width:100%;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;padding:0 11px;outline:none;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+                <div>
+                  <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;">τ_flag override</label>
+                  <input value="{{ tauFlag }}" onInput="{{ onTauFlag }}" type="number" min="0" max="1" step="0.01" style="width:100%;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-family:'JetBrains Mono',monospace;padding:0 11px;outline:none;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);" />
+                  <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">default 0.70</div>
+                </div>
+                <div>
+                  <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;">τ_medium override</label>
+                  <input value="{{ tauMed }}" onInput="{{ onTauMed }}" type="number" min="0" max="1" step="0.01" style="width:100%;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-family:'JetBrains Mono',monospace;padding:0 11px;outline:none;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);" />
+                  <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">default 0.40</div>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:5px;">Output format</label>
+                <div style="position:relative;display:flex;align-items:center;">
+                  <select value="{{ outFormat }}" onChange="{{ onOutFormat }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;padding:0 30px 0 11px;cursor:pointer;outline:none;"><option value="JSON">JSON</option><option value="CSV">CSV</option></select>
+                  <svg style="position:absolute;right:11px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
+              </div>
+            </div>
+            <!-- actions -->
+            <div style="display:flex;gap:8px;margin-top:16px;">
+              <button onClick="{{ validate }}" style="{{ validateBtnStyle }}">
+                <sc-if value="{{ isValidating }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:ax-spin .8s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Validating…</sc-if>
+                <sc-if value="{{ notValidating }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Validate</sc-if>
+              </button>
+              <button onClick="{{ runBatch }}" style="{{ runBtnStyle }}">
+                <sc-if value="{{ isRunning }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:ax-spin .8s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Running…</sc-if>
+                <sc-if value="{{ notRunning }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>Run Batch</sc-if>
+              </button>
+              <sc-if value="{{ isRunning }}">
+                <button onClick="{{ cancel }}" aria-label="Cancel" style="height:38px;padding:0 13px;border-radius:8px;border:1px solid var(--risk-critical);background:transparent;color:var(--risk-critical);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Cancel</button>
+              </sc-if>
+              <sc-if value="{{ notRunning }}">
+                <button onClick="{{ reset }}" aria-label="Reset" title="Reset" style="width:38px;height:38px;flex:none;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="color:var(--text-primary);border-color:var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- VALIDATION SUMMARY -->
+          <sc-if value="{{ showValidation }}">
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px;animation:ax-fade .15s ease;">
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:13px;">Validation summary</div>
+              <div style="display:flex;gap:10px;margin-bottom:{{ validationGap }};">
+                <div style="flex:1;border:1px solid var(--risk-low);background:var(--risk-low-muted);border-radius:9px;padding:11px 13px;"><div style="display:flex;align-items:center;gap:6px;color:var(--risk-low);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span style="font-size:21px;font-weight:700;font-family:'JetBrains Mono',monospace;">{{ validCount }}</span></div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Valid rows</div></div>
+                <div style="{{ invalidCardStyle }}"><div style="display:flex;align-items:center;gap:6px;color:{{ invalidColor }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span style="font-size:21px;font-weight:700;font-family:'JetBrains Mono',monospace;">{{ invalidCount }}</span></div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">Invalid rows</div></div>
+              </div>
+              <sc-if value="{{ hasInvalid }}">
+                <div style="border:1px solid var(--border-subtle);border-radius:9px;overflow:hidden;margin-bottom:12px;">
+                  <sc-for list="{{ validationErrors }}" as="e" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-bottom:1px solid var(--border-subtle);">
+                      <span style="font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--risk-critical);background:var(--risk-critical-muted);padding:1px 6px;border-radius:5px;flex:none;margin-top:1px;">row {{ e.row }}</span>
+                      <div style="min-width:0;"><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-primary);">{{ e.field }}</span><div style="font-size:11.5px;color:var(--text-muted);margin-top:1px;">{{ e.message }}</div></div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;background:var(--risk-medium-muted);border-radius:8px;padding:9px 11px;margin-bottom:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--state-warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span style="font-size:11.5px;color:var(--text-secondary);">Execution blocked until invalid rows are fixed or removed.</span></div>
+                <button onClick="{{ removeInvalid }}" style="width:100%;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="border-color:var(--accent-primary);color:var(--text-primary);">Remove invalid rows &amp; continue</button>
+              </sc-if>
+              <sc-if value="{{ allValid }}">
+                <div style="display:flex;align-items:center;gap:8px;background:var(--risk-low-muted);border-radius:8px;padding:9px 11px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--risk-low)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M20 6 9 17l-5-5"/></svg><span style="font-size:11.5px;color:var(--text-secondary);">All rows passed schema validation — ready to run.</span></div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <!-- SCHEMA HELPER -->
+          <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;overflow:hidden;">
+            <button onClick="{{ toggleSchema }}" style="display:flex;align-items:center;gap:9px;width:100%;padding:13px 16px;background:transparent;border:none;cursor:pointer;color:var(--text-primary);font-family:inherit;text-align:left;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ schemaChev }}"><path d="m9 18 6-6-6-6"/></svg>
+              <span style="font-size:12.5px;font-weight:600;flex:1;">TransactionRequest schema</span>
+              <span style="font-size:11px;color:var(--text-muted);">12 fields</span>
+            </button>
+            <sc-if value="{{ schemaOpen }}">
+              <div style="padding:0 16px 14px;">
+                <div style="border:1px solid var(--border-subtle);border-radius:9px;overflow:hidden;">
+                  <sc-for list="{{ schemaFields }}" as="f" hint-placeholder-count="12">
+                    <div style="display:flex;align-items:center;gap:8px;padding:7px 11px;border-bottom:1px solid var(--border-subtle);">
+                      <span style="font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--text-primary);flex:1;min-width:0;">{{ f.name }}</span>
+                      <span style="font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--text-muted);">{{ f.type }}</span>
+                      <span style="{{ f.reqStyle }}">{{ f.req }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:9px;line-height:1.5;">Optional geo/device fields are backward-compatible — omitting them is valid. Amounts near the <strong style="color:var(--text-secondary);">400M VND</strong> CTR threshold often trigger structuring detection.</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <!-- ===================== RIGHT PANEL ===================== -->
+        <div style="flex:3 1 480px;min-width:0;display:flex;flex-direction:column;gap:16px;">
+
+          <!-- ERROR BANNER -->
+          <sc-if value="{{ isErrorPhase }}">
+            <div style="display:flex;align-items:center;gap:12px;background:var(--risk-critical-muted);border:1px solid var(--risk-critical);border-radius:10px;padding:13px 16px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--risk-critical)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--risk-critical);">Batch failed</div><div style="font-size:12px;color:var(--text-secondary);margin-top:1px;"><code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg-base);padding:1px 5px;border-radius:4px;">SCORING_BACKEND_503</code> — the scoring service returned an error. No rows were processed.</div></div>
+              <button onClick="{{ retry }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:7px;border:1px solid var(--risk-critical);background:transparent;color:var(--risk-critical);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;flex:none;" style-hover="background:var(--risk-critical);color:#fff;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Retry</button>
+            </div>
+          </sc-if>
+
+          <!-- PROGRESS (running) -->
+          <sc-if value="{{ isRunning }}">
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="display:flex;align-items:center;gap:9px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:ax-spin .9s linear infinite;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span style="font-size:14px;font-weight:600;">Scoring batch…</span></div><span style="font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ progProcessed }} of {{ progTotal }} rows</span></div>
+              <div style="height:9px;border-radius:5px;background:var(--bg-subtle);overflow:hidden;margin-bottom:16px;"><div style="{{ progFillStyle }}"></div></div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;">
+                <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:9px;padding:11px 13px;"><div style="font-size:21px;font-weight:700;font-family:'JetBrains Mono',monospace;">{{ progProcessed }}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Processed</div></div>
+                <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:9px;padding:11px 13px;"><div style="font-size:21px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--risk-high);">{{ progFlagged }}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Flagged</div></div>
+                <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:9px;padding:11px 13px;"><div style="font-size:21px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text-muted);">{{ progFailed }}</div><div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Failed</div></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- EMPTY / PRE-RUN WIREFRAME -->
+          <sc-if value="{{ showWireframe }}">
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><span style="font-size:13px;font-weight:600;color:var(--text-muted);">Results</span><span style="font-size:11px;color:var(--text-muted);">awaiting run</span></div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px;">
+                <sc-for list="{{ four }}" as="i" hint-placeholder-count="4"><div style="border:1px dashed var(--border-default);border-radius:9px;height:64px;background:var(--bg-base);"></div></sc-for>
+              </div>
+              <div style="border:1px dashed var(--border-default);border-radius:10px;padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--bg-base);">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;opacity:.7;"><path d="M3 3v18h18"/><rect x="7" y="9" width="3" height="9"/><rect x="12" y="5" width="3" height="13"/><rect x="17" y="12" width="3" height="6"/></svg>
+                <div style="font-size:13.5px;font-weight:600;margin-bottom:4px;">No results yet</div>
+                <div style="font-size:12px;color:var(--text-muted);max-width:340px;line-height:1.55;">Validate your batch, then run scoring. Result summary cards, a decision breakdown, and the per-row table will appear here.</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- RESULTS -->
+          <sc-if value="{{ showResults }}">
+            <!-- summary cards -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:12px;">
+              <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:11px;padding:13px 14px;"><div style="font-size:11px;color:var(--text-muted);">Total rows</div><div style="font-size:23px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px;">{{ sumTotal }}</div></div>
+              <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:11px;padding:13px 14px;"><div style="font-size:11px;color:var(--text-muted);">Processed</div><div style="font-size:23px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px;color:var(--state-success);">{{ sumProcessed }}</div></div>
+              <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:11px;padding:13px 14px;"><div style="font-size:11px;color:var(--text-muted);">Flagged</div><div style="font-size:23px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px;color:var(--risk-high);">{{ sumFlagged }}</div></div>
+              <div style="{{ failedCardStyle }}"><div style="font-size:11px;color:var(--text-muted);">Failed</div><div style="font-size:23px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px;color:{{ failedColor }};">{{ sumFailed }}</div></div>
+              <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:11px;padding:13px 14px;"><div style="font-size:11px;color:var(--text-muted);">Avg risk score</div><div style="font-size:23px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px;">{{ sumAvg }}</div></div>
+            </div>
+
+            <!-- decision breakdown + partial failure -->
+            <div style="display:grid;grid-template-columns:{{ breakdownCols }};gap:12px;">
+              <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px 18px;">
+                <div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">Decision breakdown</div>
+                <div style="display:flex;align-items:center;gap:20px;">
+                  <svg width="112" height="112" viewBox="0 0 100 100" style="flex:none;">
+                    <g transform="rotate(-90 50 50)">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg-subtle)" stroke-width="14"/>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--risk-low)" stroke-width="14" stroke-dasharray="{{ donut.low }}" stroke-dashoffset="{{ donut.lowOff }}"/>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--risk-medium)" stroke-width="14" stroke-dasharray="{{ donut.med }}" stroke-dashoffset="{{ donut.medOff }}"/>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--risk-high)" stroke-width="14" stroke-dasharray="{{ donut.high }}" stroke-dashoffset="{{ donut.highOff }}"/>
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="var(--risk-critical)" stroke-width="14" stroke-dasharray="{{ donut.crit }}" stroke-dashoffset="{{ donut.critOff }}"/>
+                    </g>
+                    <text x="50" y="47" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text-primary)" font-family="monospace">{{ sumProcessed }}</text>
+                    <text x="50" y="60" text-anchor="middle" font-size="6.5" fill="var(--text-muted)">processed</text>
+                  </svg>
+                  <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:2px;background:var(--risk-low);"></span><span style="color:var(--text-secondary);flex:1;">LOW</span><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">{{ cntLow }}</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:2px;background:var(--risk-medium);"></span><span style="color:var(--text-secondary);flex:1;">MEDIUM</span><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">{{ cntMed }}</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:2px;background:var(--risk-high);"></span><span style="color:var(--text-secondary);flex:1;">HIGH</span><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">{{ cntHigh }}</span></div>
+                    <div style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:2px;background:var(--risk-critical);"></span><span style="color:var(--text-secondary);flex:1;">CRITICAL</span><span style="font-family:'JetBrains Mono',monospace;font-weight:600;">{{ cntCrit }}</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- partial failure card -->
+              <sc-if value="{{ hasFailed }}">
+                <div style="background:var(--bg-surface);border:1px solid var(--risk-critical);border-radius:12px;padding:16px 18px;">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:11px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--risk-critical)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span style="font-size:12.5px;font-weight:600;color:var(--risk-critical);">{{ sumFailed }} rows failed</span></div>
+                  <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:13px;">
+                    <sc-for list="{{ failedRows }}" as="f" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:flex-start;gap:8px;font-size:11.5px;"><span style="font-family:'JetBrains Mono',monospace;color:var(--text-secondary);flex:none;">#{{ f.idx }}</span><span style="font-family:'JetBrains Mono',monospace;color:var(--text-muted);">{{ f.txn }}…</span><span style="color:var(--state-error);flex:1;">{{ f.error }}</span></div>
+                    </sc-for>
+                  </div>
+                  <button onClick="{{ retryFailed }}" style="width:100%;height:34px;border-radius:8px;border:1px solid var(--risk-critical);background:transparent;color:var(--risk-critical);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;" style-hover="background:var(--risk-critical);color:#fff;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Retry failed rows</button>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- results table -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:13px 16px;border-bottom:1px solid var(--border-subtle);">
+                <span style="font-size:13px;font-weight:600;">Batch results</span>
+                <div style="flex:1;"></div>
+                <!-- risk filter chips -->
+                <div style="display:flex;align-items:center;gap:5px;padding:3px;border:1px solid var(--border-default);border-radius:8px;">
+                  <sc-for list="{{ riskChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+                </div>
+                <!-- flagged toggle -->
+                <button onClick="{{ toggleFlaggedOnly }}" style="{{ flaggedToggleStyle }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>Flagged only</button>
+                <!-- refresh explanations -->
+                <sc-if value="{{ hasPending }}">
+                  <button onClick="{{ refreshExpl }}" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="border-color:var(--accent-secondary);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ refreshSpin }}"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Refresh explanations</button>
+                </sc-if>
+                <!-- export -->
+                <button onClick="{{ exportResults }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:8px;border:none;background:var(--accent-primary);color:#fff;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="background:var(--accent-primary-hover);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>Export {{ outFormat }}</button>
+              </div>
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;min-width:920px;">
+                  <thead><tr style="color:var(--text-muted);text-align:left;background:var(--bg-elevated);">
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;width:34px;">#</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;">Transaction</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;">Sender</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;text-align:right;">Amount</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;">Channel</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;text-align:right;">Score</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;">Risk</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;text-align:center;">Flagged</th>
+                    <th style="font-weight:600;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:9px 14px;">Rules</th>
+                    <th style="padding:9px 14px;width:34px;"></th>
+                  </tr></thead>
+                  <tbody>
+                    <sc-for list="{{ resultRows }}" as="r" hint-placeholder-count="8">
+                      <tr style="{{ r.rowStyle }}" onClick="{{ r.open }}" style-hover="background:var(--bg-elevated);">
+                        <td style="padding:11px 14px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ r.idx }}</td>
+                        <td style="padding:11px 14px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ r.txnShort }}<span style="color:var(--text-muted);">…</span></td>
+                        <td style="padding:11px 14px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ r.senderShort }}<span style="color:var(--text-muted);">…</span></td>
+                        <td style="padding:11px 14px;text-align:right;font-family:'JetBrains Mono',monospace;">{{ r.amount }}<span style="color:var(--text-muted);font-size:10px;"> ₫</span></td>
+                        <td style="padding:11px 14px;"><span style="{{ r.chanStyle }}">{{ r.channel }}</span></td>
+                        <td style="padding:11px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;">{{ r.score }}</td>
+                        <td style="padding:11px 14px;"><span style="{{ r.riskStyle }}">{{ r.level }}</span></td>
+                        <td style="padding:11px 14px;text-align:center;">
+                          <sc-if value="{{ r.flagged }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--risk-high)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:inline;"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+                          <sc-if value="{{ r.notFlagged }}"><span style="color:var(--text-muted);">—</span></sc-if>
+                        </td>
+                        <td style="padding:11px 14px;"><div style="display:flex;flex-wrap:wrap;gap:4px;"><sc-for list="{{ r.ruleChips }}" as="rc" hint-placeholder-count="1"><span style="{{ rc.style }}">{{ rc.id }}</span></sc-for><sc-if value="{{ r.noRules }}"><span style="color:var(--text-muted);">—</span></sc-if></div></td>
+                        <td style="padding:11px 14px;color:var(--text-muted);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+                <sc-if value="{{ noResultRows }}"><div style="padding:36px;text-align:center;font-size:12.5px;color:var(--text-muted);">No rows match the current filters.</div></sc-if>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============ BATCH RECORD DETAIL MODAL ============ -->
+  <sc-if value="{{ modalOpen }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:50;background:rgba(5,6,12,.62);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:32px;">
+      <div onClick="{{ stopModal }}" style="width:100%;max-width:1000px;max-height:90vh;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;box-shadow:0 28px 70px rgba(0,0,0,.55);display:flex;flex-direction:column;overflow:hidden;animation:ax-scalein .16s ease;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--border-subtle);flex:none;">
+          <span style="font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);">Batch record #{{ modal.idx }}</span>
+          <span style="{{ modal.riskStyle }}">{{ modal.level }}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-secondary);">{{ modal.txnShort }}…</span>
+          <div style="flex:1;"></div>
+          <button onClick="{{ closeModal }}" aria-label="Close" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+        <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:0;overflow:hidden;flex:1;min-height:0;">
+          <!-- LEFT evidence -->
+          <div style="overflow-y:auto;padding:20px 22px;border-right:1px solid var(--border-subtle);">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;">
+              <div><div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Risk score</div><div style="font-size:42px;font-weight:700;line-height:1;font-family:'JetBrains Mono',monospace;color:{{ modal.scoreColor }};">{{ modal.score }}</div></div>
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;"><span style="{{ modal.flaggedBadge }}">{{ modal.flaggedText }}</span><span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">model v2.4.1</span></div>
+            </div>
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:10px;padding:14px 15px;margin-bottom:18px;">
+              <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:11px;">Transaction</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px 18px;">
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Amount</div><div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;">{{ modal.amount }} <span style="font-size:11px;color:var(--text-muted);font-weight:500;">VND</span></div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Channel</div><span style="{{ modal.chanStyle }}">{{ modal.channel }}</span></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Sender balance</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.senderBal }}</div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Receiver balance</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.receiverBal }}</div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Sender</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.senderShort }}…</span><span onClick="{{ modal.copySender }}" style="cursor:pointer;color:var(--text-muted);display:inline-flex;" style-hover="color:var(--text-primary);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Receiver</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.receiverShort }}…</span><span onClick="{{ modal.copyReceiver }}" style="cursor:pointer;color:var(--text-muted);display:inline-flex;" style-hover="color:var(--text-primary);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></div>
+                <div style="grid-column:1 / -1;"><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Timestamp</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.timestamp }}</div></div>
+              </div>
+            </div>
+            <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Triggered rules</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+              <sc-for list="{{ modal.rules }}" as="r" hint-placeholder-count="2"><div style="border:1px solid var(--border-subtle);border-radius:9px;padding:11px 13px;background:var(--bg-base);"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;">{{ r.id }}</span><span style="{{ r.sevStyle }}">{{ r.severity }}</span><div style="flex:1;"></div><span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ r.typology }}</span></div><div style="font-size:11.5px;color:var(--text-secondary);">→ {{ r.hint }}</div></div></sc-for>
+              <sc-if value="{{ modal.noRules }}"><div style="font-size:12px;color:var(--text-muted);padding:6px 2px;">No rules triggered — ML-only score.</div></sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;"><span style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);">Top SHAP features</span></div>
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <sc-for list="{{ modal.features }}" as="f" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:11px;"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-secondary);width:170px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.name }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);width:38px;flex:none;text-align:right;">{{ f.value }}</span><div style="flex:1;height:7px;border-radius:4px;background:var(--bg-subtle);overflow:hidden;"><div style="{{ f.barStyle }}"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:{{ f.color }};width:46px;flex:none;text-align:right;">{{ f.contribution }}</span></div></sc-for>
+            </div>
+          </div>
+          <!-- RIGHT explanation + actions -->
+          <div style="overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;"><span style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);">Explanation</span><span style="{{ modal.explStyle }}">{{ modal.explLabel }}</span></div>
+            <sc-if value="{{ modal.explPending }}"><div style="display:flex;align-items:center;gap:9px;background:var(--bg-base);border:1px dashed var(--border-default);border-radius:10px;padding:16px;margin-bottom:16px;animation:ax-pulse 1.6s infinite;"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent-secondary);flex:none;"></span><span style="font-size:13px;color:var(--text-secondary);">Explanation pending… use “Refresh explanations” to poll.</span></div></sc-if>
+            <sc-if value="{{ modal.explReady }}"><div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:10px;padding:15px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.65;color:var(--text-secondary);">{{ modal.explanation }}</div></sc-if>
+            <sc-if value="{{ modal.explTemplate }}"><div style="display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--state-warning);background:var(--risk-medium-muted);border-radius:8px;padding:9px 11px;margin-bottom:16px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>LLM unavailable — showing rule-based summary.</div></sc-if>
+
+            <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;">Reviewer note <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+            <textarea value="{{ reviewerNote }}" onInput="{{ setReviewerNote }}" placeholder="Add context for this decision…" style="width:100%;min-height:74px;resize:vertical;border-radius:9px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-family:inherit;padding:10px 12px;outline:none;margin-bottom:16px;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);"></textarea>
+            <div style="display:flex;gap:9px;margin-bottom:16px;">
+              <button onClick="{{ modal.escalate }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:9px;border:none;background:var(--risk-high);color:#fff;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="background:var(--risk-critical);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>Escalate</button>
+              <button onClick="{{ modal.dismiss }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:9px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>Dismiss</button>
+              <button onClick="{{ closeModal }}" style="display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 14px;border-radius:9px;border:none;background:transparent;color:var(--text-muted);font-size:13.5px;font-weight:500;font-family:inherit;cursor:pointer;" style-hover="color:var(--text-primary);">Close</button>
+            </div>
+            <div style="flex:1;"></div>
+            <div style="border-top:1px solid var(--border-subtle);padding-top:13px;"><div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:9px;">Batch context</div><div style="display:flex;flex-direction:column;gap:6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--text-muted);"><div style="display:flex;justify-content:space-between;"><span>batch</span><span style="color:var(--text-secondary);">{{ batchLabel }}</span></div><div style="display:flex;justify-content:space-between;"><span>alert_id</span><span style="color:var(--text-secondary);">{{ modal.alertId }}</span></div><div style="display:flex;justify-content:space-between;"><span>row_index</span><span style="color:var(--text-secondary);">{{ modal.idx }}</span></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ CONFIRM DIALOG ============ -->
+  <sc-if value="{{ confirmOpen }}">
+    <div style="position:fixed;inset:0;z-index:60;background:rgba(5,6,12,.6);display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div style="width:100%;max-width:440px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;box-shadow:0 28px 70px rgba(0,0,0,.55);overflow:hidden;animation:ax-scalein .15s ease;">
+        <div style="padding:20px 22px 0;">
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px;"><span style="{{ confirm.iconWrap }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{{ confirm.iconPath }}</svg></span><h3 style="margin:0;font-size:16px;font-weight:600;">{{ confirm.title }}</h3></div>
+          <p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--text-secondary);">{{ confirm.body }}</p>
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Reason <span style="color:var(--risk-critical);">*</span></div>
+          <div style="position:relative;display:flex;align-items:center;margin-bottom:13px;"><select value="{{ reason }}" onChange="{{ setReason }}" style="appearance:none;-webkit-appearance:none;width:100%;height:38px;border-radius:8px;border:1px solid {{ reasonBorder }};background:var(--bg-base);color:var(--text-primary);font-size:13px;padding:0 30px 0 12px;cursor:pointer;outline:none;"><option value="">Select a reason…</option><sc-for list="{{ confirm.reasons }}" as="r" hint-placeholder-count="4"><option value="{{ r }}">{{ r }}</option></sc-for></select><svg style="position:absolute;right:11px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+          <sc-if value="{{ reasonError }}"><div style="font-size:11.5px;color:var(--risk-critical);margin-top:-7px;margin-bottom:11px;">Please select a reason before confirming.</div></sc-if>
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Note <span style="font-weight:400;">(optional)</span></div>
+          <textarea value="{{ confirmNote }}" onInput="{{ setConfirmNote }}" placeholder="Additional detail…" style="width:100%;min-height:58px;resize:vertical;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-family:inherit;padding:9px 11px;outline:none;margin-bottom:6px;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:9px;padding:14px 22px;background:var(--bg-elevated);border-top:1px solid var(--border-subtle);margin-top:8px;"><button onClick="{{ closeConfirm }}" style="height:38px;padding:0 16px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="color:var(--text-primary);">Cancel</button><button onClick="{{ submitConfirm }}" style="{{ confirm.btnStyle }}">{{ confirm.cta }}</button></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ TOAST ============ -->
+  <sc-if value="{{ toastVisible }}">
+    <div role="status" style="{{ toastStyle }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ toastIconColor }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;">{{ toastIcon }}</svg><span style="font-size:13px;color:var(--text-primary);">{{ toastMsg }}</span></div>
+  </sc-if>
+
+  <!-- ============ PREVIEW STATE SWITCHER ============ -->
+  <div style="position:fixed;bottom:18px;left:18px;z-index:55;display:flex;align-items:center;gap:5px;flex-wrap:wrap;max-width:540px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;padding:6px 8px;box-shadow:0 8px 28px rgba(0,0,0,.35);">
+    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--text-muted);text-transform:uppercase;padding:0 4px;">State</span>
+    <sc-for list="{{ stateOptions }}" as="s" hint-placeholder-count="7"><button onClick="{{ s.onClick }}" style="{{ s.style }}">{{ s.label }}</button></sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;phase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;empty&quot;,&quot;validated&quot;,&quot;running&quot;,&quot;results&quot;,&quot;partial&quot;,&quot;error&quot;,&quot;invalid&quot;],&quot;default&quot;:&quot;empty&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;\&quot;dark\&quot;|\&quot;light\&quot;&quot;}}">
+class Component extends DCLogic {
+  state = {
+    theme: this.props.defaultTheme === 'light' ? 'light' : 'dark',
+    phase: this.props.phase || 'empty',
+    tab: 'paste',
+    hasFile: false,
+    pasteValue: '',
+    batchName: 'june-vip-review',
+    tauFlag: '0.70',
+    tauMed: '0.40',
+    outFormat: 'JSON',
+    schemaOpen: false,
+    riskFilter: [],
+    flaggedOnly: false,
+    explFilled: false,
+    refreshing: false,
+    progProcessed: 0,
+    modalIdx: null,
+    reviewerNote: '',
+    confirm: null,
+    reason: '',
+    confirmNote: '',
+    reasonError: false,
+    toast: null,
+  };
+
+  RULE_META = {
+    'R-STRUCT-01': { typology: 'structuring', severity: 'HIGH', hint: 'review_and_escalate' },
+    'R-SMURF-01': { typology: 'smurfing', severity: 'HIGH', hint: 'review_and_escalate' },
+    'R-RAPID-01': { typology: 'rapid_movement', severity: 'HIGH', hint: 'manual_review' },
+    'R-LAYER-01': { typology: 'layering', severity: 'MEDIUM', hint: 'monitor' },
+    'R-VELO-01': { typology: 'velocity_anomaly', severity: 'MEDIUM', hint: 'monitor' },
+    'R-GEO-01': { typology: 'geo_device_anomaly', severity: 'MEDIUM', hint: 'manual_review' },
+  };
+
+  SCHEMA = [
+    ['transaction_id', 'string', 1], ['sender_id', 'string', 1], ['receiver_id', 'string', 1],
+    ['sender_balance', 'number', 1], ['receiver_balance', 'number', 1], ['amount', 'number', 1],
+    ['currency', 'string', 1], ['timestamp', 'string', 1], ['channel', 'enum', 1],
+    ['device_id', 'string', 0], ['location_country', 'string', 0], ['location_region', 'string', 0],
+  ];
+
+  SAMPLE = '[\n  {\n    "transaction_id": "7f3a9c21-4b2e-4f1a-9c3d-1a2b3c4d5e6f",\n    "sender_id": "a1f9c2d4e6b8a0c2",\n    "receiver_id": "b3e7d1f5a9c3e7b1",\n    "sender_balance": 820000000,\n    "receiver_balance": 15000000,\n    "amount": 392450000,\n    "currency": "VND",\n    "timestamp": "2026-06-18T09:12:04+07:00",\n    "channel": "CASH_OUT",\n    "device_id": "dev_88af21",\n    "location_country": "VN",\n    "location_region": "HN"\n  },\n  {\n    "transaction_id": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",\n    "sender_id": "c4d8e2f6a0b4c8d2",\n    "receiver_id": "d6f0a4c8e2b6d0f4",\n    "sender_balance": 240000000,\n    "receiver_balance": 88000000,\n    "amount": 148000000,\n    "currency": "VND",\n    "timestamp": "2026-06-18T08:40:11+07:00",\n    "channel": "TRANSFER"\n  }\n  /* … 22 more records */\n]';
+
+  // [idx, txn, sender, receiver, amount, sBal, rBal, channel, score, level, rules, src, expl, feats]
+  RESULTS = [
+    [1, '7f3a9c21-4b2e-4f1a', 'a1f9c2d4e6b8a0c2', 'b3e7d1f5a9c3e7b1', 392450000, 820000000, 15000000, 'CASH_OUT', 0.96, 'CRITICAL', ['R-STRUCT-01','R-RAPID-01'], 'llm', 'Cấu trúc hóa gần ngưỡng CTR 400M kết hợp di chuyển nhanh. / Near-CTR structuring combined with rapid movement; highest-risk record in batch.', [['count_just_below_threshold_24h',8,0.31],['amount_zscore',4.8,0.27],['velocity_24h',9,0.18]]],
+    [2, 'a1b2c3d4-5e6f-7a8b', 'c4d8e2f6a0b4c8d2', 'd6f0a4c8e2b6d0f4', 148000000, 240000000, 88000000, 'TRANSFER', 0.91, 'CRITICAL', ['R-SMURF-01'], 'template', 'Rule-based summary: smurfing — funds split across 5 receivers within 30 minutes.', [['fanout_count',5,0.34],['velocity_1h',5,0.22],['amount_zscore',2.1,0.14]]],
+    [3, '9e8d7c6b-5a4f-3e2d', '9a8f7e6d5c4b3a29', '8b7c6d5e4f3a2b18', 24300000, 60000000, 5000000, 'PAYMENT', 0.84, 'HIGH', ['R-VELO-01','R-GEO-01'], null, null, [['velocity_1h',14,0.29],['device_change_flag',1,0.21],['geo_distance_km',412,0.17]]],
+    [4, '4f5e6d7c-8b9a-0c1d', '2e3f4a5b6c7d8e9f', '1d2e3f4a5b6c7d8e', 67800000, 130000000, 42000000, 'TRANSFER', 0.79, 'HIGH', ['R-LAYER-01'], 'llm', 'Layering through 3 intermediary accounts before consolidation. / Phân lớp qua 3 tài khoản trung gian.', [['layering_depth',3,0.26],['counterparty_risk',0.71,0.19]]],
+    [5, 'c0ffee12-3456-7890', 'ef0123456789abcd', 'abcdef0123456789', 88200000, 300000000, 9000000, 'CASH_IN', 0.74, 'HIGH', ['R-STRUCT-01'], 'template', 'Rule-based summary: repeated sub-threshold cash-in across consecutive days.', [['structuring_score',0.72,0.24],['amount_zscore',2.4,0.15]]],
+    [6, 'deadbeef-1111-2222', '4444555566667777', '7777888899990000', 33400000, 75000000, 12000000, 'PAYMENT', 0.71, 'HIGH', ['R-GEO-01'], null, null, [['geo_distance_km',980,0.23],['device_change_flag',1,0.2]]],
+    [7, '12345678-90ab-cdef', '567890abcdef1234', 'cdef1234567890ab', 19800000, 40000000, 22000000, 'DEBIT', 0.62, 'MEDIUM', ['R-VELO-01'], 'llm', 'Velocity slightly above the account baseline; logged for monitoring (below flag threshold).', [['velocity_24h',12,0.19],['amount_zscore',1.4,0.1]]],
+    [8, 'feedface-aaaa-bbbb', 'ddddeeeeffff0000', '00001111aaaabbbb', 9800000, 28000000, 7000000, 'TRANSFER', 0.55, 'MEDIUM', ['R-LAYER-01'], 'template', 'Rule-based summary: minor layering signal on intra-bank transfer.', [['layering_depth',2,0.16],['counterparty_risk',0.4,0.09]]],
+    [9, '0a1b2c3d-4e5f-6a7b', '8c9d0e1f2a3b4c5d', '6a7b8c9d0e1f2a3b', 12500000, 33000000, 18000000, 'PAYMENT', 0.48, 'MEDIUM', [], null, null, [['amount_zscore',1.1,0.12],['hour_of_day',3,0.06]]],
+    [10, '5d6e7f8a-9b0c-1d2e', '3f4a5b6c7d8e9f0a', '1d2e3f4a5b6c7d8e', 4200000, 15000000, 9000000, 'DEBIT', 0.33, 'LOW', [], 'template', 'Rule-based summary: no anomaly signals; routine debit.', [['amount_zscore',0.4,0.05]]],
+    [11, 'bb11cc22-dd33-ee44', 'aa66bb77cc88dd99', 'ee44ff55aa66bb77', 2800000, 11000000, 6000000, 'PAYMENT', 0.28, 'LOW', [], 'template', 'Rule-based summary: routine low-value payment.', [['amount_zscore',0.2,0.03]]],
+    [12, '99aa88bb-77cc-66dd', '44ff33aa22bb11cc', '55ee44ff33aa22bb', 1500000, 8000000, 3000000, 'CASH_IN', 0.19, 'LOW', [], 'template', 'Rule-based summary: routine cash-in.', [['amount_zscore',0.1,0.02]]],
+    [13, '33dd44ee-55ff-66aa', '11cc22bb33aa44ff', '22bb33aa44ff55ee', 980000, 5000000, 2000000, 'PAYMENT', 0.12, 'LOW', [], 'template', 'Rule-based summary: nominal.', [['amount_zscore',0.05,0.01]]],
+    [14, '77bb88cc-99dd-00ee', '99ff00aa11bb22cc', '88ee99ff00aa11bb', 450000, 3000000, 1000000, 'DEBIT', 0.08, 'LOW', [], 'template', 'Rule-based summary: nominal.', [['amount_zscore',0.02,0.01]]],
+  ];
+  FAILED = [
+    { idx: 9, txn: '0a1b2c3d', error: 'model scoring timeout (504)' },
+    { idx: 13, txn: '33dd44ee', error: 'feature store unavailable' },
+  ];
+
+  componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); clearTimeout(this._rt); }
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+  setTab = (t) => this.setState({ tab: t });
+  dropSample = () => this.setState({ hasFile: true });
+  removeFile = () => this.setState({ hasFile: false });
+  onPaste = (e) => this.setState({ pasteValue: e.target.value });
+  onBatchName = (e) => this.setState({ batchName: e.target.value });
+  onTauFlag = (e) => this.setState({ tauFlag: e.target.value });
+  onTauMed = (e) => this.setState({ tauMed: e.target.value });
+  onOutFormat = (e) => this.setState({ outFormat: e.target.value });
+  toggleSchema = () => this.setState(s => ({ schemaOpen: !s.schemaOpen }));
+
+  validate = () => {
+    if (this.state.phase === 'validating') return;
+    this.setState({ phase: 'validating' });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ phase: 'validated' }), 850);
+  };
+  removeInvalid = () => this.setState({ phase: 'validated' });
+
+  runBatch = () => {
+    if (this.state.phase !== 'validated') return;
+    this.setState({ phase: 'running', progProcessed: 0 });
+    clearInterval(this._iv);
+    const total = this.RESULTS.length;
+    this._iv = setInterval(() => {
+      this.setState(s => {
+        const n = s.progProcessed + 1;
+        if (n >= total) { clearInterval(this._iv); return { progProcessed: total, phase: 'results' }; }
+        return { progProcessed: n };
+      });
+    }, 130);
+  };
+  cancel = () => { clearInterval(this._iv); this.setState({ phase: 'validated', progProcessed: 0 }); };
+  reset = () => { clearInterval(this._iv); this.setState({ phase: 'empty', progProcessed: 0, hasFile: false, pasteValue: '', riskFilter: [], flaggedOnly: false, explFilled: false }); };
+  retry = () => { this.setState({ phase: 'validated' }); };
+
+  toggleRisk = (v) => this.setState(s => ({ riskFilter: s.riskFilter.includes(v) ? s.riskFilter.filter(x => x !== v) : [...s.riskFilter, v] }));
+  toggleFlaggedOnly = () => this.setState(s => ({ flaggedOnly: !s.flaggedOnly }));
+  refreshExpl = () => {
+    if (this.state.refreshing) return;
+    this.setState({ refreshing: true });
+    clearTimeout(this._rt);
+    this._rt = setTimeout(() => { this.setState({ refreshing: false, explFilled: true, toast: { msg: 'Explanations refreshed for 4 pending records', kind: 'success' } }); this.fadeToast(); }, 1100);
+  };
+  exportResults = () => { this.setState({ toast: { msg: 'Exported anomalyx_batch_' + (this.state.batchName || 'untitled') + '_20260618.' + this.state.outFormat.toLowerCase(), kind: 'success' } }); this.fadeToast(); };
+  retryFailed = () => { this.setState({ phase: 'results', toast: { msg: 'Re-submitted 2 failed rows — scoring…', kind: 'success' } }); this.fadeToast(); };
+
+  openModal = (idx) => this.setState({ modalIdx: idx, reviewerNote: '' });
+  closeModal = () => this.setState({ modalIdx: null });
+  setReviewerNote = (e) => this.setState({ reviewerNote: e.target.value });
+
+  openConfirm = (action, idx) => this.setState({ confirm: { action, idx }, reason: '', confirmNote: '', reasonError: false });
+  closeConfirm = () => this.setState({ confirm: null, reasonError: false });
+  setReason = (e) => this.setState({ reason: e.target.value, reasonError: false });
+  setConfirmNote = (e) => this.setState({ confirmNote: e.target.value });
+  submitConfirm = () => {
+    if (!this.state.reason) { this.setState({ reasonError: true }); return; }
+    const c = this.state.confirm; const verb = c.action === 'ESCALATED' ? 'escalated' : 'dismissed';
+    this.setState({ confirm: null, modalIdx: null, reasonError: false, toast: { msg: 'Record #' + c.idx + ' ' + verb, kind: c.action === 'ESCALATED' ? 'escalate' : 'success' } });
+    this.fadeToast();
+  };
+  fadeToast() { clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 3000); }
+  copyVal = (v, label) => { try { navigator.clipboard && navigator.clipboard.writeText(v); } catch (e) {} this.setState({ toast: { msg: (label || 'Value') + ' copied', kind: 'copy' } }); this.fadeToast(); };
+  setScreen = (v) => { clearInterval(this._iv); this.setState({ phase: v, progProcessed: v === 'running' ? 6 : 0, modalIdx: null, confirm: null }); };
+
+  badge(color, bg, border) { return { display: 'inline-flex', alignItems: 'center', fontSize: '10.5px', fontWeight: 700, letterSpacing: '.3px', fontFamily: "'JetBrains Mono', monospace", padding: '2px 8px', borderRadius: '6px', color, background: bg || 'transparent', border: border ? '1px solid ' + border : '1px solid transparent', whiteSpace: 'nowrap' }; }
+  riskStyle(level) { const m = { LOW: ['var(--risk-low)','var(--risk-low-muted)'], MEDIUM: ['var(--risk-medium)','var(--risk-medium-muted)'], HIGH: ['var(--risk-high)','var(--risk-high-muted)'], CRITICAL: ['var(--risk-critical)','var(--risk-critical-muted)'] }[level]; return this.badge(m[0], m[1]); }
+  sevColor(s) { return s === 'CRITICAL' ? 'var(--risk-critical)' : s === 'HIGH' ? 'var(--risk-high)' : 'var(--risk-medium)'; }
+  sevBg(s) { return s === 'CRITICAL' ? 'var(--risk-critical-muted)' : s === 'HIGH' ? 'var(--risk-high-muted)' : 'var(--risk-medium-muted)'; }
+  chanStyle() { return this.badge('var(--text-secondary)', 'var(--bg-subtle)'); }
+  explStyleOf(src) {
+    if (src === 'llm') return { ...this.badge('var(--accent-secondary)', 'var(--accent-secondary-muted)'), textTransform: 'lowercase' };
+    if (src === 'template') return { ...this.badge('var(--text-muted)', 'var(--bg-subtle)'), textTransform: 'lowercase' };
+    return { ...this.badge('var(--accent-primary)', 'var(--accent-primary-muted)'), textTransform: 'lowercase', animation: 'ax-pulse 1.6s infinite' };
+  }
+  fmtVND(n) { return n.toLocaleString('en-US'); }
+  chip(active, color, bg) { return { fontSize: '10.5px', fontWeight: 600, fontFamily: 'inherit', padding: '3px 8px', borderRadius: '6px', cursor: 'pointer', border: '1px solid ' + (active ? color : 'transparent'), background: active ? bg : 'transparent', color: active ? color : 'var(--text-secondary)', whiteSpace: 'nowrap' }; }
+
+  // source after refresh: pending rows get filled
+  effSrc(r) { const src = r[11]; if (src === null) return this.state.explFilled ? 'llm' : 'pending'; return src; }
+  effExpl(r) { const src = r[11]; if (src === null) return this.state.explFilled ? ('LLM narrative: anomaly pattern matched for ' + r[10].toLowerCase() + ' risk record. / Mẫu bất thường đã được khớp.') : null; return r[12]; }
+
+  renderVals() {
+    const S = this.state;
+    const phase = S.phase;
+    const total = this.RESULTS.length;
+    const isResultsPhase = phase === 'results' || phase === 'partial';
+    const hasFailed = phase === 'partial';
+    const failedIdx = hasFailed ? this.FAILED.map(f => f.idx) : [];
+    const processedRows = this.RESULTS.filter(r => !failedIdx.includes(r[0]));
+
+    // counts (over processed)
+    const cnt = { LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 0 };
+    processedRows.forEach(r => cnt[r[9]]++);
+    const processed = processedRows.length;
+    const flagged = processedRows.filter(r => r[9] === 'HIGH' || r[9] === 'CRITICAL').length;
+    const avg = (processedRows.reduce((a, r) => a + r[8], 0) / processed).toFixed(2);
+
+    // donut
+    const C = 251.327;
+    const seg = (n) => (processed ? n / processed : 0) * C;
+    const lowLen = seg(cnt.LOW), medLen = seg(cnt.MEDIUM), highLen = seg(cnt.HIGH), critLen = seg(cnt.CRITICAL);
+    const donut = {
+      low: lowLen.toFixed(1) + ' ' + C.toFixed(1), lowOff: '0',
+      med: medLen.toFixed(1) + ' ' + C.toFixed(1), medOff: (-lowLen).toFixed(1),
+      high: highLen.toFixed(1) + ' ' + C.toFixed(1), highOff: (-(lowLen + medLen)).toFixed(1),
+      crit: critLen.toFixed(1) + ' ' + C.toFixed(1), critOff: (-(lowLen + medLen + highLen)).toFixed(1),
+    };
+
+    // table filtering
+    let rows = processedRows.filter(r => {
+      if (S.riskFilter.length && !S.riskFilter.includes(r[9])) return false;
+      if (S.flaggedOnly && !(r[9] === 'HIGH' || r[9] === 'CRITICAL')) return false;
+      return true;
+    });
+    rows = [...rows].sort((a, b) => b[8] - a[8]);
+    const stripe = { LOW: 'var(--risk-low)', MEDIUM: 'var(--risk-medium)', HIGH: 'var(--risk-high)', CRITICAL: 'var(--risk-critical)' };
+    const resultRows = rows.map(r => {
+      const flag = r[9] === 'HIGH' || r[9] === 'CRITICAL';
+      return {
+        idx: r[0], txnShort: r[1].slice(0, 8), senderShort: r[2].slice(0, 8), amount: this.fmtVND(r[4]),
+        channel: r[7], chanStyle: { ...this.chanStyle(), fontSize: '9.5px', padding: '1px 6px' }, score: r[8].toFixed(2), level: r[9],
+        riskStyle: this.riskStyle(r[9]), flagged: flag, notFlagged: !flag,
+        ruleChips: r[10].map(id => ({ id, style: { ...this.badge(this.sevColor(this.RULE_META[id].severity), this.sevBg(this.RULE_META[id].severity)), fontSize: '9px', padding: '1px 5px' } })), noRules: r[10].length === 0,
+        rowStyle: { borderBottom: '1px solid var(--border-subtle)', borderLeft: '3px solid ' + stripe[r[9]], cursor: 'pointer' },
+        open: () => this.openModal(r[0]),
+      };
+    });
+
+    const hasPending = !S.explFilled && processedRows.some(r => r[11] === null);
+
+    // validation display
+    const showValidation = ['validated', 'invalid', 'running', 'results', 'partial'].includes(phase);
+    const invalidPhase = phase === 'invalid';
+    const validCount = invalidPhase ? 21 : total + 10;
+    const invalidCount = invalidPhase ? 3 : 0;
+    const validationErrors = [
+      { row: 7, field: 'receiver_id', message: 'Required field is missing.' },
+      { row: 14, field: 'amount', message: 'Must be ≥ 0 (received -50000).' },
+      { row: 19, field: 'transaction_id', message: 'Duplicate transaction_id within batch (not unique).' },
+    ];
+
+    // modal
+    const mr = S.modalIdx != null ? this.RESULTS.find(r => r[0] === S.modalIdx) : null;
+    let modal = null;
+    if (mr) {
+      const maxC = Math.max(...mr[13].map(f => Math.abs(f[2]))) || 1;
+      const flag = mr[9] === 'HIGH' || mr[9] === 'CRITICAL';
+      const src = this.effSrc(mr); const expl = this.effExpl(mr);
+      modal = {
+        idx: mr[0], txnShort: mr[1].slice(0, 8), level: mr[9], riskStyle: this.riskStyle(mr[9]), score: mr[8].toFixed(2), scoreColor: stripe[mr[9]],
+        amount: this.fmtVND(mr[4]), channel: mr[7], chanStyle: this.chanStyle(), senderShort: mr[2].slice(0, 8), receiverShort: mr[3].slice(0, 8),
+        senderBal: this.fmtVND(mr[5]), receiverBal: this.fmtVND(mr[6]), timestamp: '2026-06-18T09:12:04+07:00',
+        flaggedBadge: flag ? { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 600, color: 'var(--risk-critical)', background: 'var(--risk-critical-muted)', padding: '3px 9px', borderRadius: '6px' } : { display: 'inline-flex', fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', background: 'var(--bg-subtle)', padding: '3px 9px', borderRadius: '6px' },
+        flaggedText: flag ? 'is_flagged: true' : 'is_flagged: false',
+        rules: mr[10].map(id => ({ id, typology: this.RULE_META[id].typology, severity: this.RULE_META[id].severity, hint: this.RULE_META[id].hint, sevStyle: { ...this.badge(this.sevColor(this.RULE_META[id].severity), this.sevBg(this.RULE_META[id].severity)), fontSize: '9.5px', padding: '1px 7px' } })),
+        noRules: mr[10].length === 0,
+        features: mr[13].map(f => { const pos = f[2] >= 0; const w = Math.round(Math.abs(f[2]) / maxC * 100); return { name: f[0], value: String(f[1]), contribution: (pos ? '+' : '') + f[2].toFixed(2), color: pos ? 'var(--risk-high)' : 'var(--risk-low)', barStyle: { height: '100%', width: w + '%', borderRadius: '4px', background: pos ? 'var(--risk-high)' : 'var(--risk-low)' } }; }),
+        explStyle: this.explStyleOf(src), explLabel: src === 'pending' ? 'pending…' : src, explPending: src === 'pending', explReady: src !== 'pending', explTemplate: src === 'template', explanation: expl,
+        alertId: flag ? ('al_00' + (920 + mr[0])) : '—',
+        copySender: () => this.copyVal(mr[2], 'Sender ID'), copyReceiver: () => this.copyVal(mr[3], 'Receiver ID'),
+        escalate: () => this.openConfirm('ESCALATED', mr[0]), dismiss: () => this.openConfirm('DISMISSED', mr[0]),
+      };
+    }
+
+    // confirm
+    const c = S.confirm; let confirm = null;
+    if (c) {
+      const esc = c.action === 'ESCALATED';
+      confirm = {
+        title: esc ? 'Escalate this record?' : 'Dismiss this record?',
+        body: esc ? 'This will flag the transaction as a confirmed AML case and create a ground-truth label for model retraining.' : 'This marks the record as a false positive and logs a ground-truth label for model retraining.',
+        cta: esc ? 'Escalate' : 'Dismiss',
+        reasons: esc ? ['Confirmed structuring pattern', 'Matches known AML typology', 'CTR threshold exceeded (≥400M VND)', 'Manual investigation warranted'] : ['False positive — legitimate activity', 'Duplicate of another alert', 'Below materiality threshold', 'Verified with customer'],
+        iconPath: esc ? React.createElement(React.Fragment, null, React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('path', { d: 'm16 12-4-4-4 4' }), React.createElement('path', { d: 'M12 16V8' })) : React.createElement(React.Fragment, null, React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('path', { d: 'm15 9-6 6' }), React.createElement('path', { d: 'm9 9 6 6' })),
+        iconWrap: { width: '34px', height: '34px', borderRadius: '9px', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: esc ? 'var(--risk-high)' : 'var(--text-secondary)', background: esc ? 'var(--risk-high-muted)' : 'var(--bg-subtle)' },
+        btnStyle: { height: '38px', padding: '0 18px', borderRadius: '8px', border: 'none', background: esc ? 'var(--risk-high)' : 'var(--accent-primary)', color: '#fff', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
+      };
+    }
+
+    // toast
+    const tk = S.toast && S.toast.kind;
+    const toastColor = tk === 'escalate' ? 'var(--risk-high)' : tk === 'copy' ? 'var(--state-info)' : 'var(--state-success)';
+    const toastIcon = tk === 'copy' ? React.createElement(React.Fragment, null, React.createElement('rect', { width: 14, height: 14, x: 8, y: 8, rx: 2 }), React.createElement('path', { d: 'M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2' })) : React.createElement('path', { d: 'M20 6 9 17l-5-5' });
+
+    // progress live
+    const pf = S.progProcessed;
+    const liveFlagged = this.RESULTS.slice(0, pf).filter(r => r[9] === 'HIGH' || r[9] === 'CRITICAL').length;
+
+    const tabBtn = (active) => ({ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '8px 12px', borderRadius: '8px 8px 0 0', border: 'none', borderBottom: '2px solid ' + (active ? 'var(--accent-primary)' : 'transparent'), background: 'transparent', color: active ? 'var(--text-primary)' : 'var(--text-muted)', fontSize: '12.5px', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', marginBottom: '-1px' });
+
+    const stateOpts = [['empty','Empty'],['validating','Validating'],['invalid','Invalid'],['running','Running'],['results','Results'],['partial','Partial'],['error','Error']];
+    const stateOptions = stateOpts.map(([v, label]) => ({ label, onClick: () => this.setScreen(v), style: { fontSize: '10.5px', fontWeight: 600, fontFamily: 'inherit', padding: '5px 9px', borderRadius: '7px', cursor: 'pointer', border: '1px solid ' + (phase === v ? 'var(--accent-primary)' : 'var(--border-default)'), background: phase === v ? 'var(--accent-primary)' : 'var(--bg-base)', color: phase === v ? '#fff' : 'var(--text-secondary)' } }));
+
+    const runEnabled = phase === 'validated';
+
+    return {
+      theme: S.theme, isLight: S.theme === 'light', isDark: S.theme === 'dark', toggleTheme: this.toggleTheme,
+      // tabs
+      setTabUpload: () => this.setTab('upload'), setTabPaste: () => this.setTab('paste'),
+      tabUpload: S.tab === 'upload', tabPaste: S.tab === 'paste', tabUploadStyle: tabBtn(S.tab === 'upload'), tabPasteStyle: tabBtn(S.tab === 'paste'),
+      hasFile: S.hasFile, noFile: !S.hasFile, dropSample: this.dropSample, removeFile: this.removeFile,
+      pasteValue: S.pasteValue || this.SAMPLE, onPaste: this.onPaste,
+      // config
+      batchName: S.batchName, onBatchName: this.onBatchName, tauFlag: S.tauFlag, onTauFlag: this.onTauFlag, tauMed: S.tauMed, onTauMed: this.onTauMed, outFormat: S.outFormat, onOutFormat: this.onOutFormat,
+      // actions
+      validate: this.validate, runBatch: this.runBatch, cancel: this.cancel, reset: this.reset, retry: this.retry,
+      isValidating: phase === 'validating', notValidating: phase !== 'validating',
+      isRunning: phase === 'running', notRunning: phase !== 'running',
+      validateBtnStyle: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px', flex: 1, height: '38px', borderRadius: '8px', border: '1px solid var(--border-default)', background: 'var(--bg-base)', color: 'var(--text-primary)', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
+      runBtnStyle: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '7px', flex: 1, height: '38px', borderRadius: '8px', border: 'none', background: runEnabled ? 'var(--accent-primary)' : 'var(--bg-subtle)', color: runEnabled ? '#fff' : 'var(--text-muted)', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', cursor: runEnabled ? 'pointer' : 'not-allowed' },
+      // validation
+      showValidation, validCount, invalidCount, hasInvalid: invalidPhase, allValid: !invalidPhase, validationErrors, removeInvalid: this.removeInvalid,
+      invalidColor: invalidPhase ? 'var(--risk-critical)' : 'var(--text-muted)',
+      invalidCardStyle: { flex: 1, borderRadius: '9px', padding: '11px 13px', border: '1px solid ' + (invalidPhase ? 'var(--risk-critical)' : 'var(--border-subtle)'), background: invalidPhase ? 'var(--risk-critical-muted)' : 'var(--bg-base)' },
+      validationGap: invalidPhase ? '12px' : '0px',
+      // schema
+      schemaOpen: S.schemaOpen, toggleSchema: this.toggleSchema, schemaChev: { transform: S.schemaOpen ? 'rotate(90deg)' : 'none', transition: 'transform .18s' },
+      schemaFields: this.SCHEMA.map(f => ({ name: f[0], type: f[1], req: f[2] ? 'required' : 'optional', reqStyle: f[2] ? { fontSize: '9.5px', fontWeight: 700, color: 'var(--accent-primary)', background: 'var(--accent-primary-muted)', padding: '1px 6px', borderRadius: '5px' } : { fontSize: '9.5px', fontWeight: 600, color: 'var(--text-muted)', background: 'var(--bg-subtle)', padding: '1px 6px', borderRadius: '5px' } })),
+      four: [0, 1, 2, 3],
+      // right panel phase flags
+      isErrorPhase: phase === 'error',
+      showWireframe: ['empty', 'validating', 'validated', 'invalid', 'error'].includes(phase),
+      showResults: isResultsPhase,
+      // progress
+      progProcessed: pf, progTotal: total, progFlagged: liveFlagged, progFailed: 0,
+      progFillStyle: { height: '100%', width: Math.round(pf / total * 100) + '%', borderRadius: '5px', background: 'linear-gradient(90deg,var(--accent-primary),var(--accent-primary-hover))', transition: 'width .12s linear' },
+      // summary
+      sumTotal: total, sumProcessed: processed, sumFlagged: flagged, sumFailed: hasFailed ? this.FAILED.length : 0, sumAvg: avg,
+      failedColor: hasFailed ? 'var(--risk-critical)' : 'var(--text-muted)',
+      failedCardStyle: { borderRadius: '11px', padding: '13px 14px', border: '1px solid ' + (hasFailed ? 'var(--risk-critical)' : 'var(--border-default)'), background: hasFailed ? 'var(--risk-critical-muted)' : 'var(--bg-surface)' },
+      cntLow: cnt.LOW, cntMed: cnt.MEDIUM, cntHigh: cnt.HIGH, cntCrit: cnt.CRITICAL, donut,
+      breakdownCols: hasFailed ? 'repeat(auto-fit,minmax(258px,1fr))' : '1fr',
+      hasFailed, failedRows: this.FAILED, retryFailed: this.retryFailed,
+      // table
+      riskChips: ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map(v => ({ label: v, onClick: () => this.toggleRisk(v), style: this.chip(S.riskFilter.includes(v), this.riskStyle(v).color, this.riskStyle(v).background) })),
+      flaggedOnly: S.flaggedOnly, toggleFlaggedOnly: this.toggleFlaggedOnly,
+      flaggedToggleStyle: { display: 'inline-flex', alignItems: 'center', gap: '6px', height: '32px', padding: '0 12px', borderRadius: '8px', border: '1px solid ' + (S.flaggedOnly ? 'var(--risk-high)' : 'var(--border-default)'), background: S.flaggedOnly ? 'var(--risk-high-muted)' : 'var(--bg-base)', color: S.flaggedOnly ? 'var(--risk-high)' : 'var(--text-secondary)', fontSize: '12px', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
+      hasPending, refreshExpl: this.refreshExpl, refreshSpin: S.refreshing ? { animation: 'ax-spin .8s linear infinite' } : {},
+      exportResults: this.exportResults,
+      resultRows, noResultRows: resultRows.length === 0,
+      // modal
+      modalOpen: !!modal, modal: modal || {}, closeModal: this.closeModal, stopModal: (e) => e.stopPropagation(),
+      reviewerNote: S.reviewerNote, setReviewerNote: this.setReviewerNote, batchLabel: S.batchName || 'untitled',
+      // confirm
+      confirmOpen: !!confirm, confirm: confirm || {}, closeConfirm: this.closeConfirm, submitConfirm: this.submitConfirm,
+      reason: S.reason, setReason: this.setReason, confirmNote: S.confirmNote, setConfirmNote: this.setConfirmNote, reasonError: S.reasonError, reasonBorder: S.reasonError ? 'var(--risk-critical)' : 'var(--border-default)',
+      // toast
+      toastVisible: !!S.toast, toastMsg: S.toast ? S.toast.msg : '', toastIcon, toastIconColor: toastColor,
+      toastStyle: { position: 'fixed', bottom: '22px', right: '22px', zIndex: 70, display: 'flex', alignItems: 'center', gap: '11px', background: 'var(--bg-elevated)', border: '1px solid ' + toastColor, borderLeft: '3px solid ' + toastColor, borderRadius: '10px', padding: '13px 16px', boxShadow: '0 12px 36px rgba(0,0,0,.4)', animation: 'ax-fade .18s ease', maxWidth: '380px' },
+      stateOptions,
+    };
+  }
+}
+</script>
+</body>
+</html>
