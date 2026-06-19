@@ -38,18 +38,8 @@ export function RequestBuilder(props: RequestBuilderProps) {
             <span>Transaction payload</span>
             <div className="body-editor-actions">
               <div className="payload-template-actions" aria-label="Insert payload template">
-                <button
-                  type="button"
-                  onClick={props.onInsertExample}
-                >
-                  Example
-                </button>
-                <button
-                  type="button"
-                  onClick={props.onInsertBlank}
-                >
-                  Blank JSON
-                </button>
+                <button type="button" onClick={props.onInsertExample}>Example</button>
+                <button type="button" onClick={props.onInsertBlank}>Blank JSON</button>
               </div>
               <div className="payload-tools">
                 <span className={props.jsonValid ? "json-state json-state--valid" : "json-state json-state--invalid"}>
@@ -78,4 +68,3 @@ export function RequestBuilder(props: RequestBuilderProps) {
     </section>
   );
 }
-

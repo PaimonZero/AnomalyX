@@ -1,7 +1,9 @@
 import { CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { useHeaderAction } from "@/app/providers/header-action-context";
 import { useAuthToken } from "@/app/providers/auth-token-context";
+import { IntegrationSampleModal } from "@/features/api-testing/components/integration-sample-modal";
 import { runBatch } from "@/features/batch-scoring/api/batch-api";
 import { validateBatchJson } from "@/features/batch-scoring/api/batch-validation";
 import { BatchDetailModal } from "@/features/batch-scoring/components/batch-detail-modal";
@@ -10,9 +12,11 @@ import { BatchResults } from "@/features/batch-scoring/components/batch-results"
 import { sampleBatchJson } from "@/features/batch-scoring/data/sample-batch";
 import type { BatchResultRow } from "@/features/batch-scoring/types";
 import { ApiError } from "@/shared/api/client";
+import { env } from "@/shared/config/env";
 
 export function BatchScoringPage() {
   const { token } = useAuthToken();
+  const { setHeaderAction } = useHeaderAction();
   const [rawJson, setRawJson] = useState(sampleBatchJson);
   const [batchName, setBatchName] = useState("june-vip-review");
   const [outputFormat, setOutputFormat] = useState<"JSON" | "CSV">("JSON");
@@ -23,6 +27,7 @@ export function BatchScoringPage() {
   const [riskFilter, setRiskFilter] = useState<"ALL" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL">("ALL");
   const [flaggedOnly, setFlaggedOnly] = useState(false);
   const [detailRow, setDetailRow] = useState<BatchResultRow | null>(null);
+  const [integrationOpen, setIntegrationOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const validation = useMemo(() => validateBatchJson(rawJson), [rawJson]);
@@ -35,6 +40,21 @@ export function BatchScoringPage() {
       return false;
     }
   }, [rawJson]);
+  const integrationBody = useMemo(() => {
+    let transactions: unknown[] = validation.transactions;
+
+    try {
+      const parsed = JSON.parse(rawJson);
+      if (Array.isArray(parsed)) transactions = parsed;
+    } catch {
+      transactions = validation.transactions;
+    }
+
+    return JSON.stringify({
+      batch_id: batchName || "batch-demo",
+      transactions,
+    }, null, 2);
+  }, [batchName, rawJson, validation.transactions]);
 
   useEffect(() => {
     if (!toast) return;
@@ -43,6 +63,23 @@ export function BatchScoringPage() {
   }, [toast]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  useEffect(() => {
+    setHeaderAction(
+      <span className="header-integration-hint">
+        Want to integrate with another system?
+        <button
+          type="button"
+          title="Show a cURL request sample for integrating batch scoring into another system."
+          onClick={() => setIntegrationOpen(true)}
+        >
+          View cURL sample
+        </button>
+      </span>,
+    );
+
+    return () => setHeaderAction(null);
+  }, [setHeaderAction]);
 
   const formatJson = () => {
     try {
@@ -171,6 +208,17 @@ export function BatchScoringPage() {
       </div>
 
       <BatchDetailModal row={detailRow} batchName={batchName} onClose={() => setDetailRow(null)} />
+      <IntegrationSampleModal
+        apiBaseUrl={env.apiBaseUrl}
+        body={integrationBody}
+        description="Copy this cURL request into another service to run batch transaction scoring."
+        endpointPath="/api/v1/batch-score"
+        open={integrationOpen}
+        title="Batch integration sample"
+        token={token}
+        onClose={() => setIntegrationOpen(false)}
+        onCopied={setToast}
+      />
       {toast ? <div className="toast" role="status"><CheckCircle2 size={17} />{toast}</div> : null}
     </div>
   );
