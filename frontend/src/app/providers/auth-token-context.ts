@@ -3,10 +3,7 @@ import { createContext, useContext } from "react";
 export interface AuthTokenContextValue {
   token: string;
   customToken: string;
-  useEnvToken: boolean;
-  envTokenConfigured: boolean;
   setCustomToken: (token: string) => void;
-  setUseEnvToken: (enabled: boolean) => void;
 }
 
 export const AuthTokenContext = createContext<AuthTokenContextValue | null>(null);

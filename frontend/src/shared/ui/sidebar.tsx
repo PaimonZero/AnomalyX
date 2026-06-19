@@ -11,7 +11,7 @@ const navigation = [
 ];
 
 export function Sidebar() {
-  const { customToken, envTokenConfigured, setCustomToken, setUseEnvToken, useEnvToken } = useAuthToken();
+  const { customToken, setCustomToken } = useAuthToken();
 
   return (
     <aside className="sidebar">
@@ -33,17 +33,12 @@ export function Sidebar() {
       <div className="sidebar-footer">
         <div>
           <strong>Bearer token</strong>
-          <label className="switch-label sidebar-token-toggle">
-            <input type="checkbox" checked={useEnvToken} onChange={(event) => setUseEnvToken(event.target.checked)} />
-            <span /> Use .env token
-          </label>
           <input
             className="sidebar-token-input"
             type="password"
-            value={useEnvToken ? (envTokenConfigured ? "environment-token-configured" : "") : customToken}
-            disabled={useEnvToken}
+            value={customToken}
             onChange={(event) => setCustomToken(event.target.value)}
-            placeholder={useEnvToken ? "VITE_API_TOKEN missing" : "Enter bearer token"}
+            placeholder="Enter bearer token"
           />
         </div>
       </div>

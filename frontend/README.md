@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Copy `.env.example` to `.env.local`, then set `VITE_API_TOKEN` to the same local token as backend `AUTH_TOKEN`.
+Copy `.env.example` to `.env.local` if you need to override the API base URL or reviewer ID. Enter the backend `AUTH_TOKEN` manually in the app sidebar when using protected endpoints.
 
 During `npm run dev`, requests to `/api/*` are proxied to `http://127.0.0.1:8000`, so the local frontend does not require backend CORS configuration. Set `VITE_API_BASE_URL` only when the API is hosted elsewhere.
 
