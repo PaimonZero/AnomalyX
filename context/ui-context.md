@@ -2,7 +2,25 @@
 
 ## Current Product Surface
 
-Current implementation is backend-only. No React/Vite frontend exists in source yet. This file defines future dashboard conventions from PRD/TDD so frontend work can start consistently, but backend changes must not assume UI files exist.
+A React + TypeScript + Vite frontend scaffold now exists under `frontend/`. It includes the shared application shell, responsive navigation, light/dark theme handling, typed API infrastructure, and routes for Alerts, API Testing, Predict Batch, and Monitoring. Backend behavior must not depend on frontend availability.
+
+The Alerts route is connected to the real FastAPI list, detail, and status-update endpoints through the shared typed client and TanStack Query. Local development uses a Vite `/api` proxy to avoid requiring backend CORS configuration. `VITE_API_TOKEN` must match backend `AUTH_TOKEN`, and `VITE_REVIEWER_ID` identifies review actions. The UI displays an explicit network error when FastAPI is unavailable and does not silently fall back to mock data.
+
+The API Testing route uses live HTTP requests for all nine backend endpoint choices. It supports request presets, JSON validation, environment or manually entered bearer auth, semantic prediction responses, JSON/text bodies, backend error envelopes, explicit network failures, and local request history. Health and metrics use their implemented `/api/v1/health` and `/api/v1/metrics` paths rather than older root-level spec paths.
+
+The Predict Batch route combines local JSON file/paste validation with the real authenticated `POST /api/v1/batch-score` endpoint. The backend response is mapped by `results[].index` to each input transaction, including partial item errors. The UI shows a synchronous waiting state rather than simulated row progress, supports cancellation, result filtering/detail, and JSON/CSV export.
+
+The Monitoring route calls the real public `GET /api/v1/health` and `GET /api/v1/metrics` endpoints. It parses Prometheus text into UI metrics for HTTP request totals/status/latency, decision counts, alert counts, rule triggers, LLM explanation outcomes/fallbacks, storage/model mode, and the existing drift placeholder. It must not invent real precision/recall/F1 or drift detection until backend support exists.
+
+## Frontend Organization
+
+- `src/app/` — application bootstrap, router, and global providers.
+- `src/layouts/` — shared page-level shells.
+- `src/features/` — business-owned pages and future feature-local components, hooks, and API modules.
+- `src/shared/api/` — transport and normalized API errors.
+- `src/shared/types/` — TypeScript contracts aligned with FastAPI schemas.
+- `src/shared/ui/` — reusable product-agnostic UI components.
+- `src/styles/` — global design tokens and responsive base styles.
 
 ## Target Users
 
