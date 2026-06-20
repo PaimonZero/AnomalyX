@@ -2,7 +2,12 @@ import { Activity, BrainCircuit, Database, GitBranch, KeyRound } from "lucide-re
 
 import type { MonitoringHealth } from "@/features/monitoring/types";
 
-export function HealthStrip({ health }: { health: MonitoringHealth }) {
+interface HealthStripProps {
+  health: MonitoringHealth;
+  onOpenRuleDetails?: () => void;
+}
+
+export function HealthStrip({ health, onOpenRuleDetails }: HealthStripProps) {
   const items = [
     { label: "API service", up: health.status === "ok", detail: health.environment, icon: Activity },
     { label: "ML model", up: health.checks.model_configured, detail: health.model.version, icon: BrainCircuit },
@@ -16,11 +21,18 @@ export function HealthStrip({ health }: { health: MonitoringHealth }) {
       {items.map(({ detail, icon: Icon, label, up }) => (
         <article key={label}>
           <Icon size={17} />
-          <div><span>{label}</span><small>{detail}</small></div>
+          <div>
+            <span>{label}</span>
+            <small>{detail}</small>
+            {label === "Rule engine" && onOpenRuleDetails ? (
+              <button className="health-detail-link" type="button" onClick={onOpenRuleDetails}>
+                Detail
+              </button>
+            ) : null}
+          </div>
           <strong className={up ? "health-up" : "health-down"}><i />{up ? "UP" : "DOWN"}</strong>
         </article>
       ))}
     </section>
   );
 }
-

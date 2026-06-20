@@ -1,15 +1,34 @@
-import { Activity, AlertTriangle, BellRing, BrainCircuit, Clock3, RefreshCw, Server, ShieldCheck } from "lucide-react";
-import { useMemo, useState } from "react";
+﻿import { useQuery } from "@tanstack/react-query";
+import { Activity, AlertTriangle, BellRing, BrainCircuit, CheckCircle2, Clock3, RefreshCw, Server, ShieldCheck } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
+import { useAuthToken } from "@/app/providers/auth-token-context";
+import { getRuleEngineDetails } from "@/features/monitoring/api/rules-detail";
+import { formatReloadRulesSuccess } from "@/features/monitoring/api/rules-reload-format";
+import { reloadRules } from "@/features/monitoring/api/rules-reload";
 import { HealthStrip } from "@/features/monitoring/components/health-strip";
 import { MonitoringChart } from "@/features/monitoring/components/monitoring-chart";
+import { RuleEngineDetailModal } from "@/features/monitoring/components/rule-engine-detail-modal";
 import { useMonitoring } from "@/features/monitoring/hooks/use-monitoring";
+import { ApiError } from "@/shared/api/client";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
+import { Modal } from "@/shared/ui/modal";
 
 export function MonitoringPage() {
+  const { token } = useAuthToken();
   const [autoRefresh, setAutoRefresh] = useState(false);
+  const [reloadConfirmOpen, setReloadConfirmOpen] = useState(false);
+  const [reloadError, setReloadError] = useState<string | null>(null);
+  const [reloadingRules, setReloadingRules] = useState(false);
+  const [ruleDetailsOpen, setRuleDetailsOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const { health, metrics, refresh } = useMonitoring(autoRefresh);
+  const rulesQuery = useQuery({
+    queryKey: ["monitoring", "rules", token],
+    queryFn: () => getRuleEngineDetails(token),
+    enabled: ruleDetailsOpen,
+  });
   const data = metrics.data;
   const decisionTotal = useMemo(
     () => data ? Object.values(data.decisions).reduce((sum, value) => sum + value, 0) : 0,
@@ -23,6 +42,32 @@ export function MonitoringPage() {
   const loading = health.isLoading || metrics.isLoading;
   const failed = health.isError || metrics.isError;
   const maxRuleTrigger = data?.ruleTriggers[0]?.count ?? 0;
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 2800);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
+  const confirmReloadRules = async () => {
+    setReloadingRules(true);
+    setReloadError(null);
+
+    try {
+      const result = await reloadRules(token);
+      setReloadConfirmOpen(false);
+      setToast(formatReloadRulesSuccess(result));
+      await rulesQuery.refetch();
+      await refresh();
+    } catch (error) {
+      const message = error instanceof ApiError
+        ? `${error.code}: ${error.message}`
+        : "Could not reload rules. Check bearer token or backend status.";
+      setReloadError(message);
+    } finally {
+      setReloadingRules(false);
+    }
+  };
 
   return (
     <div className="monitoring-page">
@@ -46,7 +91,10 @@ export function MonitoringPage() {
         <div className="monitor-loading" role="status">Loading monitoring data…</div>
       ) : (
         <>
-          <HealthStrip health={health.data} />
+          <HealthStrip
+            health={health.data}
+            onOpenRuleDetails={() => setRuleDetailsOpen(true)}
+          />
 
           <section className="monitor-kpis">
             <article><div className="monitor-kpi-icon"><Server size={17} /></div><span>HTTP requests</span><strong>{data.requestsTotal.toLocaleString("en-US")}</strong><small>{data.requestSuccessRate}% successful</small></article>
@@ -108,10 +156,48 @@ export function MonitoringPage() {
                 <div><span>Template</span><strong>{data.explanationOutcomes.template}</strong><small>{(100 - explanationSuccess).toFixed(1)}%</small></div>
               </div>
             </article>
-
           </section>
         </>
       )}
+
+      <RuleEngineDetailModal
+        details={rulesQuery.data}
+        error={rulesQuery.error instanceof Error ? rulesQuery.error.message : null}
+        loading={rulesQuery.isLoading || rulesQuery.isFetching}
+        open={ruleDetailsOpen}
+        reloadingRules={reloadingRules}
+        onClose={() => setRuleDetailsOpen(false)}
+        onReloadRules={() => {
+          setReloadError(null);
+          setReloadConfirmOpen(true);
+        }}
+        onRetry={() => void rulesQuery.refetch()}
+      />
+
+      <Modal
+        open={reloadConfirmOpen}
+        onClose={() => {
+          if (!reloadingRules) setReloadConfirmOpen(false);
+        }}
+        title="Apply rules.yaml to backend?"
+        description="Confirm before the backend loads the latest rules.yaml configuration."
+      >
+        <div className="confirm-form">
+          <p>
+            If you changed rules.yaml, the backend will load the latest rule configuration. New single prediction and batch scoring requests will use the updated rules.
+          </p>
+          {reloadError ? <div className="confirm-error" role="alert">{reloadError}</div> : null}
+          <div className="confirm-actions">
+            <Button variant="secondary" disabled={reloadingRules} onClick={() => setReloadConfirmOpen(false)}>Cancel</Button>
+            <Button variant="primary" disabled={reloadingRules} onClick={() => void confirmReloadRules()}>
+              {reloadingRules ? "Applying rules to backend…" : "Apply rules.yaml to backend"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {toast ? <div className="toast" role="status"><CheckCircle2 size={17} />{toast}</div> : null}
     </div>
   );
 }
+
