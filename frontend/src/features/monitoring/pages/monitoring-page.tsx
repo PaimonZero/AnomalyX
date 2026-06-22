@@ -3,6 +3,7 @@ import { Activity, AlertTriangle, BellRing, BrainCircuit, CheckCircle2, Clock3, 
 import { useEffect, useMemo, useState } from "react";
 
 import { useAuthToken } from "@/app/providers/auth-token-context";
+import { formatHttpStatusBarWidth } from "@/features/monitoring/api/monitoring-display-format";
 import { getRuleEngineDetails } from "@/features/monitoring/api/rules-detail";
 import { formatReloadRulesSuccess } from "@/features/monitoring/api/rules-reload-format";
 import { reloadRules } from "@/features/monitoring/api/rules-reload";
@@ -122,7 +123,7 @@ export function MonitoringPage() {
               <article className="monitor-chart-card">
                 <header><div><h3>HTTP status</h3><code>status_code label</code></div><strong>{data.requestSuccessRate}%</strong></header>
                 <div className="status-bars">
-                  {Object.entries(data.httpStatuses).map(([status, value]) => <div key={status}><span>{status}</span><div><i className={`status-${status[0]}`} style={{ width: `${(value / data.requestsTotal) * 100}%` }} /></div><strong>{value}</strong></div>)}
+                  {Object.entries(data.httpStatuses).map(([status, value]) => <div key={status}><span>{status}</span><div><i className={`status-${status[0]}`} style={{ width: formatHttpStatusBarWidth(value, data.requestsTotal) }} /></div><strong>{value}</strong></div>)}
                 </div>
               </article>
             </div>
