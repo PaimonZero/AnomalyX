@@ -29,8 +29,12 @@ export function BatchInputPanel(props: BatchInputPanelProps) {
 
   const loadFile = async (file?: File) => {
     if (!file) return;
-    props.onRawJsonChange(await file.text());
-    setMode("paste");
+    try {
+      props.onRawJsonChange(await file.text());
+      setMode("paste");
+    } finally {
+      if (inputRef.current) inputRef.current.value = "";
+    }
   };
 
   return (

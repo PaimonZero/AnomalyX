@@ -66,7 +66,7 @@ Update this file after every meaningful implementation change.
   - React 19 + TypeScript + Vite configuration with Tailwind CSS integration.
   - Feature-first structure separating app composition, layouts, business features, shared API/types, reusable UI, and global styles.
   - Responsive application shell with persisted dark/light theme and core navigation.
-  - Routes scaffolded for Alerts, API Testing, and Predict Batch only, matching the reduced demo scope.
+  - Routes scaffolded for Alerts, API Testing, Predict Batch, and Monitoring, matching the current demo scope.
   - Typed API client, normalized error handling, environment-based API URL, and TypeScript contracts aligned with FastAPI schemas.
 - Alerts / Review Queue frontend implemented against the real FastAPI contract:
   - Filterable and sortable alert table with loading, empty, and retryable error states.

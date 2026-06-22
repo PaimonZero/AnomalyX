@@ -1,6 +1,9 @@
+import type { HttpMethod } from "@/features/api-testing/types";
+
 interface BuildIntegrationSampleInput {
   apiBaseUrl: string;
   endpointPath: string;
+  method: HttpMethod;
   token: string;
   body: string;
 }
@@ -19,15 +22,19 @@ function joinEndpoint(apiBaseUrl: string, endpointPath: string) {
   return `${base}${endpointPath.startsWith("/") ? endpointPath : `/${endpointPath}`}`;
 }
 
+function escapeSingleQuotedShell(value: string) {
+  return value.replaceAll("'", "'\"'\"'");
+}
+
 export function buildIntegrationSample(input: BuildIntegrationSampleInput) {
   const endpoint = joinEndpoint(input.apiBaseUrl, input.endpointPath);
   const authToken = input.token.trim() || "<AUTH_TOKEN>";
   const jsonBody = input.body.trim() || "{}";
   const curl = [
-    `curl -X POST "${endpoint}"`,
+    `curl -X ${input.method} "${endpoint}"`,
     `  -H "Authorization: Bearer ${authToken}"`,
     `  -H "Content-Type: application/json"`,
-    `  -d '${jsonBody}'`,
+    `  -d '${escapeSingleQuotedShell(jsonBody)}'`,
   ].join(" \\\n");
 
   return {

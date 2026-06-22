@@ -156,10 +156,11 @@ export function BatchScoringPage() {
         ].join("\n");
     const blob = new Blob([content], { type: outputFormat === "JSON" ? "application/json" : "text/csv" });
     const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
+    const objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
     link.download = `anomalyx_batch_${batchName || "untitled"}_${Date.now()}.${outputFormat.toLowerCase()}`;
     link.click();
-    URL.revokeObjectURL(link.href);
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
     setToast(`Exported ${outputFormat}.`);
   };
 
@@ -213,6 +214,7 @@ export function BatchScoringPage() {
         body={integrationBody}
         description="Copy this cURL request into another service to run batch transaction scoring."
         endpointPath="/api/v1/batch-score"
+        method="POST"
         open={integrationOpen}
         title="Batch integration sample"
         token={token}

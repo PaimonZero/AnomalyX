@@ -98,13 +98,21 @@ export function parseMonitoringMetrics(metricsText: string): MonitoringMetrics {
   const requestP95Ms = estimateHistogramP95Ms(samples, "anomalyx_http_request_duration_seconds_bucket");
   const explanationP95Ms = estimateHistogramP95Ms(samples, "anomalyx_llm_explanation_duration_seconds_bucket");
 
-  const ruleTriggers = samples
-    .filter((sample) => sample.name === "anomalyx_rule_triggers_total")
-    .map((sample) => ({
-      id: sample.labels.rule_id ?? "unknown_rule",
-      severity: sample.labels.severity === "MEDIUM" ? "MEDIUM" as const : "HIGH" as const,
-      count: sample.value,
-    }))
+  const ruleTriggerMap = new Map<string, MonitoringMetrics["ruleTriggers"][number]>();
+  for (const sample of samples) {
+    if (sample.name !== "anomalyx_rule_triggers_total") continue;
+    const id = sample.labels.rule_id ?? "unknown_rule";
+    const severity = sample.labels.severity === "MEDIUM" ? "MEDIUM" : "HIGH";
+    const existing = ruleTriggerMap.get(id);
+    if (existing) {
+      existing.count += sample.value;
+      if (severity === "HIGH") existing.severity = "HIGH";
+    } else {
+      ruleTriggerMap.set(id, { id, severity, count: sample.value });
+    }
+  }
+
+  const ruleTriggers = [...ruleTriggerMap.values()]
     .sort((left, right) => right.count - left.count)
     .slice(0, 8);
 
@@ -126,8 +134,11 @@ export function parseMonitoringMetrics(metricsText: string): MonitoringMetrics {
     requestVolume: Object.entries(httpStatuses).map(([label, value]) => ({ label, value })),
     latencyTrend: samples
       .filter((sample) => sample.name === "anomalyx_http_request_duration_seconds_bucket" && sample.labels.le !== "+Inf")
+      .map((sample) => ({ sample, upperBound: Number(sample.labels.le) }))
+      .filter(({ upperBound }) => Number.isFinite(upperBound))
+      .sort((left, right) => left.upperBound - right.upperBound)
       .slice(0, 12)
-      .map((sample) => ({ label: `${Number(sample.labels.le) * 1000}ms`, value: sample.value })),
+      .map(({ sample, upperBound }) => ({ label: `${upperBound * 1000}ms`, value: sample.value })),
     scrapedAt: new Date().toISOString(),
   };
 }

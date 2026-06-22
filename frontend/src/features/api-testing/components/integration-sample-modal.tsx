@@ -1,6 +1,8 @@
 import { Clipboard, TerminalSquare } from "lucide-react";
 
+import type { HttpMethod } from "@/features/api-testing/types";
 import { buildIntegrationSample } from "@/features/api-testing/utils/integration-sample";
+import { copyTextWithFeedback } from "@/features/api-testing/utils/clipboard-copy";
 import { Button } from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
 
@@ -9,6 +11,7 @@ interface IntegrationSampleModalProps {
   body: string;
   description?: string;
   endpointPath: string;
+  method: HttpMethod;
   open: boolean;
   title?: string;
   token: string;
@@ -21,12 +24,12 @@ export function IntegrationSampleModal(props: IntegrationSampleModalProps) {
     apiBaseUrl: props.apiBaseUrl,
     body: props.body,
     endpointPath: props.endpointPath,
+    method: props.method,
     token: props.token,
   });
 
   const copy = async (value: string, message: string) => {
-    await navigator.clipboard.writeText(value);
-    props.onCopied(message);
+    await copyTextWithFeedback(value, message, props.onCopied);
   };
 
   return (

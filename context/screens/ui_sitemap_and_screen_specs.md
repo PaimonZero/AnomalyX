@@ -213,13 +213,13 @@ Shared across all screens — exact types from TDD.
 |---------------|------|---------------|
 | `GET /health` | None | Dashboard, Monitor |
 | `GET /metrics` | None | Dashboard, Monitor |
-| `POST /api/v1/predict` | JWT | API Testing |
-| `POST /api/v1/batch-score` | JWT | Predict Batch |
-| `GET /api/v1/alerts` | JWT | Dashboard, Alerts |
-| `GET /api/v1/alerts/{id}` | JWT | Alert Detail Modal |
-| `PATCH /api/v1/alerts/{id}/status` | JWT | Alert Detail Modal |
-| `GET /api/v1/rules` | JWT | Rule Engine, Settings |
-| `POST /api/v1/rules/reload` | JWT | Rule Engine |
+| `POST /api/v1/predict` | Bearer token | API Testing |
+| `POST /api/v1/batch-score` | Bearer token | Predict Batch |
+| `GET /api/v1/alerts` | Bearer token | Dashboard, Alerts |
+| `GET /api/v1/alerts/{id}` | Bearer token | Alert Detail Modal |
+| `PATCH /api/v1/alerts/{id}/status` | Bearer token | Alert Detail Modal |
+| `GET /api/v1/rules` | Bearer token | Rule Engine, Settings |
+| `POST /api/v1/rules/reload` | Bearer token | Rule Engine |
 
 Error envelope (all protected endpoints):
 ```json

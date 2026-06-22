@@ -103,6 +103,7 @@ export function ApiTestingPage() {
         apiBaseUrl={env.apiBaseUrl}
         body={body}
         endpointPath={predictEndpoint.path}
+        method={predictEndpoint.method}
         open={integrationOpen}
         token={token}
         onClose={() => setIntegrationOpen(false)}

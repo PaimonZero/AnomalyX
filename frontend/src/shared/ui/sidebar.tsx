@@ -32,8 +32,9 @@ export function Sidebar() {
       </nav>
       <div className="sidebar-footer">
         <div>
-          <strong>Bearer token</strong>
+          <label htmlFor="bearer-token-input">Bearer token</label>
           <input
+            id="bearer-token-input"
             className="sidebar-token-input"
             type="password"
             value={customToken}

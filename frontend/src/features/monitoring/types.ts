@@ -1,9 +1,16 @@
+export interface MonitoringHealthChecks {
+  model_configured: boolean;
+  rules_loaded: boolean;
+  alert_repository_ready: boolean;
+  idempotency_configured: boolean;
+}
+
 export interface MonitoringHealth {
   status: "ok" | "degraded";
   app: string;
   environment: string;
   timestamp: string;
-  checks: Record<string, boolean>;
+  checks: MonitoringHealthChecks;
   storage: {
     alert_repository: string;
     idempotency_store: string;
@@ -36,4 +43,3 @@ export interface MonitoringMetrics {
   latencyTrend: MetricSeriesPoint[];
   scrapedAt: string;
 }
-

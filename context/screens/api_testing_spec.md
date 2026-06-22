@@ -125,7 +125,7 @@ The API Testing screen provides a Postman-like demo workspace for testing all An
 
 #### Error envelope display
 When the backend returns an error, render it in a structured format:
-```
+```text
 Error: {error.code}
 Message: {error.message}
 ▶ Details (expandable): {error.details}

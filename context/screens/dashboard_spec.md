@@ -140,7 +140,7 @@ Thresholds: τ_medium = 0.40, τ_flag = 0.70 (configurable via Settings).
 ---
 
 ## Notes
-- `is_flagged = true` only for HIGH and CRITICAL alerts. MEDIUM (risk_score 0.40–0.70) is log-only and should not appear in the alert table unless specifically filtered.
+- `is_flagged = true` only for HIGH and CRITICAL alerts. MEDIUM (`0.40 <= risk_score < 0.70`) is log-only and should not appear in the alert table unless specifically filtered.
 - All IDs displayed in monospace; truncate sender/receiver IDs to first 8 characters.
 - Do not mix decimal and percentage formats for `risk_score` on the same screen — use decimal (e.g. `0.83`) in tables and percentage (e.g. `83%`) in KPI cards.
 - `explanation_source` should be shown as an `llm` or `template` badge. If explanation is still pending (async), show "Explanation pending…" with a pulse indicator.

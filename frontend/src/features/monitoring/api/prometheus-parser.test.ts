@@ -43,3 +43,32 @@ test("parseMonitoringMetrics maps backend Prometheus text to MonitoringMetrics",
   assert.equal(metrics.fallbackTotal, 1);
   assert.equal(metrics.driftPlaceholder, 0);
 });
+
+test("parseMonitoringMetrics aggregates duplicate rule trigger series by rule id", () => {
+  const metrics = parseMonitoringMetrics(`
+anomalyx_rule_triggers_total{rule_id="R-STRUCT-01",severity="HIGH",source="predict"} 3
+anomalyx_rule_triggers_total{rule_id="R-STRUCT-01",severity="HIGH",source="batch"} 4
+anomalyx_rule_triggers_total{rule_id="R-VELO-01",severity="MEDIUM",source="predict"} 2
+`);
+
+  assert.deepEqual(metrics.ruleTriggers, [
+    { id: "R-STRUCT-01", severity: "HIGH", count: 7 },
+    { id: "R-VELO-01", severity: "MEDIUM", count: 2 },
+  ]);
+});
+
+test("parseMonitoringMetrics sorts scrambled histogram buckets", () => {
+  const metrics = parseMonitoringMetrics(`
+anomalyx_http_request_duration_seconds_bucket{le="1"} 20
+anomalyx_http_request_duration_seconds_bucket{le="0.1"} 5
+anomalyx_http_request_duration_seconds_bucket{le="+Inf"} 20
+anomalyx_http_request_duration_seconds_bucket{le="0.5"} 18
+`);
+
+  assert.equal(metrics.requestP95Ms, 1000);
+  assert.deepEqual(metrics.latencyTrend, [
+    { label: "100ms", value: 5 },
+    { label: "500ms", value: 18 },
+    { label: "1000ms", value: 20 },
+  ]);
+});
