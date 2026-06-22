@@ -1,4 +1,5 @@
 import type { MetricSeriesPoint } from "@/features/monitoring/types";
+import { hasChartThreshold } from "@/features/monitoring/api/monitoring-display-format";
 
 interface MonitoringChartProps {
   title: string;
@@ -20,10 +21,9 @@ export function MonitoringChart({ metric, points, threshold, title, valueLabel }
             <span style={{ height: `${Math.max((point.value / maximum) * 100, 5)}%` }} />
           </div>
         ))}
-        {threshold ? <i style={{ bottom: `${(threshold / maximum) * 100}%` }}><small>{threshold}</small></i> : null}
+        {hasChartThreshold(threshold) ? <i style={{ bottom: `${(threshold / maximum) * 100}%` }}><small>{threshold}</small></i> : null}
       </div>
       <footer><span>{points[0]?.label}</span><span>{points.at(-1)?.label}</span></footer>
     </article>
   );
 }
-
