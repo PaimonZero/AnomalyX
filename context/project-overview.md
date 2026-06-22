@@ -2,7 +2,7 @@
 
 ## Overview
 
-AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wallet transaction screening, with a React frontend scaffold for the core demo workflows. It scores each transaction with a hybrid pipeline: deterministic YAML rules detect known AML typologies, a mockable ML predictor produces probabilistic risk, a decision engine reconciles both signals, and an asynchronous LLM explainer annotates flagged alerts with grounded, masked natural-language explanations. The prototype serves wallet backend services, compliance officers, and ML/risk engineers using synthetic or public data only.
+AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wallet transaction screening. It scores each transaction with a hybrid pipeline: deterministic YAML rules detect known AML typologies, a mockable ML predictor produces probabilistic risk, a decision engine reconciles both signals, and an asynchronous LLM explainer annotates flagged alerts with grounded, masked natural-language explanations. The prototype serves wallet backend services, compliance officers, and ML/risk engineers using synthetic or public data only.
 
 ## Goals
 
@@ -91,7 +91,6 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 - OpenAPI-backed JSON API surface under `/api/v1`.
 - Docker Compose infrastructure for PostgreSQL and Redis.
 - Self-contained pytest suite for default development.
-- React + Vite frontend foundation for Alerts, API Testing, Predict Batch, and Monitoring demo workflows.
 
 ### Out of Scope
 
@@ -99,7 +98,7 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 - Regulatory STR/FIU/SBV submission; only simulated outputs.
 - Production-scale streaming and deployment hardening.
 - Real ML training/retraining and model artifact generation pipelines remain out of scope; runtime inference implementations such as `XGBPredictor` and pre-built inference artifacts may exist while the full `RealModelPredictor` training path remains pending.
-- Full eight-screen admin console; only the core demo workflows plus Monitoring are currently scaffolded.
+- React frontend in current implementation; dashboard remains future work.
 - Raw PII storage or raw transaction payload persistence.
 - Redis rolling aggregate implementation; current feature service uses proxy values.
 - Real drift detection and explanation cache; schema/design may exist, runtime wiring incomplete.
