@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-base:#0D0F17;--bg-surface:#151720;--bg-elevated:#1E2130;--bg-subtle:#252838;
+  --text-primary:#F2F0EB;--text-secondary:#C8C5BC;--text-muted:#8A8880;
+  --border-default:#2A2D3E;--border-subtle:#1E2130;
+  --accent-primary:#CC785C;--accent-primary-hover:#D98B70;--accent-primary-muted:#3D2820;
+  --accent-secondary:#9B8AFB;--accent-secondary-muted:#28243D;
+  --risk-low:#3DB87A;--risk-medium:#E8A842;--risk-high:#E86A2E;--risk-critical:#E84040;
+  --risk-low-muted:#0F2B1C;--risk-medium-muted:#2B1E08;--risk-high-muted:#2B1208;--risk-critical-muted:#2B0808;
+  --state-success:#3DB87A;--state-warning:#E8A842;--state-error:#E84040;--state-info:#5AADDC;
+}
+[data-theme="light"]{
+  --bg-base:#F5F4EF;--bg-surface:#FFFFFF;--bg-elevated:#FAFAF7;--bg-subtle:#EEECEA;
+  --text-primary:#1A1B26;--text-secondary:#3D3E4E;--text-muted:#7A7A80;
+  --border-default:#DDDBD4;--border-subtle:#EEECEA;
+  --accent-primary:#CC785C;--accent-primary-hover:#B8674D;--accent-primary-muted:#FAE8E2;
+  --accent-secondary:#6B5FD6;--accent-secondary-muted:#EDEAFC;
+  --risk-low:#1E8A55;--risk-medium:#C07A10;--risk-high:#C04E18;--risk-critical:#C01C1C;
+  --risk-low-muted:#E6F5EE;--risk-medium-muted:#FDF2E0;--risk-high-muted:#FDEEE6;--risk-critical-muted:#FDEAEA;
+  --state-success:#1E8A55;--state-warning:#C07A10;--state-error:#C01C1C;--state-info:#1E7FAD;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+[data-theme="dark"]{color-scheme:dark;}
+[data-theme="light"]{color-scheme:light;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:6px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes ax-shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+@keyframes ax-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes ax-drawerin{from{transform:translateX(100%)}to{transform:translateX(0)}}
+select,textarea,input{font-family:inherit;}
+.ax-skel{background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;border-radius:6px;}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="display:flex;height:100vh;overflow:hidden;font-family:'Inter',system-ui,sans-serif;background:var(--bg-base);color:var(--text-primary);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="flex:none;width:240px;height:100vh;background:var(--bg-surface);border-right:1px solid var(--border-default);display:flex;flex-direction:column;">
+    <div style="height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--border-subtle);">
+      <div style="width:30px;height:30px;border-radius:8px;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(204,120,92,.35);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>
+      <div style="line-height:1.05;"><div style="font-size:15px;font-weight:700;letter-spacing:-.2px;">AnomalyX</div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--accent-primary);margin-top:2px;">AML&nbsp;CONSOLE</div></div>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Operations</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="AnomalyX App Shell.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</a>
+          <a href="AnomalyX Alerts Queue.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span style="flex:1;">Alerts</span><span style="font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--risk-critical);background:var(--risk-critical-muted);padding:1px 6px;border-radius:6px;">12</span></a>
+          <a href="AnomalyX Predict Batch.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>Predict Batch</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Engineering</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="AnomalyX API Testing.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>API Testing</a>
+          <a href="AnomalyX Rule Engine.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Rule Engine</a>
+          <a href="AnomalyX Model Metrics.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Model &amp; Metrics</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Governance</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="#" style="position:relative;display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--text-primary);background:var(--accent-primary-muted);text-decoration:none;">
+            <span style="position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--accent-primary);"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>Audit Log
+          </a>
+          <a href="AnomalyX Settings.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Settings</a>
+        </div>
+      </div>
+    </nav>
+    <div style="flex:none;padding:12px 16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--state-success);flex:none;"></span><span style="font-size:11px;color:var(--text-muted);">All systems operational</span></div>
+  </aside>
+
+  <!-- ============ RIGHT COLUMN ============ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;">
+    <header style="height:56px;flex:none;background:var(--bg-surface);border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:14px;padding:0 20px;position:relative;z-index:30;">
+      <div style="min-width:0;"><h1 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.3px;">Audit Log</h1><div style="font-size:12px;color:var(--text-muted);margin-top:1px;">Append-only event history · {{ totalEvents }} records</div></div>
+      <div style="flex:1;"></div>
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.8px;font-family:'JetBrains Mono',monospace;color:var(--accent-secondary);background:var(--accent-secondary-muted);border:1px solid var(--accent-secondary);padding:4px 9px;border-radius:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent-secondary);"></span>DEMO</span>
+      <button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);">
+        <sc-if value="{{ isLight }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if>
+        <sc-if value="{{ isDark }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if>
+      </button>
+      <div style="display:flex;align-items:center;gap:9px;height:38px;padding:0 8px 0 4px;border-radius:9px;cursor:pointer;flex:none;" style-hover="background:var(--bg-elevated);"><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex:none;">MT</span><span style="line-height:1.15;"><span style="display:block;font-size:12.5px;font-weight:600;">Mai Tran</span><span style="display:block;font-size:10.5px;color:var(--text-muted);">Compliance Officer</span></span></div>
+    </header>
+
+    <main style="flex:1;overflow-y:auto;background:var(--bg-base);position:relative;">
+      <div style="padding:20px 24px;">
+
+        <!-- PII NOTICE -->
+        <div style="display:flex;align-items:center;gap:10px;background:var(--accent-secondary-muted);border:1px solid var(--accent-secondary);border-radius:10px;padding:10px 15px;margin-bottom:16px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span style="font-size:12.5px;color:var(--text-secondary);">All identifiers are hashed <strong style="color:var(--text-primary);font-family:'JetBrains Mono',monospace;">(HMAC-SHA256)</strong>. Raw PII is never stored. <span style="color:var(--text-muted);">SEC-01 · append-only trail</span></span>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="position:relative;width:250px;">
+            <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%);" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input value="{{ search }}" onInput="{{ onSearch }}" placeholder="Search txn / alert / rule / actor ID…" aria-label="Search audit log" style="width:100%;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-primary);font-size:13px;padding:0 12px 0 32px;outline:none;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);" />
+          </div>
+          <!-- action type dropdown -->
+          <div style="position:relative;">
+            <button onClick="{{ toggleActionMenu }}" style="{{ actionBtnStyle }}"><span>Event type{{ actionSuffix }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <sc-if value="{{ actionMenuOpen }}">
+              <div style="position:absolute;left:0;top:42px;z-index:25;width:248px;max-height:300px;overflow-y:auto;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.4);padding:6px;animation:ax-fade .13s ease;">
+                <sc-for list="{{ actionOptions }}" as="o" hint-placeholder-count="8"><div onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;cursor:pointer;" style-hover="background:var(--bg-subtle);"><span style="{{ o.boxStyle }}"><sc-if value="{{ o.selected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span><span style="{{ o.dotStyle }}"></span><span style="font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ o.label }}</span></div></sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <!-- role dropdown -->
+          <div style="position:relative;">
+            <button onClick="{{ toggleRoleMenu }}" style="{{ roleBtnStyle }}"><span>Actor role{{ roleSuffix }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <sc-if value="{{ roleMenuOpen }}">
+              <div style="position:absolute;left:0;top:42px;z-index:25;width:200px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.4);padding:6px;animation:ax-fade .13s ease;">
+                <sc-for list="{{ roleOptions }}" as="o" hint-placeholder-count="4"><div onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);"><span style="{{ o.boxStyle }}"><sc-if value="{{ o.selected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span>{{ o.label }}</div></sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <!-- decision dropdown -->
+          <div style="position:relative;">
+            <button onClick="{{ toggleDecMenu }}" style="{{ decBtnStyle }}"><span>Decision{{ decSuffix }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <sc-if value="{{ decMenuOpen }}">
+              <div style="position:absolute;left:0;top:42px;z-index:25;width:170px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.4);padding:6px;animation:ax-fade .13s ease;">
+                <sc-for list="{{ decOptions }}" as="o" hint-placeholder-count="4"><div onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:12px;font-family:'JetBrains Mono',monospace;" style-hover="background:var(--bg-subtle);"><span style="{{ o.boxStyle }}"><sc-if value="{{ o.selected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span><span style="{{ o.pillStyle }}">{{ o.label }}</span></div></sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <!-- date range -->
+          <div style="position:relative;display:flex;align-items:center;">
+            <svg style="position:absolute;left:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <select value="{{ range }}" onChange="{{ setRange }}" aria-label="Date range" style="appearance:none;-webkit-appearance:none;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);font-size:12.5px;padding:0 30px 0 32px;cursor:pointer;outline:none;"><option value="24h">Last 24 hours</option><option value="7d">Last 7 days</option><option value="30d">Last 30 days</option><option value="all">All time</option></select>
+            <svg style="position:absolute;right:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+
+          <sc-if value="{{ hasFilters }}"><button onClick="{{ clearFilters }}" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:500;font-family:inherit;cursor:pointer;" style-hover="border-color:var(--accent-primary);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Clear</button></sc-if>
+
+          <div style="flex:1;"></div>
+          <!-- export -->
+          <div style="position:relative;">
+            <button onClick="{{ toggleExport }}" style="display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="border-color:var(--accent-primary);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>Export<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <sc-if value="{{ exportOpen }}">
+              <div style="position:absolute;right:0;top:42px;z-index:25;width:240px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.4);padding:6px;animation:ax-fade .13s ease;">
+                <div onClick="{{ exportJson }}" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Download JSON</div>
+                <div onClick="{{ exportCsv }}" style="display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Download CSV</div>
+                <div style="font-size:10.5px;color:var(--text-muted);padding:7px 10px 4px;line-height:1.45;border-top:1px solid var(--border-subtle);margin-top:4px;">Exported records contain hashed identifiers only — no raw PII.</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <!-- ERROR -->
+        <sc-if value="{{ isError }}">
+          <div style="display:flex;align-items:center;gap:12px;background:var(--risk-critical-muted);border:1px solid var(--risk-critical);border-radius:10px;padding:13px 16px;margin-bottom:16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--risk-critical)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--risk-critical);">Failed to load audit log</div><div style="font-size:12px;color:var(--text-secondary);margin-top:1px;"><code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg-base);padding:1px 5px;border-radius:4px;">LOG_STORE_UNAVAILABLE</code> — the audit log store did not respond.</div></div>
+            <button onClick="{{ retry }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:7px;border:1px solid var(--risk-critical);background:transparent;color:var(--risk-critical);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;flex:none;" style-hover="background:var(--risk-critical);color:#fff;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Retry</button>
+          </div>
+        </sc-if>
+
+        <!-- TABLE CARD -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;overflow:hidden;">
+          <!-- LOADING -->
+          <sc-if value="{{ isLoading }}">
+            <div style="display:flex;gap:16px;padding:12px 18px;border-bottom:1px solid var(--border-subtle);background:var(--bg-elevated);"><div class="ax-skel" style="height:11px;width:100%;"></div></div>
+            <sc-for list="{{ ten }}" as="i" hint-placeholder-count="10"><div style="display:flex;align-items:center;gap:18px;padding:14px 18px;border-bottom:1px solid var(--border-subtle);"><div class="ax-skel" style="height:12px;width:128px;"></div><div class="ax-skel" style="height:20px;width:96px;border-radius:6px;"></div><div class="ax-skel" style="height:12px;width:110px;"></div><div class="ax-skel" style="flex:1;height:12px;"></div><div class="ax-skel" style="height:20px;width:60px;border-radius:6px;"></div></div></sc-for>
+          </sc-if>
+
+          <!-- EMPTY -->
+          <sc-if value="{{ isEmptyNone }}">
+            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:78px 24px;">
+              <div style="width:58px;height:58px;border-radius:15px;background:var(--bg-subtle);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg></div>
+              <h2 style="margin:0 0 8px;font-size:17px;font-weight:600;">Audit trail is empty</h2>
+              <p style="margin:0;font-size:13.5px;color:var(--text-muted);max-width:380px;line-height:1.55;">Actions will appear here once the system processes transactions, reviews alerts, or reloads rules.</p>
+            </div>
+          </sc-if>
+          <!-- EMPTY FILTERED -->
+          <sc-if value="{{ isEmptyFiltered }}">
+            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:66px 24px;">
+              <div style="width:52px;height:52px;border-radius:14px;background:var(--bg-subtle);display:flex;align-items:center;justify-content:center;margin-bottom:16px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+              <h2 style="margin:0 0 7px;font-size:16px;font-weight:600;">No events match your current filters</h2>
+              <button onClick="{{ clearFilters }}" style="margin-top:6px;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:8px;border:1px solid var(--accent-primary);background:transparent;color:var(--accent-primary);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;">Clear filters</button>
+            </div>
+          </sc-if>
+
+          <!-- TABLE -->
+          <sc-if value="{{ showTable }}">
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:1080px;">
+                <thead><tr style="color:var(--text-muted);text-align:left;background:var(--bg-elevated);">
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 16px;">Timestamp</th>
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;">Event type</th>
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;">Actor</th>
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;">Entity</th>
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;">Description</th>
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;">Result</th>
+                  <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:10px 14px;text-align:right;">Latency</th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ pageRows }}" as="e" hint-placeholder-count="12">
+                    <tr style="{{ e.rowStyle }}" onClick="{{ e.open }}" style-hover="background:var(--bg-elevated);">
+                      <td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);white-space:nowrap;" title="{{ e.rel }}">{{ e.ts }}</td>
+                      <td style="padding:12px 14px;"><span style="{{ e.typeStyle }}">{{ e.typeLabel }}</span></td>
+                      <td style="padding:12px 14px;"><div style="display:flex;align-items:center;gap:7px;"><span style="{{ e.roleStyle }}">{{ e.roleShort }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);">{{ e.actorId }}</span></div></td>
+                      <td style="padding:12px 14px;"><sc-if value="{{ e.hasEntity }}"><span style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;">{{ e.entityType }}</span> <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent-primary);">{{ e.entityId }}</span></sc-if><sc-if value="{{ e.noEntity }}"><span style="color:var(--text-muted);">—</span></sc-if></td>
+                      <td style="padding:12px 14px;color:var(--text-secondary);max-width:300px;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ e.description }}</div></td>
+                      <td style="padding:12px 14px;"><sc-if value="{{ e.hasResult }}"><span style="{{ e.resultStyle }}">{{ e.result }}</span></sc-if><sc-if value="{{ e.noResult }}"><span style="color:var(--text-muted);">—</span></sc-if></td>
+                      <td style="padding:12px 14px;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);"><sc-if value="{{ e.hasLatency }}">{{ e.latency }}</sc-if><sc-if value="{{ e.noLatency }}"><span style="color:var(--text-muted);">—</span></sc-if></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+            <!-- pagination -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border-subtle);">
+              <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:var(--text-muted);">Rows per page</span><div style="position:relative;display:flex;align-items:center;"><select value="{{ perPage }}" onChange="{{ setPerPage }}" aria-label="Rows per page" style="appearance:none;-webkit-appearance:none;height:30px;border-radius:7px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:12px;padding:0 26px 0 10px;cursor:pointer;outline:none;"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select><svg style="position:absolute;right:8px;pointer-events:none;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div></div>
+              <div style="display:flex;align-items:center;gap:14px;"><span style="font-size:12px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;">{{ rangeText }}</span><div style="display:flex;gap:6px;"><button onClick="{{ prevPage }}" aria-label="Previous" style="{{ prevStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><button onClick="{{ nextPage }}" aria-label="Next" style="{{ nextStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      <sc-if value="{{ anyMenuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:15;"></div></sc-if>
+    </main>
+  </div>
+
+  <!-- ===== EVENT DETAIL DRAWER ===== -->
+  <sc-if value="{{ drawerOpen }}">
+    <div onClick="{{ closeDrawer }}" style="position:fixed;inset:0;z-index:45;background:rgba(5,6,12,.55);backdrop-filter:blur(1px);"></div>
+    <div style="position:fixed;top:0;right:0;bottom:0;z-index:46;width:480px;max-width:94vw;background:var(--bg-surface);border-left:1px solid var(--border-default);box-shadow:-12px 0 48px rgba(0,0,0,.45);display:flex;flex-direction:column;animation:ax-drawerin .22s cubic-bezier(.16,1,.3,1);">
+      <div style="flex:none;display:flex;align-items:center;gap:11px;padding:16px 20px;border-bottom:1px solid var(--border-subtle);">
+        <span style="{{ dt.typeStyle }}">{{ dt.typeLabel }}</span>
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;">Event detail</div><div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ dt.ts }}</div></div>
+        <button onClick="{{ closeDrawer }}" aria-label="Close" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px 20px;">
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.55;margin-bottom:16px;">{{ dt.description }}</div>
+        <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:10px;overflow:hidden;margin-bottom:14px;">
+          <sc-for list="{{ dt.fields }}" as="f" hint-placeholder-count="6"><div style="display:flex;justify-content:space-between;gap:14px;padding:10px 13px;border-bottom:1px solid var(--border-subtle);"><span style="font-size:11.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;flex:none;">{{ f.key }}</span><span style="font-size:11.5px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;text-align:right;word-break:break-all;">{{ f.value }}</span></div></sc-for>
+        </div>
+        <sc-if value="{{ dt.hashedNote }}"><div style="display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>IDs above are hashed identifiers (SEC-01) — not reversible to raw PII.</div></sc-if>
+        <sc-if value="{{ dt.hasLink }}"><button onClick="{{ dt.linkAction }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--accent-primary);background:var(--accent-primary-muted);color:var(--accent-primary);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;margin-bottom:14px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>{{ dt.linkLabel }}</button></sc-if>
+        <div>
+          <div onClick="{{ toggleRawJson }}" style="display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none;margin-bottom:8px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ rawChev }}"><path d="m9 18 6-6-6-6"/></svg><span style="font-size:10.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-muted);">Raw JSON</span></div>
+          <sc-if value="{{ rawJsonOpen }}"><pre style="margin:0;background:var(--bg-base);border:1px solid var(--border-default);border-radius:10px;padding:14px;font-size:11px;line-height:1.6;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);overflow-x:auto;white-space:pre;">{{ dt.rawJson }}</pre></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- TOAST -->
+  <sc-if value="{{ toastVisible }}">
+    <div role="status" style="{{ toastStyle }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--state-info)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg><span style="font-size:13px;color:var(--text-primary);">{{ toastMsg }}</span></div>
+  </sc-if>
+
+  <!-- STATE SWITCHER -->
+  <div style="position:fixed;bottom:16px;left:256px;z-index:55;display:flex;align-items:center;gap:5px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;padding:6px 8px;box-shadow:0 8px 28px rgba(0,0,0,.35);">
+    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--text-muted);text-transform:uppercase;padding:0 4px;">State</span>
+    <sc-for list="{{ stateOptions }}" as="s" hint-placeholder-count="4"><button onClick="{{ s.onClick }}" style="{{ s.style }}">{{ s.label }}</button></sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;screenState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;loaded&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;],&quot;default&quot;:&quot;loaded&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;\&quot;dark\&quot;|\&quot;light\&quot;&quot;}}">
+class Component extends DCLogic {
+  ACTION_META = {
+    prediction: ['Prediction', 'var(--state-info)', 'var(--risk-low-muted)'],
+    batch_job: ['Batch job', 'var(--accent-secondary)', 'var(--accent-secondary-muted)'],
+    alert_escalated: ['Alert escalated', 'var(--risk-critical)', 'var(--risk-critical-muted)'],
+    alert_dismissed: ['Alert dismissed', 'var(--state-success)', 'var(--risk-low-muted)'],
+    manual_flag: ['Manual flag', 'var(--risk-medium)', 'var(--risk-medium-muted)'],
+    rule_created: ['Rule created', 'var(--accent-secondary)', 'var(--accent-secondary-muted)'],
+    rule_updated: ['Rule updated', 'var(--accent-secondary)', 'var(--accent-secondary-muted)'],
+    rule_deleted: ['Rule deleted', 'var(--state-warning)', 'var(--risk-medium-muted)'],
+    rule_reloaded: ['Rule reloaded', 'var(--state-success)', 'var(--risk-low-muted)'],
+    rule_reload_failed: ['Reload failed', 'var(--risk-critical)', 'var(--risk-critical-muted)'],
+    api_test: ['API test', 'var(--text-muted)', 'var(--bg-subtle)'],
+    llm_explanation_generated: ['LLM explanation', 'var(--accent-secondary)', 'var(--accent-secondary-muted)'],
+    llm_explanation_fallback: ['LLM fallback', 'var(--state-warning)', 'var(--risk-medium-muted)'],
+  };
+  ROLE_LABEL = { compliance_officer: 'OFFICER', ml_engineer: 'ENGINEER', admin: 'ADMIN', system: 'SYSTEM' };
+
+  // [id, minAgo, action, actorId, role, entityType, entityId, description, result, latency, extra{}]
+  EVENTS = [
+    ['ev_10042', 2, 'alert_escalated', 'usr_8f21a', 'compliance_officer', 'Alert', 'al_00921', 'Escalated alert to confirmed AML case (structuring)', 'ESCALATED', null, { transaction_id: 'tx_7f3a…e6f', reviewer_id: 'usr_8f21a', new_status: 'ESCALATED', note: 'Confirmed structuring pattern, near-CTR cash-out', request_id: 'req_a91f2c8e' }],
+    ['ev_10041', 6, 'prediction', 'system', 'system', 'Transaction', 'tx_7f3a…e6f', 'Scored transaction → CRITICAL, flagged, alert created', 'CRITICAL', 128, { request_id: 'req_a91f2c8e', transaction_id: 'tx_7f3a…e6f', decision: 'CRITICAL', latency_ms: 128, model_version: 'mock-ml-v1', rule_version: 'v13', triggered_rules: 'R-STRUCT-01, R-RAPID-01' }],
+    ['ev_10040', 9, 'llm_explanation_generated', 'system', 'system', 'Alert', 'al_00921', 'Generated bilingual LLM explanation for alert', null, null, { request_id: 'req_a91f2c8e', alert_id: 'al_00921', source: 'llm', language: 'vi/en', tokens: 412 }],
+    ['ev_10039', 14, 'prediction', 'system', 'system', 'Transaction', 'tx_9e8d…c4b', 'Scored transaction → HIGH, flagged', 'HIGH', 96, { request_id: 'req_5f0a4471', transaction_id: 'tx_9e8d…c4b', decision: 'HIGH', latency_ms: 96, model_version: 'mock-ml-v1', rule_version: 'v13', triggered_rules: 'R-VELO-01, R-GEO-01' }],
+    ['ev_10038', 22, 'prediction', 'system', 'system', 'Transaction', 'tx_3b1c…88a', 'Scored transaction → MEDIUM, log-only (not flagged)', 'MEDIUM', 74, { request_id: 'req_77c1aa90', transaction_id: 'tx_3b1c…88a', decision: 'MEDIUM', latency_ms: 74, model_version: 'mock-ml-v1', rule_version: 'v13', triggered_rules: 'none' }],
+    ['ev_10037', 28, 'rule_reloaded', 'usr_3c90b', 'ml_engineer', 'Rule set', 'v13', 'Reloaded rule set after threshold change to R-STRUCT-01', 'v13', null, { rule_version: 'v13', rules_count: 6, triggered_by: 'usr_3c90b', request_id: 'req_2b8f01cd' }],
+    ['ev_10036', 31, 'rule_updated', 'usr_3c90b', 'ml_engineer', 'Rule', 'R-STRUCT-01', 'Lowered structuring threshold count 4 → 3', null, null, { rule_id: 'R-STRUCT-01', field: 'condition', old: 'count >= 4', new: 'count >= 3', request_id: 'req_19ade320' }],
+    ['ev_10035', 44, 'alert_dismissed', 'usr_8f21a', 'compliance_officer', 'Alert', 'al_00918', 'Dismissed alert as false positive (customer travel)', 'DISMISSED', null, { transaction_id: 'tx_dead…666', reviewer_id: 'usr_8f21a', new_status: 'DISMISSED', note: 'Verified — legitimate customer travel', request_id: 'req_88fe1042' }],
+    ['ev_10034', 58, 'batch_job', 'usr_b441e', 'admin', 'Batch', 'batch-0618-0830', 'Batch scored 12,400 rows · 86 flagged · 0 failed', '86 flagged', null, { batch_name: 'batch-2026-06-18-0830', total_rows: 12400, flagged_rows: 86, failed_rows: 0, duration_ms: 9120, request_id: 'req_c0ffee21' }],
+    ['ev_10033', 72, 'llm_explanation_fallback', 'system', 'system', 'Alert', 'al_00915', 'LLM timeout → fell back to template explanation', null, null, { alert_id: 'al_00915', reason: 'timeout_5s', fallback: 'template', request_id: 'req_4b2e9f1a' }],
+    ['ev_10032', 95, 'api_test', 'usr_b441e', 'admin', 'Endpoint', 'POST /predict', 'Manual API test from API Testing screen', '200 OK', 132, { method: 'POST', path: '/api/v1/predict', status: 200, latency_ms: 132, request_id: 'req_a1b2c3d4' }],
+    ['ev_10031', 140, 'rule_reload_failed', 'usr_3c90b', 'ml_engineer', 'Rule set', 'v12', 'Reload rejected — duplicate rule_id at line 42', 'FAILED', null, { error_message: "duplicate rule_id 'R-VELO-01' at line 42", triggered_by: 'usr_3c90b', rule_version: 'v12 (kept)', request_id: 'req_5d6e7f8a' }],
+    ['ev_10030', 180, 'rule_created', 'usr_3c90b', 'ml_engineer', 'Rule', 'R-GEO-01', 'Created geo/device anomaly rule (MEDIUM)', null, null, { rule_id: 'R-GEO-01', severity: 'MEDIUM', typology: 'geo_device_anomaly', request_id: 'req_9c0d1e2f' }],
+    ['ev_10029', 240, 'manual_flag', 'usr_8f21a', 'compliance_officer', 'Transaction', 'tx_feed…fff', 'Manually flagged transaction for review', 'HIGH', null, { transaction_id: 'tx_feed…fff', reviewer_id: 'usr_8f21a', reason: 'manual_review', request_id: 'req_feedface' }],
+    ['ev_10028', 300, 'prediction', 'system', 'system', 'Transaction', 'tx_1234…def', 'Scored transaction → LOW, log-only', 'LOW', 61, { request_id: 'req_12345678', transaction_id: 'tx_1234…def', decision: 'LOW', latency_ms: 61, model_version: 'mock-ml-v1', rule_version: 'v13', triggered_rules: 'none' }],
+    ['ev_10027', 420, 'rule_deleted', 'usr_b441e', 'admin', 'Rule', 'R-TEST-99', 'Deleted deprecated test rule', null, null, { rule_id: 'R-TEST-99', triggered_by: 'usr_b441e', request_id: 'req_aa11bb22' }],
+    ['ev_10026', 540, 'batch_job', 'usr_b441e', 'admin', 'Batch', 'batch-recon-fx', 'Batch failed — 0 of 3,300 rows scored', 'FAILED', null, { batch_name: 'batch-recon-fx', total_rows: 3300, flagged_rows: 0, failed_rows: 3300, duration_ms: 1204, error: 'SCORING_BACKEND_503', request_id: 'req_recon01' }],
+    ['ev_10025', 720, 'prediction', 'system', 'system', 'Transaction', 'tx_5d6e…f0a', 'Scored transaction → CRITICAL, flagged', 'CRITICAL', 119, { request_id: 'req_5d6e7f8a', transaction_id: 'tx_5d6e…f0a', decision: 'CRITICAL', latency_ms: 119, model_version: 'mock-ml-v1', rule_version: 'v13', triggered_rules: 'R-STRUCT-01, R-SMURF-01, R-RAPID-01' }],
+  ];
+
+  state = {
+    theme: this.props.defaultTheme === 'light' ? 'light' : 'dark',
+    screen: this.props.screenState || 'loaded',
+    search: '', actionSel: [], roleSel: [], decSel: [], range: '7d',
+    openMenu: null, exportOpen: false,
+    perPage: 50, page: 1,
+    detailId: null, rawJsonOpen: false,
+    toast: null,
+  };
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._tt); }
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+  onSearch = (e) => this.setState({ search: e.target.value, page: 1 });
+  toggleArr(key, v) { this.setState(s => { const a = s[key]; return { [key]: a.includes(v) ? a.filter(x => x !== v) : [...a, v], page: 1 }; }); }
+  setRange = (e) => this.setState({ range: e.target.value, page: 1 });
+  setPerPage = (e) => this.setState({ perPage: parseInt(e.target.value, 10), page: 1 });
+  toggleMenuName = (n) => this.setState(s => ({ openMenu: s.openMenu === n ? null : n, exportOpen: false }));
+  toggleExport = () => this.setState(s => ({ exportOpen: !s.exportOpen, openMenu: null }));
+  closeMenus = () => this.setState({ openMenu: null, exportOpen: false });
+  clearFilters = () => this.setState({ search: '', actionSel: [], roleSel: [], decSel: [], range: '7d', page: 1 });
+  openDetail = (id) => this.setState({ detailId: id, rawJsonOpen: false });
+  closeDrawer = () => this.setState({ detailId: null });
+  toggleRawJson = () => this.setState(s => ({ rawJsonOpen: !s.rawJsonOpen }));
+  retry = () => { this.setState({ screen: 'loading' }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ screen: 'loaded' }), 1000); };
+  setScreen = (v) => this.setState({ screen: v, detailId: null, page: 1 });
+  toast(msg) { this.setState({ toast: msg, exportOpen: false }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: null }), 2400); }
+  exportJson = () => this.toast('Exported anomalyx_audit_7d.json — hashed IDs only');
+  exportCsv = () => this.toast('Exported anomalyx_audit_7d.csv — hashed IDs only');
+
+  badge(c, b) { return { display: 'inline-flex', alignItems: 'center', fontSize: '10.5px', fontWeight: 700, letterSpacing: '.3px', fontFamily: "'JetBrains Mono',monospace", padding: '2px 8px', borderRadius: '6px', color: c, background: b, whiteSpace: 'nowrap' }; }
+  decColor(d) { return { LOW: 'var(--risk-low)', MEDIUM: 'var(--risk-medium)', HIGH: 'var(--risk-high)', CRITICAL: 'var(--risk-critical)' }[d]; }
+  decBg(d) { return { LOW: 'var(--risk-low-muted)', MEDIUM: 'var(--risk-medium-muted)', HIGH: 'var(--risk-high-muted)', CRITICAL: 'var(--risk-critical-muted)' }[d]; }
+  resultStyle(r) {
+    if (this.decColor(r)) return this.badge(this.decColor(r), this.decBg(r));
+    if (r === 'ESCALATED' || r === 'FAILED') return this.badge('var(--risk-critical)', 'var(--risk-critical-muted)');
+    if (r === 'DISMISSED') return this.badge('var(--text-muted)', 'var(--bg-subtle)');
+    if (/OK|^v\d/.test(r)) return this.badge('var(--state-success)', 'var(--risk-low-muted)');
+    return this.badge('var(--text-secondary)', 'var(--bg-subtle)');
+  }
+  roleStyle(role) { const c = role === 'system' ? 'var(--text-muted)' : role === 'admin' ? 'var(--accent-secondary)' : role === 'ml_engineer' ? 'var(--state-info)' : 'var(--accent-primary)'; return { ...this.badge(c, 'transparent'), border: '1px solid ' + c, fontSize: '9px', padding: '1px 6px' }; }
+  chk(c) { return { width: '16px', height: '16px', borderRadius: '4px', border: '1.5px solid ' + (c ? 'var(--accent-primary)' : 'var(--border-default)'), background: c ? 'var(--accent-primary)' : 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }; }
+  dropBtn(active) { return { display: 'inline-flex', alignItems: 'center', gap: '6px', height: '36px', padding: '0 11px', borderRadius: '8px', border: '1px solid ' + (active ? 'var(--accent-primary)' : 'var(--border-default)'), background: 'var(--bg-surface)', color: active ? 'var(--text-primary)' : 'var(--text-secondary)', fontSize: '12.5px', fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }; }
+  rel(min) { if (min < 60) return min + 'm ago'; const h = Math.floor(min / 60); if (h < 24) return h + 'h ago'; return Math.floor(h / 24) + 'd ago'; }
+  tsStr(min) { const d = new Date(Date.parse('2026-06-18T11:40:00+07:00') - min * 60000); const p = (n) => String(n).padStart(2, '0'); return '2026-06-18 ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); }
+
+  renderVals() {
+    const S = this.state;
+    const isLoading = S.screen === 'loading';
+    const isError = S.screen === 'error';
+    const isEmptyNone = S.screen === 'empty';
+
+    const all = this.EVENTS.map(e => ({ id: e[0], min: e[1], action: e[2], actorId: e[3], role: e[4], entityType: e[5], entityId: e[6], description: e[7], result: e[8], latency: e[9], extra: e[10] }));
+    const rangeMin = { '24h': 1440, '7d': 10080, '30d': 43200, all: Infinity }[S.range];
+    let filtered = all.filter(e => {
+      if (S.search) { const q = S.search.toLowerCase(); const hay = (e.id + ' ' + e.actorId + ' ' + (e.entityId || '') + ' ' + JSON.stringify(e.extra)).toLowerCase(); if (!hay.includes(q)) return false; }
+      if (S.actionSel.length && !S.actionSel.includes(e.action)) return false;
+      if (S.roleSel.length && !S.roleSel.includes(e.role)) return false;
+      if (S.decSel.length && !(e.action === 'prediction' && S.decSel.includes(e.result))) return false;
+      if (e.min > rangeMin) return false;
+      return true;
+    });
+
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / S.perPage));
+    const page = Math.min(S.page, totalPages);
+    const startIdx = (page - 1) * S.perPage;
+    const slice = filtered.slice(startIdx, startIdx + S.perPage);
+
+    const isEmptyFiltered = !isLoading && !isError && !isEmptyNone && total === 0;
+    const showTable = !isLoading && !isError && !isEmptyNone && total > 0;
+
+    const pageRows = slice.map(e => {
+      const meta = this.ACTION_META[e.action];
+      return {
+        id: e.id, ts: this.tsStr(e.min), rel: this.rel(e.min),
+        typeLabel: meta[0], typeStyle: this.badge(meta[1], meta[2]),
+        roleShort: this.ROLE_LABEL[e.role], roleStyle: this.roleStyle(e.role), actorId: e.actorId,
+        hasEntity: !!e.entityId, noEntity: !e.entityId, entityType: e.entityType, entityId: e.entityId,
+        description: e.description,
+        hasResult: !!e.result, noResult: !e.result, result: e.result, resultStyle: e.result ? this.resultStyle(e.result) : {},
+        hasLatency: e.latency != null, noLatency: e.latency == null, latency: e.latency != null ? e.latency + ' ms' : '',
+        rowStyle: { borderBottom: '1px solid var(--border-subtle)', cursor: 'pointer' },
+        open: () => this.openDetail(e.id),
+      };
+    });
+
+    // dropdowns
+    const actionOptions = Object.keys(this.ACTION_META).map(k => ({ label: k, selected: S.actionSel.includes(k), onClick: () => this.toggleArr('actionSel', k), boxStyle: this.chk(S.actionSel.includes(k)), dotStyle: { width: '8px', height: '8px', borderRadius: '2px', background: this.ACTION_META[k][1], flex: 'none' } }));
+    const roleOptions = Object.keys(this.ROLE_LABEL).map(k => ({ label: k, selected: S.roleSel.includes(k), onClick: () => this.toggleArr('roleSel', k), boxStyle: this.chk(S.roleSel.includes(k)) }));
+    const decOptions = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map(k => ({ label: k, selected: S.decSel.includes(k), onClick: () => this.toggleArr('decSel', k), boxStyle: this.chk(S.decSel.includes(k)), pillStyle: this.badge(this.decColor(k), this.decBg(k)) }));
+    const hasFilters = !!S.search || S.actionSel.length || S.roleSel.length || S.decSel.length || S.range !== '7d';
+
+    // detail drawer
+    const de = all.find(e => e.id === S.detailId);
+    let dt = {};
+    if (de) {
+      const meta = this.ACTION_META[de.action];
+      const fields = [['event_id', de.id], ['action_type', de.action], ['actor_id', de.actorId], ['actor_role', de.role], ...Object.entries(de.extra).map(([k, v]) => [k, String(v)])];
+      const linkTarget = de.entityType === 'Alert' ? 'AnomalyX Alerts Queue.dc.html' : de.entityType === 'Rule' || de.entityType === 'Rule set' ? 'AnomalyX Rule Engine.dc.html' : de.entityType === 'Batch' ? 'AnomalyX Predict Batch.dc.html' : de.entityType === 'Endpoint' ? 'AnomalyX API Testing.dc.html' : null;
+      dt = {
+        typeLabel: meta[0], typeStyle: this.badge(meta[1], meta[2]), ts: this.tsStr(de.min) + ' +07', description: de.description,
+        fields: fields.map(f => ({ key: f[0], value: f[1] })),
+        hashedNote: /tx_|al_|usr_/.test(JSON.stringify(de.extra)),
+        hasLink: !!de.entityId && !!linkTarget, linkLabel: 'Open ' + de.entityType + (de.entityId ? ' ' + de.entityId : ''), linkAction: () => { if (linkTarget) window.location.href = linkTarget; },
+        rawJson: JSON.stringify({ event_id: de.id, action_type: de.action, actor_id: de.actorId, actor_role: de.role, entity_type: de.entityType, entity_id: de.entityId, timestamp: this.tsStr(de.min) + '+07:00', ...de.extra }, null, 2),
+      };
+    }
+
+    const stateOpts = [['loaded', 'Loaded'], ['loading', 'Loading'], ['empty', 'Empty'], ['error', 'Error']];
+    const stateOptions = stateOpts.map(([v, label]) => ({ label, onClick: () => this.setScreen(v), style: { fontSize: '11px', fontWeight: 600, fontFamily: 'inherit', padding: '5px 10px', borderRadius: '7px', cursor: 'pointer', border: '1px solid ' + (S.screen === v ? 'var(--accent-primary)' : 'var(--border-default)'), background: S.screen === v ? 'var(--accent-primary)' : 'var(--bg-base)', color: S.screen === v ? '#fff' : 'var(--text-secondary)' } }));
+
+    return {
+      theme: S.theme, isLight: S.theme === 'light', isDark: S.theme === 'dark', toggleTheme: this.toggleTheme,
+      totalEvents: all.length,
+      search: S.search, onSearch: this.onSearch,
+      toggleActionMenu: () => this.toggleMenuName('action'), actionMenuOpen: S.openMenu === 'action', actionBtnStyle: this.dropBtn(S.actionSel.length || S.openMenu === 'action'), actionSuffix: S.actionSel.length ? ' (' + S.actionSel.length + ')' : '', actionOptions,
+      toggleRoleMenu: () => this.toggleMenuName('role'), roleMenuOpen: S.openMenu === 'role', roleBtnStyle: this.dropBtn(S.roleSel.length || S.openMenu === 'role'), roleSuffix: S.roleSel.length ? ' (' + S.roleSel.length + ')' : '', roleOptions,
+      toggleDecMenu: () => this.toggleMenuName('dec'), decMenuOpen: S.openMenu === 'dec', decBtnStyle: this.dropBtn(S.decSel.length || S.openMenu === 'dec'), decSuffix: S.decSel.length ? ' (' + S.decSel.length + ')' : '', decOptions,
+      range: S.range, setRange: this.setRange,
+      hasFilters, clearFilters: this.clearFilters,
+      toggleExport: this.toggleExport, exportOpen: S.exportOpen, exportJson: this.exportJson, exportCsv: this.exportCsv,
+      anyMenuOpen: !!S.openMenu || S.exportOpen, closeMenus: this.closeMenus,
+
+      isLoading, isError, isEmptyNone, isEmptyFiltered, showTable, retry: this.retry, ten: [0,1,2,3,4,5,6,7,8,9],
+      pageRows,
+      perPage: String(S.perPage), setPerPage: this.setPerPage,
+      rangeText: total === 0 ? '0 of 0' : (startIdx + 1) + '–' + Math.min(startIdx + S.perPage, total) + ' of ' + total,
+      prevPage: () => this.setState(st => ({ page: Math.max(1, st.page - 1) })), nextPage: () => this.setState(st => ({ page: Math.min(totalPages, st.page + 1) })),
+      prevStyle: { width: '30px', height: '30px', borderRadius: '7px', border: '1px solid var(--border-default)', background: 'var(--bg-base)', color: page <= 1 ? 'var(--text-muted)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: page <= 1 ? 'not-allowed' : 'pointer', opacity: page <= 1 ? 0.5 : 1 },
+      nextStyle: { width: '30px', height: '30px', borderRadius: '7px', border: '1px solid var(--border-default)', background: 'var(--bg-base)', color: page >= totalPages ? 'var(--text-muted)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: page >= totalPages ? 'not-allowed' : 'pointer', opacity: page >= totalPages ? 0.5 : 1 },
+
+      drawerOpen: !!de, dt, closeDrawer: this.closeDrawer, rawJsonOpen: S.rawJsonOpen, toggleRawJson: this.toggleRawJson, rawChev: { transform: S.rawJsonOpen ? 'rotate(90deg)' : 'none', transition: 'transform .16s' },
+
+      toastVisible: !!S.toast, toastMsg: S.toast || '',
+      toastStyle: { position: 'fixed', bottom: '20px', right: '20px', zIndex: 70, display: 'flex', alignItems: 'center', gap: '11px', background: 'var(--bg-elevated)', border: '1px solid var(--state-info)', borderLeft: '3px solid var(--state-info)', borderRadius: '10px', padding: '12px 15px', boxShadow: '0 12px 36px rgba(0,0,0,.4)', animation: 'ax-fade .18s ease', maxWidth: '380px' },
+      stateOptions,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -17,6 +17,8 @@
 | LLM | OpenAI explainer adapter + template fallback | Async alert explanations with masked context |
 | Observability | JSON logging + Prometheus client | Request, prediction, explanation, and service metrics |
 | Infrastructure | Docker Compose | PostgreSQL + Redis + FastAPI `api` service; single `docker compose up` starts full stack |
+| Frontend | React + TypeScript + Vite + Tailwind CSS | Core AML demo shell, feature routes, typed API client, and theme system |
+| Frontend state/routing | TanStack Query + React Router | Server-state lifecycle and feature-level navigation |
 
 ## System Boundaries
 
@@ -36,6 +38,11 @@
 - `backend/tests/` — self-contained unit/API tests with external services stubbed or forced in memory.
 - `documents/` — PRD, TDD, roadmap, and run guide used as source requirements.
 - `context/` — six-file implementation context that must stay synchronized with meaningful changes.
+- `frontend/src/app/` — frontend bootstrap, providers, and route composition.
+- `frontend/src/layouts/` — application-level layout shells.
+- `frontend/src/features/` — business feature boundaries for Alerts, API Testing, Batch Scoring, and Monitoring.
+- `frontend/src/shared/` — typed API infrastructure, contracts, configuration, and reusable UI.
+- Frontend local development proxies `/api/*` through Vite to `http://127.0.0.1:8000`; Alerts, API Testing, Predict Batch, and Monitoring use real FastAPI endpoints. Protected workflows use `VITE_API_TOKEN` bearer auth; Monitoring reads public health and metrics endpoints.
 
 ## Runtime Request Flow
 
