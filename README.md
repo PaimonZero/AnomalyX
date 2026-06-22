@@ -17,7 +17,7 @@ This repository currently does **not** include a React frontend or production ML
 - Optional legacy Supabase REST alert/audit adapter
 - In-memory or Redis-backed idempotency store
 - OpenAI-based LLM explainer with deterministic template fallback
-- Mock ML predictor fallback (`mock-ml-v1`) by default; optional `XGBPredictor` runtime inference when `MOCK_ML_ENABLED=false` and artifacts are present
+- Mock ML predictor fallback (`mock-ml-v1`) by default; optional `XGBPredictor` runtime inference when `MOCK_ML_ENABLED=false` and artifacts are present.
 
 ## Repository layout
 
