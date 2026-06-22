@@ -1,9 +1,29 @@
 <!doctype html>
-<html lang="vi" data-theme="dark">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0d0f17" />
+    <script>
+      (() => {
+        const colors = { dark: "#0d0f17", light: "#f5f4ef" };
+        let theme = "dark";
+
+        try {
+          const storedTheme = localStorage.getItem("anomalyx-theme");
+          if (storedTheme === "dark" || storedTheme === "light") {
+            theme = storedTheme;
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            theme = "light";
+          }
+        } catch {
+          theme = "dark";
+        }
+
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]')?.setAttribute("content", colors[theme]);
+      })();
+    </script>
     <meta
       name="description"
       content="AnomalyX — bảng điều khiển phát hiện giao dịch bất thường"
@@ -15,4 +35,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
