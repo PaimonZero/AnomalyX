@@ -4,11 +4,11 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- Backend-first prototype implemented; context documentation initialized from `documents/` and current source code.
+- Backend-first prototype implemented; core React frontend demo shell now includes operational workflows plus a live Monitoring screen.
 
 ## Current Goal
 
-- Keep six-file context accurate while finishing remaining prototype gaps: real ML integration, optional frontend/dashboard, Redis rolling aggregates, explanation cache, drift checks, and deployment packaging.
+- Extend frontend demo workflows on the new scaffold while keeping backend contracts and context synchronized.
 
 ## Completed
 
@@ -62,6 +62,43 @@ Update this file after every meaningful implementation change.
 - Idempotency corrupt-cache reclaim now uses atomic repository compare-and-replace; ML requirements are exact-pinned; scripts share URL masking; Docker Compose uses env-sourced PostgreSQL secrets with production secrets guidance; ML notebooks use timezone-aware timestamps and stripped feature-engineering outputs.
 - `ml/rules/aml_rules.yaml` now uses backend rule-engine schema and whitelisted feature names only.
 - README, CLAUDE guidance, backend run guide, env examples, and ML rule notebook notes now align with current ML/artifact state, `POSTGRES_*` config, placeholders, and bearer-token auth.
+- Frontend foundation under `frontend/`:
+  - React 19 + TypeScript + Vite configuration with Tailwind CSS integration.
+  - Feature-first structure separating app composition, layouts, business features, shared API/types, reusable UI, and global styles.
+  - Responsive application shell with persisted dark/light theme and core navigation.
+  - Routes scaffolded for Alerts, API Testing, Predict Batch, and Monitoring, matching the current demo scope.
+  - Typed API client, normalized error handling, environment-based API URL, and TypeScript contracts aligned with FastAPI schemas.
+- Alerts / Review Queue frontend implemented against the real FastAPI contract:
+  - Filterable and sortable alert table with loading, empty, and retryable error states.
+  - Risk/status/explanation badges, queue summary metrics, rule evidence, and masked identifiers.
+  - Alert detail modal uses only backend-supported alert context, triggered rules, model feature contributions, explanation source, and audit metadata.
+  - Real `GET /alerts`, `GET /alerts/{id}`, and `PATCH /alerts/{id}/status` calls with bearer auth, cache refresh, network/error envelopes, and success toast.
+  - Vite development proxy forwards `/api/*` to local FastAPI at `127.0.0.1:8000`; API token and reviewer ID are environment-configured.
+  - End-to-end smoke test through the Vite proxy passed for create prediction → list alert → detail → escalate using in-memory backend storage.
+  - Shared `Button`, `Badge`, and accessible `Modal` primitives introduced for reuse by later screens.
+  - Frontend lint and production build pass; preview route `/alerts` returns HTTP 200.
+- API Testing frontend connected to the real FastAPI endpoints:
+  - Compact two-panel request builder and response viewer covering all nine documented endpoint choices.
+  - Named JSON presets, body validation/formatting, masked demo auth, path/query inputs, and loading state.
+  - Live HTTP transport for predict, batch, alerts, rules, health, and Prometheus text metrics, including backend auth/validation error envelopes and explicit network errors.
+  - Semantic prediction result view with risk, flags, triggered rules, top features, and asynchronous explanation state.
+  - Replayable request history, user-saved presets, response body/header/raw tabs, and copy feedback.
+  - Frontend lint and production build pass; all nine endpoint choices passed smoke testing through the Vite proxy against an in-memory FastAPI runtime.
+  - API Testing layout corrected to use document scrolling, keep request actions visible, and expose history/presets below the workspace on laptop-height viewports.
+- Predict Batch frontend connected to the real batch-score endpoint:
+  - JSON file loading and paste editor with a reusable synthetic sample batch.
+  - Client-side `TransactionRequest` validation for required fields, enums, ISO timestamps, non-negative amounts, and duplicate transaction IDs.
+  - Real authenticated `POST /api/v1/batch-score`; synchronous waiting state, request cancellation, and exact `results[]`/`errors[]` mapping back to input rows.
+  - Result summary, risk/flag filters, sortable risk-first table, partial-failure presentation, and record detail modal.
+  - JSON/CSV result export and schema helper; all risk scores, rules, model features, alert IDs, and row errors now come from FastAPI.
+  - Frontend lint and production build pass; smoke test through the Vite proxy returned 2 results with expected flagged/error counts.
+- Monitoring frontend screen connected to real backend observability endpoints:
+  - New `/monitoring` route and sidebar entry matching the existing application shell.
+  - Real `GET /api/v1/health` JSON call for service checks, storage mode, model mode, and metrics availability.
+  - Real `GET /api/v1/metrics` Prometheus text call with a frontend parser for backend metric families.
+  - Displays service health checks, model/storage mode, HTTP request volume/status/latency, alert count, decision distribution, rule-trigger counts, LLM explanation outcomes, fallback count, and a drift placeholder.
+  - Manual refresh and optional 30-second auto refresh are wired through TanStack Query.
+  - Parser coverage added for mapping Prometheus counters/histograms/gauges into Monitoring UI metrics.
 
 ## In Progress
 
@@ -71,7 +108,7 @@ Update this file after every meaningful implementation change.
 
 1. **W4 — Redis rolling aggregates**: wire real `tx_count_sender`, `fan_out_orig`, etc. from Redis into `_compute_features`; cold-start defaults currently bias scores toward false negatives on high-velocity patterns.
 2. **W5 — Unit tests for `XGBPredictor`**: add pytest tests covering feature mapping, prediction contract, SHAP fallback, and cold-start path.
-3. **Frontend dashboard scaffold**: React + Vite + Tailwind + shadcn/ui per `ui-context.md` spec.
+3. **Frontend API integration**: core workflows and Monitoring are connected; add automated browser coverage and production deployment configuration.
 4. **Explanation cache**: wire schema-ready `feature_snapshots`/explanation store.
 5. **Drift metric implementation**: wire real drift detection from `model_registry` and metrics.
 6. Update `.env.example` or docs if runtime configuration changes.

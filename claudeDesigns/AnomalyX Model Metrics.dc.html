@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-base:#0D0F17;--bg-surface:#151720;--bg-elevated:#1E2130;--bg-subtle:#252838;
+  --text-primary:#F2F0EB;--text-secondary:#C8C5BC;--text-muted:#8A8880;
+  --border-default:#2A2D3E;--border-subtle:#1E2130;
+  --accent-primary:#CC785C;--accent-primary-hover:#D98B70;--accent-primary-muted:#3D2820;
+  --accent-secondary:#9B8AFB;--accent-secondary-muted:#28243D;
+  --risk-low:#3DB87A;--risk-medium:#E8A842;--risk-high:#E86A2E;--risk-critical:#E84040;
+  --risk-low-muted:#0F2B1C;--risk-medium-muted:#2B1E08;--risk-high-muted:#2B1208;--risk-critical-muted:#2B0808;
+  --state-success:#3DB87A;--state-warning:#E8A842;--state-error:#E84040;--state-info:#5AADDC;
+}
+[data-theme="light"]{
+  --bg-base:#F5F4EF;--bg-surface:#FFFFFF;--bg-elevated:#FAFAF7;--bg-subtle:#EEECEA;
+  --text-primary:#1A1B26;--text-secondary:#3D3E4E;--text-muted:#7A7A80;
+  --border-default:#DDDBD4;--border-subtle:#EEECEA;
+  --accent-primary:#CC785C;--accent-primary-hover:#B8674D;--accent-primary-muted:#FAE8E2;
+  --accent-secondary:#6B5FD6;--accent-secondary-muted:#EDEAFC;
+  --risk-low:#1E8A55;--risk-medium:#C07A10;--risk-high:#C04E18;--risk-critical:#C01C1C;
+  --risk-low-muted:#E6F5EE;--risk-medium-muted:#FDF2E0;--risk-high-muted:#FDEEE6;--risk-critical-muted:#FDEAEA;
+  --state-success:#1E8A55;--state-warning:#C07A10;--state-error:#C01C1C;--state-info:#1E7FAD;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+[data-theme="dark"]{color-scheme:dark;}
+[data-theme="light"]{color-scheme:light;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:6px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes ax-shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+@keyframes ax-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes ax-spin{to{transform:rotate(360deg)}}
+@keyframes ax-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes ax-scalein{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+@keyframes ax-livedot{0%,100%{box-shadow:0 0 0 0 rgba(61,184,122,.5)}70%{box-shadow:0 0 0 5px rgba(61,184,122,0)}}
+select,textarea,input{font-family:inherit;}
+.ax-skel{background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;border-radius:6px;}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="display:flex;height:100vh;overflow:hidden;font-family:'Inter',system-ui,sans-serif;background:var(--bg-base);color:var(--text-primary);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="flex:none;width:240px;height:100vh;background:var(--bg-surface);border-right:1px solid var(--border-default);display:flex;flex-direction:column;">
+    <div style="height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--border-subtle);">
+      <div style="width:30px;height:30px;border-radius:8px;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(204,120,92,.35);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>
+      <div style="line-height:1.05;"><div style="font-size:15px;font-weight:700;letter-spacing:-.2px;">AnomalyX</div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--accent-primary);margin-top:2px;">AML&nbsp;CONSOLE</div></div>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Operations</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="AnomalyX App Shell.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</a>
+          <a href="AnomalyX Alerts Queue.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span style="flex:1;">Alerts</span><span style="font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--risk-critical);background:var(--risk-critical-muted);padding:1px 6px;border-radius:6px;">12</span></a>
+          <a href="AnomalyX Predict Batch.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>Predict Batch</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Engineering</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="AnomalyX API Testing.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>API Testing</a>
+          <a href="AnomalyX Rule Engine.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Rule Engine</a>
+          <a href="#" style="position:relative;display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--text-primary);background:var(--accent-primary-muted);text-decoration:none;">
+            <span style="position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--accent-primary);"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Model &amp; Metrics
+          </a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Governance</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>Audit Log</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Settings</a>
+        </div>
+      </div>
+    </nav>
+    <div style="flex:none;padding:12px 16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--state-success);flex:none;animation:ax-livedot 2.4s infinite;"></span><span style="font-size:11px;color:var(--text-muted);">All systems operational</span></div>
+  </aside>
+
+  <!-- ============ RIGHT COLUMN ============ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;">
+    <header style="height:56px;flex:none;background:var(--bg-surface);border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:14px;padding:0 20px;position:relative;z-index:30;">
+      <div style="min-width:0;"><h1 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.3px;">Model &amp; Metrics</h1><div style="font-size:12px;color:var(--text-muted);margin-top:1px;">Observability · {{ lastScrape }}</div></div>
+      <div style="flex:1;"></div>
+
+      <!-- time range -->
+      <div style="display:flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--border-default);border-radius:9px;background:var(--bg-base);">
+        <sc-for list="{{ rangeChips }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button></sc-for>
+      </div>
+      <!-- auto refresh -->
+      <label style="display:flex;align-items:center;gap:7px;cursor:pointer;"><span style="font-size:11.5px;color:var(--text-secondary);">Auto 30s</span><span onClick="{{ toggleAuto }}" style="{{ autoTrackStyle }}"><span style="{{ autoThumbStyle }}"></span></span></label>
+      <!-- refresh -->
+      <button onClick="{{ refresh }}" style="display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="border-color:var(--accent-primary);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ refreshSpin }}"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Refresh</button>
+
+      <button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);">
+        <sc-if value="{{ isLight }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if>
+        <sc-if value="{{ isDark }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if>
+      </button>
+      <div style="display:flex;align-items:center;gap:9px;height:38px;padding:0 8px 0 4px;border-radius:9px;cursor:pointer;flex:none;" style-hover="background:var(--bg-elevated);"><span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex:none;">RK</span><span style="line-height:1.15;"><span style="display:block;font-size:12.5px;font-weight:600;">Ravi Kumar</span><span style="display:block;font-size:10.5px;color:var(--text-muted);">Risk Engineer</span></span></div>
+    </header>
+
+    <!-- CONTENT -->
+    <main style="flex:1;overflow-y:auto;background:var(--bg-base);position:relative;">
+      <div style="max-width:1640px;margin:0 auto;padding:20px 24px 40px;">
+
+        <!-- ABNORMAL LOAD BANNER -->
+        <sc-if value="{{ showAbnormal }}">
+          <div style="display:flex;align-items:center;gap:11px;background:var(--risk-medium-muted);border:1px solid var(--risk-medium);border-radius:10px;padding:11px 16px;margin-bottom:16px;animation:ax-fade .16s ease;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--state-warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span style="font-size:12.5px;color:var(--text-secondary);flex:1;"><strong style="color:var(--state-warning);">High system load detected</strong> — CPU 91% · RAM 87%. Metric updates may be delayed. The prediction API remains operational.</span>
+            <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--text-muted);">host: aml-worker-2</span>
+          </div>
+        </sc-if>
+
+        <!-- ERROR BANNER -->
+        <sc-if value="{{ isError }}">
+          <div style="display:flex;align-items:center;gap:12px;background:var(--risk-critical-muted);border:1px solid var(--risk-critical);border-radius:10px;padding:13px 16px;margin-bottom:16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--risk-critical)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--risk-critical);">Metrics unavailable — Prometheus may not be running</div><div style="font-size:12px;color:var(--text-secondary);margin-top:1px;"><code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg-base);padding:1px 5px;border-radius:4px;">GET /metrics</code> connection refused at <code style="font-family:'JetBrains Mono',monospace;font-size:11px;">:9090</code>. Health checks below reflect last known state.</div></div>
+            <button onClick="{{ retry }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:7px;border:1px solid var(--risk-critical);background:transparent;color:var(--risk-critical);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;flex:none;" style-hover="background:var(--risk-critical);color:#fff;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Retry</button>
+          </div>
+        </sc-if>
+
+        <!-- ===== HEALTH CHIPS (always visible) ===== -->
+        <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px;">
+          <sc-for list="{{ healthChips }}" as="h" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:9px;background:var(--bg-surface);border:1px solid {{ h.border }};border-radius:9px;padding:8px 13px;">
+              <span style="{{ h.dotStyle }}"></span>
+              <div style="line-height:1.25;"><div style="font-size:12px;font-weight:600;">{{ h.name }}</div><div style="font-size:10.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ h.detail }}</div></div>
+              <span style="{{ h.badgeStyle }}">{{ h.status }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- ===== LOADING ===== -->
+        <sc-if value="{{ isLoading }}">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;"><sc-for list="{{ ten }}" as="i" hint-placeholder-count="10"><div class="ax-skel" style="height:78px;"></div></sc-for></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;"><sc-for list="{{ six }}" as="i" hint-placeholder-count="6"><div class="ax-skel" style="height:200px;"></div></sc-for></div>
+        </sc-if>
+
+        <!-- ===== EMPTY ===== -->
+        <sc-if value="{{ isEmpty }}">
+          <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 24px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:14px;">
+            <div style="width:60px;height:60px;border-radius:15px;background:var(--bg-subtle);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+            <h2 style="margin:0 0 8px;font-size:17px;font-weight:600;">No metric data available</h2>
+            <p style="margin:0;font-size:13.5px;color:var(--text-muted);max-width:380px;line-height:1.55;">Start running predictions to populate this page. Prometheus needs at least one scrape window before charts render.</p>
+          </div>
+        </sc-if>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <sc-if value="{{ showContent }}">
+
+          <!-- METRIC TARGET COMPLIANCE -->
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;">
+            <h2 style="margin:0;font-size:13px;font-weight:600;letter-spacing:.2px;">Metric target compliance</h2>
+            <span style="font-size:11px;color:var(--text-muted);">· locked targets (TDD §10) vs current</span>
+            <span style="{{ compliancePillStyle }}">{{ compliancePassCount }}/10 passing</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:24px;">
+            <sc-for list="{{ compliance }}" as="m" hint-placeholder-count="10">
+              <div onClick="{{ m.toggle }}" title="{{ m.method }}" style="position:relative;background:var(--bg-surface);border:1px solid {{ m.border }};border-radius:11px;padding:12px 13px;cursor:pointer;" style-hover="border-color:var(--accent-primary);">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px;"><span style="font-size:11px;color:var(--text-secondary);font-weight:500;line-height:1.3;">{{ m.label }}</span><span style="{{ m.iconStyle }}">{{ m.icon }}</span></div>
+                <div style="display:flex;align-items:baseline;gap:6px;"><span style="font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;color:{{ m.valColor }};">{{ m.current }}</span><span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ m.unit }}</span></div>
+                <div style="font-size:10.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:4px;">target {{ m.target }}</div>
+                <div style="margin-top:8px;height:4px;border-radius:3px;background:var(--bg-subtle);overflow:hidden;"><div style="{{ m.barStyle }}"></div></div>
+                <sc-if value="{{ m.open }}">
+                  <div style="position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:9px;padding:11px 12px;box-shadow:0 14px 36px rgba(0,0,0,.42);animation:ax-fade .12s ease;">
+                    <div style="font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Methodology</div>
+                    <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.5;">{{ m.method }}</div>
+                    <div style="font-size:10.5px;color:var(--text-muted);margin-top:7px;font-family:'JetBrains Mono',monospace;">source: {{ m.src }}</div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- CHART GRID 2x3 -->
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;"><h2 style="margin:0;font-size:13px;font-weight:600;">Prometheus charts</h2><span style="font-size:11px;color:var(--text-muted);">· window {{ rangeLabel }} · click any chart to expand</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;">
+            <sc-for list="{{ charts }}" as="c" hint-placeholder-count="6">
+              <div onClick="{{ c.open }}" style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:14px 15px;cursor:pointer;display:flex;flex-direction:column;" style-hover="border-color:var(--accent-primary);">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:3px;"><span style="font-size:12.5px;font-weight:600;">{{ c.title }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px;"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></div>
+                <div style="font-size:10.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-bottom:10px;">{{ c.metric }}</div>
+                <sc-if value="{{ c.ok }}"><div>{{ c.svg }}</div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:9px;"><sc-for list="{{ c.legend }}" as="l" hint-placeholder-count="2"><span style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-muted);"><span style="width:9px;height:9px;border-radius:2px;background:{{ l.color }};"></span>{{ l.label }}</span></sc-for></div></sc-if>
+                <sc-if value="{{ c.err }}"><div style="height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:var(--text-muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--risk-critical)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg><span style="font-size:11.5px;">Chart data unavailable</span><button onClick="{{ c.stopRetry }}" style="display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:6px;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary);font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>Retry</button></div></sc-if>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- MODEL CARD + SHAP IMPORTANCE -->
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:14px;margin-bottom:24px;">
+            <!-- model card -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px 18px;">
+              <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span style="font-size:13px;font-weight:600;">Registered model</span><span style="margin-left:auto;font-size:9.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--state-success);background:var(--risk-low-muted);padding:2px 8px;border-radius:6px;">LOADED</span></div>
+              <div style="display:flex;flex-direction:column;">
+                <sc-for list="{{ modelFields }}" as="f" hint-placeholder-count="8">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-subtle);"><span style="font-size:11.5px;color:var(--text-muted);">{{ f.label }}</span><span style="font-size:12px;font-weight:500;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);text-align:right;">{{ f.value }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+            <!-- shap importance -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px 18px;">
+              <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Global feature importance</span><span style="font-size:11px;color:var(--text-muted);">· mean |SHAP| · top 10</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 14px;">
+                <sc-for list="{{ shapGroups }}" as="g" hint-placeholder-count="6"><span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--text-muted);"><span style="width:9px;height:9px;border-radius:2px;background:{{ g.color }};"></span>{{ g.label }}</span></sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:7px;">
+                <sc-for list="{{ shap }}" as="s" hint-placeholder-count="10">
+                  <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-secondary);width:188px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ s.name }}</span><div style="flex:1;height:14px;border-radius:4px;background:var(--bg-subtle);overflow:hidden;"><div style="{{ s.barStyle }}"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--text-primary);width:42px;flex:none;text-align:right;">{{ s.value }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <!-- DRIFT + QUALITY -->
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;"><h2 style="margin:0;font-size:13px;font-weight:600;">Drift &amp; explanation quality</h2></div>
+          <div style="display:grid;grid-template-columns:minmax(0,0.85fr) minmax(0,1.15fr) minmax(0,1fr);gap:14px;">
+            <!-- PSI gauge -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:12.5px;font-weight:600;">Drift (PSI)</span><span style="font-size:10.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">score dist</span></div>
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:6px 0;">
+                <svg width="190" height="112" viewBox="0 0 190 112">
+                  <path d="M15 100 A 80 80 0 0 1 175 100" fill="none" stroke="var(--bg-subtle)" stroke-width="14" stroke-linecap="round"/>
+                  <path d="M15 100 A 80 80 0 0 1 73 26" fill="none" stroke="var(--risk-low)" stroke-width="14" stroke-linecap="round"/>
+                  <path d="M73 26 A 80 80 0 0 1 117 26" fill="none" stroke="var(--risk-medium)" stroke-width="14"/>
+                  <path d="M117 26 A 80 80 0 0 1 175 100" fill="none" stroke="var(--risk-critical)" stroke-width="14" stroke-linecap="round"/>
+                  <line x1="95" y1="100" x2="{{ psiNeedleX }}" y2="{{ psiNeedleY }}" stroke="var(--text-primary)" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="95" cy="100" r="6" fill="var(--text-primary)"/>
+                </svg>
+                <div style="text-align:center;margin-top:2px;"><div style="font-size:30px;font-weight:700;font-family:'JetBrains Mono',monospace;color:{{ psiColor }};line-height:1;">{{ psiValue }}</div><div style="{{ psiBadgeStyle }}">{{ psiStatus }}</div></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border-subtle);padding-top:10px;">
+                <span style="font-size:10.5px;color:var(--text-muted);">threshold 0.20</span>
+                <svg width="92" height="24" viewBox="0 0 92 24" fill="none" preserveAspectRatio="none"><polyline points="0,18 13,17 26,16 39,17 52,14 65,15 78,13 92,12" stroke="var(--state-info)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+            <!-- score distribution overlay -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;padding:16px 18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12.5px;font-weight:600;">Score distribution shift</span><span style="font-size:10.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">KS=0.061</span></div>
+              <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:8px;">training vs last {{ rangeLabel }} inference</div>
+              <svg width="100%" height="158" viewBox="0 0 460 158" preserveAspectRatio="none">
+                <line x1="0" y1="130" x2="460" y2="130" stroke="var(--border-default)" stroke-width="1"/>
+                <line x1="184" y1="8" x2="184" y2="130" stroke="var(--risk-medium)" stroke-width="1.4" stroke-dasharray="4 4"/>
+                <line x1="322" y1="8" x2="322" y2="130" stroke="var(--risk-critical)" stroke-width="1.4" stroke-dasharray="4 4"/>
+                <path d="M0,128 C60,120 100,40 140,38 C180,36 210,96 250,108 C300,120 360,124 460,127 L460,130 L0,130 Z" fill="var(--accent-secondary)" fill-opacity="0.16"/>
+                <path d="M0,128 C60,120 100,40 140,38 C180,36 210,96 250,108 C300,120 360,124 460,127" fill="none" stroke="var(--accent-secondary)" stroke-width="2"/>
+                <path d="M0,127 C60,118 100,52 140,50 C185,48 215,90 250,102 C305,115 360,118 460,123 L460,130 L0,130 Z" fill="var(--accent-primary)" fill-opacity="0.14"/>
+                <path d="M0,127 C60,118 100,52 140,50 C185,48 215,90 250,102 C305,115 360,118 460,123" fill="none" stroke="var(--accent-primary)" stroke-width="2"/>
+                <text x="186" y="146" font-size="9" fill="var(--risk-medium)" font-family="monospace">τ_med 0.40</text>
+                <text x="324" y="146" font-size="9" fill="var(--risk-critical)" font-family="monospace">τ_flag 0.70</text>
+              </svg>
+              <div style="display:flex;gap:14px;margin-top:6px;"><span style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-muted);"><span style="width:9px;height:9px;border-radius:2px;background:var(--accent-secondary);"></span>training</span><span style="display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text-muted);"><span style="width:9px;height:9px;border-radius:2px;background:var(--accent-primary);"></span>recent inference</span></div>
+            </div>
+            <!-- LLM quality cards -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <sc-for list="{{ llmCards }}" as="l" hint-placeholder-count="5">
+                <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:11px;padding:11px 14px;display:flex;align-items:center;gap:12px;">
+                  <span style="{{ l.iconWrap }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{{ l.icon }}</svg></span>
+                  <div style="flex:1;min-width:0;"><div style="font-size:11.5px;color:var(--text-muted);">{{ l.label }}</div><div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;opacity:.8;">{{ l.src }}</div></div>
+                  <div style="text-align:right;"><div style="font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;color:{{ l.color }};">{{ l.value }}</div><span style="{{ l.trendStyle }}">{{ l.trend }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ anyPopoverOpen }}"><div onClick="{{ closePopovers }}" style="position:fixed;inset:0;z-index:15;"></div></sc-if>
+    </main>
+  </div>
+
+  <!-- ===== CHART DETAIL MODAL ===== -->
+  <sc-if value="{{ chartModalOpen }}">
+    <div onClick="{{ closeChart }}" style="position:fixed;inset:0;z-index:50;background:rgba(5,6,12,.62);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:40px;">
+      <div onClick="{{ stopModal }}" style="width:100%;max-width:980px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;box-shadow:0 28px 70px rgba(0,0,0,.55);overflow:hidden;animation:ax-scalein .16s ease;">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--border-subtle);">
+          <div style="min-width:0;"><div style="font-size:15px;font-weight:600;">{{ modalChart.title }}</div><div style="font-size:11.5px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:1px;">{{ modalChart.metric }} · {{ rangeLabel }}</div></div>
+          <div style="flex:1;"></div>
+          <div style="display:flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--border-default);border-radius:9px;background:var(--bg-base);"><sc-for list="{{ rangeChips }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.onClick }}" style="{{ r.style }}">{{ r.label }}</button></sc-for></div>
+          <button onClick="{{ closeChart }}" aria-label="Close" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+        <div style="padding:22px;">
+          <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:12px;padding:18px;">{{ modalChart.bigSvg }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;"><sc-for list="{{ modalChart.legend }}" as="l" hint-placeholder-count="3"><span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);"><span style="width:11px;height:11px;border-radius:3px;background:{{ l.color }};"></span>{{ l.label }}</span></sc-for></div>
+          <div style="display:flex;gap:22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border-subtle);"><sc-for list="{{ modalChart.stats }}" as="s" hint-placeholder-count="3"><div><div style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">{{ s.label }}</div><div style="font-size:17px;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:3px;color:{{ s.color }};">{{ s.value }}</div></div></sc-for></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===== STATE SWITCHER ===== -->
+  <div style="position:fixed;bottom:16px;left:256px;z-index:55;display:flex;align-items:center;gap:5px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;padding:6px 8px;box-shadow:0 8px 28px rgba(0,0,0,.35);">
+    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--text-muted);text-transform:uppercase;padding:0 4px;">State</span>
+    <sc-for list="{{ stateOptions }}" as="s" hint-placeholder-count="5"><button onClick="{{ s.onClick }}" style="{{ s.style }}">{{ s.label }}</button></sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;screenState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;loaded&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;,&quot;abnormal&quot;],&quot;default&quot;:&quot;loaded&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;\&quot;dark\&quot;|\&quot;light\&quot;&quot;}}">
+class Component extends DCLogic {
+  RANGES = [['1h', 'Last 1h'], ['6h', 'Last 6h'], ['24h', 'Last 24h'], ['7d', 'Last 7d']];
+
+  HEALTH = [
+    { name: 'API service', status: 'UP', detail: '99.98% · 14d' },
+    { name: 'ML model', status: 'UP', detail: 'mock-ml-v1' },
+    { name: 'Rule engine', status: 'UP', detail: '6 rules · v13' },
+    { name: 'PostgreSQL', status: 'UP', detail: '4ms' },
+    { name: 'Redis', status: 'UP', detail: '1ms' },
+    { name: 'LLM provider', status: 'DEGRADED', detail: '8m ago' },
+  ];
+
+  // [label, target, current, unit, pass, dir(>=|<=), max-for-bar, method, src]
+  COMPLIANCE = [
+    ['Precision (suspicious)', '≥ 0.70', 0.78, '', true, 'gte', 1, 'Precision on the held-out suspicious class from the model evaluation report at registration time.', 'registry'],
+    ['Recall (suspicious)', '≥ 0.60', 0.71, '', true, 'gte', 1, 'Recall (sensitivity) on the suspicious class from the offline evaluation report.', 'registry'],
+    ['F1 score', '≥ 0.65', 0.74, '', true, 'gte', 1, 'Harmonic mean of precision and recall on the suspicious class.', 'registry'],
+    ['PR-AUC', '≥ 0.50', 0.63, '', true, 'gte', 1, 'Area under the precision-recall curve — robust to class imbalance.', 'registry'],
+    ['AUC-ROC', '≥ 0.85', 0.91, '', true, 'gte', 1, 'Area under the ROC curve across all decision thresholds.', 'registry'],
+    ['Model FP rate', '≤ 5%', 3.8, '%', true, 'lte', 10, 'Share of legitimate transactions the ML model scored above τ_flag, from evaluation.', 'registry'],
+    ['Rule FP rate', '≤ 8%', 6.8, '%', true, 'lte', 16, 'Share of rule-triggered alerts later dismissed as false positives (rolling 30d).', 'prometheus'],
+    ['p95 latency (excl LLM)', '≤ 500ms', 342, 'ms', true, 'lte', 700, 'p95 of request_latency excluding async LLM explanation, live from Prometheus.', 'prometheus'],
+    ['p95 latency (incl LLM)', '≤ 3s', 2.1, 's', true, 'lte', 4, 'p95 end-to-end including async LLM explanation generation.', 'prometheus'],
+    ['Throughput', '≥ 50 req/s', 47, 'req/s', false, 'gte', 80, 'Sustained request rate over the selected window from request_count.', 'prometheus'],
+  ];
+
+  MODEL_FIELDS = [
+    ['Model version', 'mock-ml-v1'],
+    ['Algorithm', 'XGBoost 2.0'],
+    ['Training data', 'PaySim · a3f1…9e2c'],
+    ['Training date', '2026-05-02 14:20 +07'],
+    ['τ_medium', '0.40'],
+    ['τ_flag', '0.70'],
+    ['Feature count', '38'],
+    ['Calibration', 'isotonic'],
+  ];
+
+  // [name, value, group]
+  SHAP = [
+    ['count_just_below_threshold_24h', 0.31, 'structuring'],
+    ['amount_zscore_vs_user', 0.27, 'behavioural'],
+    ['velocity_vs_baseline_ratio', 0.21, 'behavioural'],
+    ['distinct_receivers_1h', 0.18, 'counterparty'],
+    ['rapid_inout_flag', 0.16, 'sequence'],
+    ['sum_amount_24h', 0.13, 'velocity'],
+    ['log_amount', 0.11, 'transaction'],
+    ['chain_depth', 0.09, 'sequence'],
+    ['fan_out', 0.07, 'counterparty'],
+    ['hour_of_day', 0.05, 'transaction'],
+  ];
+  SHAP_GROUPS = { transaction: ['Transaction', 'var(--accent-primary)'], velocity: ['Velocity', 'var(--state-info)'], counterparty: ['Counterparty', 'var(--accent-secondary)'], behavioural: ['Behavioural', 'var(--risk-medium)'], sequence: ['Sequence', 'var(--risk-high)'], structuring: ['Structuring', 'var(--risk-critical)'] };
+
+  state = {
+    theme: this.props.defaultTheme === 'light' ? 'light' : 'dark',
+    screen: this.props.screenState || 'loaded',
+    range: '24h',
+    auto: false,
+    refreshing: false,
+    methodOpen: null,
+    chartId: null,
+  };
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+  setRange = (r) => this.setState({ range: r });
+  toggleAuto = () => this.setState(s => ({ auto: !s.auto }));
+  refresh = () => { if (this.state.refreshing) return; this.setState({ refreshing: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ refreshing: false }), 900); };
+  toggleMethod = (id) => this.setState(s => ({ methodOpen: s.methodOpen === id ? null : id }));
+  closePopovers = () => this.setState({ methodOpen: null });
+  openChart = (id) => this.setState({ chartId: id });
+  closeChart = () => this.setState({ chartId: null });
+  retry = () => { this.setState({ screen: 'loading' }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ screen: 'loaded' }), 1000); };
+  setScreen = (v) => this.setState({ screen: v, chartId: null, methodOpen: null });
+
+  badge(color, bg) { return { display: 'inline-flex', alignItems: 'center', fontSize: '10px', fontWeight: 700, letterSpacing: '.3px', fontFamily: "'JetBrains Mono',monospace", padding: '2px 7px', borderRadius: '5px', color, background: bg, whiteSpace: 'nowrap' }; }
+  hc(s) { return s === 'UP' ? 'var(--state-success)' : s === 'DEGRADED' ? 'var(--state-warning)' : 'var(--state-error)'; }
+  hcBg(s) { return s === 'UP' ? 'var(--risk-low-muted)' : s === 'DEGRADED' ? 'var(--risk-medium-muted)' : 'var(--risk-critical-muted)'; }
+
+  // chart SVGs (size: 'sm' grid | 'lg' modal)
+  chartSvg(id, big) {
+    const w = big ? 900 : 460, h = big ? 300 : 150;
+    const sw = '100%';
+    if (id === 'requests') {
+      const pts = big
+        ? 'M0,250 C90,235 150,238 210,200 C280,160 350,205 420,165 C490,130 560,150 630,115 C700,82 770,120 840,95 C880,82 890,70 900,55'
+        : 'M0,125 C45,118 75,120 105,98 C140,75 175,103 210,82 C245,62 280,72 315,55 C350,40 385,58 420,46 C440,40 450,32 460,26';
+      return React.createElement('svg', { width: sw, height: h, viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none' },
+        React.createElement('defs', null, React.createElement('linearGradient', { id: 'rq' + (big ? 'b' : 's'), x1: 0, x2: 0, y1: 0, y2: 1 }, React.createElement('stop', { offset: '0%', stopColor: 'var(--accent-primary)', stopOpacity: 0.32 }), React.createElement('stop', { offset: '100%', stopColor: 'var(--accent-primary)', stopOpacity: 0 }))),
+        React.createElement('path', { d: pts + ' L' + w + ',' + h + ' L0,' + h + ' Z', fill: 'url(#rq' + (big ? 'b' : 's') + ')' }),
+        React.createElement('path', { d: pts, fill: 'none', stroke: 'var(--accent-primary)', strokeWidth: big ? 2.6 : 2.2, strokeLinecap: 'round' }));
+    }
+    if (id === 'latency') {
+      const lines = [['var(--state-info)', big ? 'M0,250 L150,244 L300,248 L450,240 L600,246 L750,238 L900,242' : 'M0,128 L92,124 L184,127 L276,122 L368,126 L460,120'],
+        ['var(--accent-primary)', big ? 'M0,200 L150,190 L300,205 L450,180 L600,195 L750,175 L900,188' : 'M0,100 L92,95 L184,104 L276,90 L368,98 L460,92'],
+        ['var(--risk-high)', big ? 'M0,150 L150,135 L300,160 L450,120 L600,145 L750,110 L900,138' : 'M0,72 L92,66 L184,80 L276,58 L368,70 L460,62']];
+      const thr = big ? 168 : 84; // 500ms line position
+      return React.createElement('svg', { width: sw, height: h, viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none' },
+        React.createElement('line', { x1: 0, y1: thr, x2: w, y2: thr, stroke: 'var(--risk-critical)', strokeWidth: 1.4, strokeDasharray: '5 5', opacity: 0.75 }),
+        React.createElement('text', { x: 6, y: thr - 5, fontSize: big ? 12 : 9, fill: 'var(--risk-critical)', fontFamily: 'monospace' }, '500ms'),
+        ...lines.map((l, i) => React.createElement('polyline', { key: i, points: l[1].replace(/M|L/g, ' ').trim(), fill: 'none', stroke: l[0], strokeWidth: big ? 2.4 : 2, strokeLinecap: 'round', strokeLinejoin: 'round' })));
+    }
+    if (id === 'alertrate') {
+      const pts = big ? '0,210 128,200 256,215 384,180 512,195 640,160 768,175 900,150' : '0,108 65,102 130,110 195,90 260,98 325,78 390,88 460,72';
+      return React.createElement('svg', { width: sw, height: h, viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none' },
+        React.createElement('polyline', { points: pts, fill: 'none', stroke: 'var(--risk-high)', strokeWidth: big ? 2.6 : 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+        React.createElement('circle', { cx: big ? 900 : 460, cy: big ? 150 : 72, r: big ? 5 : 3.5, fill: 'var(--risk-high)' }));
+    }
+    if (id === 'decisions') {
+      const cols = big ? 12 : 8, gap = big ? 10 : 6, bw = (w - gap * (cols + 1)) / cols;
+      const segs = [['var(--risk-low)', 0.55], ['var(--risk-medium)', 0.28], ['var(--risk-high)', 0.12], ['var(--risk-critical)', 0.05]];
+      const bars = [];
+      const baseH = h - 12;
+      for (let c = 0; c < cols; c++) {
+        const x = gap + c * (bw + gap);
+        const total = 0.6 + 0.4 * Math.abs(Math.sin(c * 1.3));
+        let y = h - 6;
+        segs.forEach((sg, si) => { const sh = total * sg[1] * baseH; y -= sh; bars.push(React.createElement('rect', { key: c + '-' + si, x, y, width: bw, height: Math.max(sh - 1, 1), fill: sg[0], rx: 1 })); });
+      }
+      return React.createElement('svg', { width: sw, height: h, viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none' }, bars);
+    }
+    if (id === 'rules') {
+      const rules = [['STRUCT', 'var(--risk-high)', 0.95], ['SMURF', 'var(--risk-high)', 0.72], ['RAPID', 'var(--risk-high)', 0.6], ['LAYER', 'var(--risk-medium)', 0.42], ['VELO', 'var(--risk-medium)', 0.66], ['GEO', 'var(--risk-medium)', 0.28]];
+      const gap = big ? 24 : 12, bw = (w - gap * (rules.length + 1)) / rules.length, baseH = h - 26;
+      const bars = rules.map((r, i) => { const x = gap + i * (bw + gap); const bh = r[2] * baseH; return React.createElement('g', { key: i }, React.createElement('rect', { x, y: h - 22 - bh, width: bw, height: bh, fill: r[1], rx: 3 }), React.createElement('text', { x: x + bw / 2, y: h - 8, textAnchor: 'middle', fontSize: big ? 11 : 8, fill: 'var(--text-muted)', fontFamily: 'monospace' }, r[0])); });
+      return React.createElement('svg', { width: sw, height: h, viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none' }, React.createElement('line', { x1: 0, y1: h - 22, x2: w, y2: h - 22, stroke: 'var(--border-default)', strokeWidth: 1 }), bars);
+    }
+    if (id === 'scores') {
+      const bins = [0.04, 0.09, 0.15, 0.19, 0.16, 0.11, 0.08, 0.055, 0.04, 0.025, 0.015, 0.01];
+      const n = bins.length, gap = big ? 8 : 4, bw = (w - gap * (n + 1)) / n, baseH = h - 26, mx = Math.max(...bins);
+      const tauMedX = gap + (n * 0.40) * (bw + gap), tauFlagX = gap + (n * 0.70) * (bw + gap);
+      const bars = bins.map((v, i) => { const x = gap + i * (bw + gap); const bh = (v / mx) * baseH; const frac = i / n; const col = frac >= 0.70 ? 'var(--risk-critical)' : frac >= 0.40 ? 'var(--risk-medium)' : 'var(--risk-low)'; return React.createElement('rect', { key: i, x, y: h - 22 - bh, width: bw, height: bh, fill: col, fillOpacity: 0.55, rx: 1 }); });
+      return React.createElement('svg', { width: sw, height: h, viewBox: '0 0 ' + w + ' ' + h, preserveAspectRatio: 'none' }, bars,
+        React.createElement('line', { x1: tauMedX, y1: 4, x2: tauMedX, y2: h - 22, stroke: 'var(--risk-medium)', strokeWidth: 1.5, strokeDasharray: '4 4' }),
+        React.createElement('line', { x1: tauFlagX, y1: 4, x2: tauFlagX, y2: h - 22, stroke: 'var(--risk-critical)', strokeWidth: 1.5, strokeDasharray: '4 4' }),
+        React.createElement('text', { x: tauMedX + 4, y: 14, fontSize: big ? 12 : 9, fill: 'var(--risk-medium)', fontFamily: 'monospace' }, 'τ_med 0.40'),
+        React.createElement('text', { x: tauFlagX + 4, y: 14, fontSize: big ? 12 : 9, fill: 'var(--risk-critical)', fontFamily: 'monospace' }, 'τ_flag 0.70'),
+        React.createElement('line', { x1: 0, y1: h - 22, x2: w, y2: h - 22, stroke: 'var(--border-default)', strokeWidth: 1 }));
+    }
+    return null;
+  }
+
+  CHART_META = {
+    requests: { title: 'Request volume', metric: 'rate(request_count[1m])', legend: [['var(--accent-primary)', 'req/min']], stats: [['current', '47/s', 'var(--text-primary)'], ['peak', '63/s', 'var(--text-primary)'], ['total', '48,213', 'var(--text-primary)']] },
+    latency: { title: 'Latency p50 / p95 / p99', metric: 'request_latency (histogram)', legend: [['var(--state-info)', 'p50'], ['var(--accent-primary)', 'p95'], ['var(--risk-high)', 'p99']], stats: [['p50', '88ms', 'var(--state-info)'], ['p95', '342ms', 'var(--accent-primary)'], ['p99', '511ms', 'var(--risk-high)']] },
+    alertrate: { title: 'Alert rate', metric: '(HIGH+CRITICAL) / total', legend: [['var(--risk-high)', 'flagged %']], stats: [['current', '6.8%', 'var(--risk-high)'], ['7d avg', '5.9%', 'var(--text-primary)']] },
+    decisions: { title: 'Decision distribution', metric: 'decisions_total{decision}', legend: [['var(--risk-low)', 'LOW'], ['var(--risk-medium)', 'MEDIUM'], ['var(--risk-high)', 'HIGH'], ['var(--risk-critical)', 'CRITICAL']], stats: [['LOW', '55%', 'var(--risk-low)'], ['HIGH', '12%', 'var(--risk-high)'], ['CRITICAL', '5%', 'var(--risk-critical)']] },
+    rules: { title: 'Rule trigger counts', metric: 'rule_trigger_total{rule_id}', legend: [['var(--risk-high)', 'HIGH severity'], ['var(--risk-medium)', 'MEDIUM severity']], stats: [['top rule', 'R-STRUCT-01', 'var(--accent-primary)'], ['triggers', '1,284', 'var(--text-primary)']] },
+    scores: { title: 'Score distribution', metric: 'score_histogram', legend: [['var(--risk-low)', '< τ_med'], ['var(--risk-medium)', 'τ_med–τ_flag'], ['var(--risk-critical)', '≥ τ_flag']], stats: [['median', '0.21', 'var(--text-primary)'], ['≥ τ_flag', '6.8%', 'var(--risk-critical)']] },
+  };
+
+  renderVals() {
+    const S = this.state;
+    const screen = S.screen;
+    const isLoading = screen === 'loading';
+    const isEmpty = screen === 'empty';
+    const isError = screen === 'error';
+    const showAbnormal = screen === 'abnormal';
+    const showContent = screen === 'loaded' || screen === 'error' || screen === 'abnormal';
+    const rangeLabel = (this.RANGES.find(r => r[0] === S.range) || [, ''])[1];
+
+    // health (turn LLM degraded; in error, mark Redis/API affected per spec "health chip turns red")
+    const health = this.HEALTH.map(h => {
+      let st = h.status;
+      if (isError && h.name === 'LLM provider') st = 'DOWN';
+      return { name: h.name, status: st, detail: isError && h.name === 'LLM provider' ? 'unreachable' : h.detail, dotStyle: { width: '9px', height: '9px', borderRadius: '50%', background: this.hc(st), flex: 'none' }, badgeStyle: this.badge(this.hc(st), this.hcBg(st)), border: st === 'DOWN' ? 'var(--risk-critical)' : 'var(--border-default)' };
+    });
+
+    // compliance
+    const compliance = this.COMPLIANCE.map((m, i) => {
+      const [label, target, current, unit, pass, dir, max, method, src] = m;
+      const disp = unit === '' ? current.toFixed(2) : String(current);
+      const col = pass ? 'var(--state-success)' : 'var(--risk-critical)';
+      const ratio = Math.min(1, current / max);
+      return {
+        id: i, label, target, current: disp, unit, method, src,
+        valColor: 'var(--text-primary)',
+        icon: pass ? '✓' : '✗', iconStyle: { fontSize: '12px', fontWeight: 700, color: col, background: pass ? 'var(--risk-low-muted)' : 'var(--risk-critical-muted)', width: '20px', height: '20px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' },
+        border: pass ? 'var(--border-default)' : 'var(--risk-critical)',
+        barStyle: { height: '100%', width: (ratio * 100) + '%', borderRadius: '3px', background: col },
+        open: S.methodOpen === i, toggle: () => this.toggleMethod(i),
+      };
+    });
+    const compliancePassCount = this.COMPLIANCE.filter(m => m[4]).length;
+
+    // charts
+    const charts = Object.keys(this.CHART_META).map(id => {
+      const meta = this.CHART_META[id];
+      const err = isError && (id === 'alertrate'); // one widget-level error in error state
+      return { id, title: meta.title, metric: meta.metric, ok: !err, err, svg: err ? null : this.chartSvg(id, false), legend: meta.legend.map(l => ({ color: l[0], label: l[1] })), open: () => this.openChart(id), stopRetry: (e) => { e.stopPropagation(); this.retry(); } };
+    });
+
+    // model fields
+    const modelFields = this.MODEL_FIELDS.map(f => ({ label: f[0], value: f[1] }));
+
+    // shap
+    const maxShap = Math.max(...this.SHAP.map(s => s[1]));
+    const shap = this.SHAP.map(s => ({ name: s[0], value: s[1].toFixed(2), barStyle: { height: '100%', width: (s[1] / maxShap * 100) + '%', borderRadius: '4px', background: this.SHAP_GROUPS[s[2]][1] } }));
+    const usedGroups = [...new Set(this.SHAP.map(s => s[2]))];
+    const shapGroups = usedGroups.map(g => ({ label: this.SHAP_GROUPS[g][0], color: this.SHAP_GROUPS[g][1] }));
+
+    // PSI gauge: 0.12 STABLE. angle 180(left)->0(right). value 0..0.4 maps across
+    const psiVal = 0.08, psiMax = 0.4;
+    const ang = Math.PI - (psiVal / psiMax) * Math.PI;
+    const psiNeedleX = (95 + 66 * Math.cos(ang)).toFixed(1);
+    const psiNeedleY = (100 - 66 * Math.sin(ang)).toFixed(1);
+    const psiStatus = psiVal < 0.1 ? 'STABLE' : psiVal < 0.2 ? 'MODERATE' : 'SIGNIFICANT';
+    const psiColor = psiVal < 0.1 ? 'var(--state-success)' : psiVal < 0.2 ? 'var(--state-warning)' : 'var(--risk-critical)';
+
+    // llm cards
+    const llmRaw = [
+      ['Explanation success rate', '97.2%', '▲ 0.6%', true, 'prometheus', 'check'],
+      ['LLM fallback rate', '2.8/h', '▼ 0.4', true, 'prometheus', 'alert'],
+      ['LLM avg latency (p95)', '1.9s', '▲ 120ms', false, 'llm_latency', 'clock'],
+      ['Groundedness pass rate', '94%', 'W5 review', null, 'manual', 'shield'],
+      ['Last successful LLM call', '8m ago', 'degraded', false, 'health', 'time'],
+    ];
+    const iconPaths = {
+      check: React.createElement('path', { d: 'M22 11.08V12a10 10 0 1 1-5.93-9.14' }),
+      alert: React.createElement(React.Fragment, null, React.createElement('path', { d: 'm21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z' }), React.createElement('path', { d: 'M12 9v4' }), React.createElement('path', { d: 'M12 17h.01' })),
+      clock: React.createElement(React.Fragment, null, React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('polyline', { points: '12 6 12 12 16 14' })),
+      shield: React.createElement(React.Fragment, null, React.createElement('path', { d: 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z' }), React.createElement('path', { d: 'm9 12 2 2 4-4' })),
+      time: React.createElement(React.Fragment, null, React.createElement('path', { d: 'M3 3v5h5' }), React.createElement('path', { d: 'M3.05 13A9 9 0 1 0 6 5.3L3 8' }), React.createElement('path', { d: 'M12 7v5l4 2' })),
+    };
+    const llmCards = llmRaw.map(l => {
+      const good = l[3];
+      const accent = good === true ? 'var(--state-success)' : good === false ? 'var(--state-warning)' : 'var(--accent-secondary)';
+      return { label: l[0], value: l[1], trend: l[2], src: l[4], color: 'var(--text-primary)',
+        icon: iconPaths[l[5]], iconWrap: { width: '32px', height: '32px', borderRadius: '9px', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent, background: good === true ? 'var(--risk-low-muted)' : good === false ? 'var(--risk-medium-muted)' : 'var(--accent-secondary-muted)' },
+        trendStyle: { fontSize: '10.5px', fontWeight: 600, color: good === true ? 'var(--state-success)' : good === false ? 'var(--state-warning)' : 'var(--text-muted)' } };
+    });
+
+    // range chips
+    const rangeChips = this.RANGES.map(([v, label]) => ({ label: label.replace('Last ', ''), onClick: () => this.setRange(v), style: { fontSize: '11px', fontWeight: 600, fontFamily: 'inherit', padding: '5px 9px', borderRadius: '6px', cursor: 'pointer', border: 'none', background: S.range === v ? 'var(--accent-primary)' : 'transparent', color: S.range === v ? '#fff' : 'var(--text-secondary)' } }));
+
+    // chart modal
+    const cm = S.chartId ? this.CHART_META[S.chartId] : null;
+    const modalChart = cm ? { title: cm.title, metric: cm.metric, bigSvg: this.chartSvg(S.chartId, true), legend: cm.legend.map(l => ({ color: l[0], label: l[1] })), stats: cm.stats.map(s => ({ label: s[0], value: s[1], color: s[2] })) } : {};
+
+    // state switcher
+    const stateOpts = [['loaded', 'Loaded'], ['loading', 'Loading'], ['empty', 'Empty'], ['error', 'Error'], ['abnormal', 'High load']];
+    const stateOptions = stateOpts.map(([v, label]) => ({ label, onClick: () => this.setScreen(v), style: { fontSize: '11px', fontWeight: 600, fontFamily: 'inherit', padding: '5px 10px', borderRadius: '7px', cursor: 'pointer', border: '1px solid ' + (screen === v ? 'var(--accent-primary)' : 'var(--border-default)'), background: screen === v ? 'var(--accent-primary)' : 'var(--bg-base)', color: screen === v ? '#fff' : 'var(--text-secondary)' } }));
+
+    return {
+      theme: S.theme, isLight: S.theme === 'light', isDark: S.theme === 'dark', toggleTheme: this.toggleTheme,
+      lastScrape: isError ? 'last scrape failed · ' + rangeLabel : 'scraped 6s ago · ' + rangeLabel,
+      rangeChips, rangeLabel,
+      auto: S.auto, toggleAuto: this.toggleAuto,
+      autoTrackStyle: { width: '34px', height: '20px', borderRadius: '11px', background: S.auto ? 'var(--accent-primary)' : 'var(--bg-subtle)', position: 'relative', transition: 'background .15s', flex: 'none', display: 'inline-block', border: S.auto ? 'none' : '1px solid var(--border-default)' },
+      autoThumbStyle: { position: 'absolute', top: S.auto ? '2px' : '1px', left: S.auto ? '16px' : '1px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' },
+      refresh: this.refresh, refreshSpin: S.refreshing ? { animation: 'ax-spin .8s linear infinite' } : {},
+
+      isLoading, isEmpty, isError, showAbnormal, showContent, retry: this.retry,
+      ten: [0,1,2,3,4,5,6,7,8,9], six: [0,1,2,3,4,5],
+
+      healthChips: health,
+      compliance, compliancePassCount,
+      compliancePillStyle: { fontSize: '10.5px', fontWeight: 700, fontFamily: "'JetBrains Mono',monospace", padding: '2px 9px', borderRadius: '6px', color: compliancePassCount >= 9 ? 'var(--state-success)' : 'var(--state-warning)', background: compliancePassCount >= 9 ? 'var(--risk-low-muted)' : 'var(--risk-medium-muted)' },
+
+      charts, modelFields, shap, shapGroups,
+
+      psiValue: psiVal.toFixed(2), psiStatus, psiColor, psiNeedleX, psiNeedleY,
+      psiBadgeStyle: { ...this.badge(psiColor, psiVal < 0.1 ? 'var(--risk-low-muted)' : psiVal < 0.2 ? 'var(--risk-medium-muted)' : 'var(--risk-critical-muted)'), marginTop: '6px', fontSize: '10.5px', padding: '3px 9px' },
+      llmCards,
+
+      anyPopoverOpen: S.methodOpen !== null, closePopovers: this.closePopovers,
+      chartModalOpen: !!cm, modalChart, closeChart: this.closeChart, stopModal: (e) => e.stopPropagation(),
+
+      stateOptions,
+    };
+  }
+}
+</script>
+</body>
+</html>

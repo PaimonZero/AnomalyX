@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-base:#0D0F17;--bg-surface:#151720;--bg-elevated:#1E2130;--bg-subtle:#252838;
+  --text-primary:#F2F0EB;--text-secondary:#C8C5BC;--text-muted:#8A8880;
+  --border-default:#2A2D3E;--border-subtle:#1E2130;
+  --accent-primary:#CC785C;--accent-primary-hover:#D98B70;--accent-primary-muted:#3D2820;
+  --accent-secondary:#9B8AFB;--accent-secondary-muted:#28243D;
+  --risk-low:#3DB87A;--risk-medium:#E8A842;--risk-high:#E86A2E;--risk-critical:#E84040;
+  --risk-low-muted:#0F2B1C;--risk-medium-muted:#2B1E08;--risk-high-muted:#2B1208;--risk-critical-muted:#2B0808;
+  --state-success:#3DB87A;--state-warning:#E8A842;--state-error:#E84040;--state-info:#5AADDC;
+}
+[data-theme="light"]{
+  --bg-base:#F5F4EF;--bg-surface:#FFFFFF;--bg-elevated:#FAFAF7;--bg-subtle:#EEECEA;
+  --text-primary:#1A1B26;--text-secondary:#3D3E4E;--text-muted:#7A7A80;
+  --border-default:#DDDBD4;--border-subtle:#EEECEA;
+  --accent-primary:#CC785C;--accent-primary-hover:#B8674D;--accent-primary-muted:#FAE8E2;
+  --accent-secondary:#6B5FD6;--accent-secondary-muted:#EDEAFC;
+  --risk-low:#1E8A55;--risk-medium:#C07A10;--risk-high:#C04E18;--risk-critical:#C01C1C;
+  --risk-low-muted:#E6F5EE;--risk-medium-muted:#FDF2E0;--risk-high-muted:#FDEEE6;--risk-critical-muted:#FDEAEA;
+  --state-success:#1E8A55;--state-warning:#C07A10;--state-error:#C01C1C;--state-info:#1E7FAD;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border-default);border-radius:6px;border:2px solid transparent;background-clip:padding-box;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes ax-shimmer{0%{background-position:-500px 0}100%{background-position:500px 0}}
+@keyframes ax-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes ax-spin{to{transform:rotate(360deg)}}
+@keyframes ax-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes ax-scalein{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+select{font-family:inherit;}
+</style>
+</helmet>
+
+<div data-theme="{{ theme }}" style="display:flex;height:100vh;overflow:hidden;font-family:'Inter',system-ui,sans-serif;background:var(--bg-base);color:var(--text-primary);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="flex:none;width:240px;height:100vh;background:var(--bg-surface);border-right:1px solid var(--border-default);display:flex;flex-direction:column;">
+    <div style="height:56px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--border-subtle);">
+      <div style="width:30px;height:30px;border-radius:8px;background:var(--accent-primary);display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 2px 8px rgba(204,120,92,.35);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      </div>
+      <div style="line-height:1.05;"><div style="font-size:15px;font-weight:700;letter-spacing:-.2px;">AnomalyX</div><div style="font-size:9px;font-weight:600;letter-spacing:1.5px;color:var(--accent-primary);margin-top:2px;">AML&nbsp;CONSOLE</div></div>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Operations</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="AnomalyX App Shell.dc.html" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard
+          </a>
+          <a href="#" style="position:relative;display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--text-primary);background:var(--accent-primary-muted);text-decoration:none;">
+            <span style="position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--accent-primary);"></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <span style="flex:1;">Alerts</span><span style="font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--risk-critical);background:var(--risk-critical-muted);padding:1px 6px;border-radius:6px;">{{ flaggedCount }}</span>
+          </a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>Predict Batch
+          </a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Engineering</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>API Testing</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Rule Engine</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Model &amp; Metrics</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.2px;color:var(--text-muted);padding:0 10px 8px;text-transform:uppercase;">Governance</div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>Audit Log</a>
+          <a href="#" style="display:flex;align-items:center;gap:11px;padding:9px 11px 9px 13px;border-radius:8px;font-size:13.5px;font-weight:500;color:var(--text-secondary);text-decoration:none;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Settings</a>
+        </div>
+      </div>
+    </nav>
+    <div style="flex:none;padding:12px 16px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:8px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--state-success);flex:none;"></span><span style="font-size:11px;color:var(--text-muted);">All systems operational</span></div>
+  </aside>
+
+  <!-- ============ RIGHT COLUMN ============ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;">
+
+    <!-- HEADER -->
+    <header style="height:56px;flex:none;background:var(--bg-surface);border-bottom:1px solid var(--border-default);display:flex;align-items:center;gap:16px;padding:0 20px;position:relative;z-index:30;">
+      <div style="min-width:0;">
+        <h1 style="margin:0;font-size:18px;font-weight:600;letter-spacing:-.3px;">Alerts / Review Queue</h1>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:1px;">Flagged transactions requiring review</div>
+      </div>
+      <div style="flex:1;"></div>
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.8px;font-family:'JetBrains Mono',monospace;color:var(--accent-secondary);background:var(--accent-secondary-muted);border:1px solid var(--accent-secondary);padding:4px 9px;border-radius:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent-secondary);"></span>DEMO</span>
+      <button aria-label="Notifications" style="position:relative;width:34px;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span style="position:absolute;top:-3px;right:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--risk-critical);color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-surface);">3</span></button>
+      <button onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);">
+        <sc-if value="{{ isLight }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></sc-if>
+        <sc-if value="{{ isDark }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></sc-if>
+      </button>
+      <div style="display:flex;align-items:center;gap:9px;height:38px;padding:0 8px 0 4px;border-radius:9px;cursor:pointer;" style-hover="background:var(--bg-elevated);">
+        <span style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex:none;">MT</span>
+        <span style="line-height:1.15;"><span style="display:block;font-size:12.5px;font-weight:600;">Mai Tran</span><span style="display:block;font-size:10.5px;color:var(--text-muted);">Compliance Officer</span></span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main style="flex:1;overflow-y:auto;background:var(--bg-base);position:relative;">
+      <div style="padding:20px 24px;">
+
+        <!-- ===== FILTER BAR ===== -->
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:16px;">
+          <!-- search -->
+          <div style="position:relative;width:248px;">
+            <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%);" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input value="{{ search }}" onInput="{{ onSearch }}" placeholder="Search alert / transaction ID…" aria-label="Search alerts" style="width:100%;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-primary);font-size:13px;font-family:inherit;padding:0 12px 0 32px;outline:none;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);" />
+          </div>
+
+          <!-- status chips -->
+          <div style="display:flex;align-items:center;gap:5px;padding:3px;border:1px solid var(--border-default);border-radius:9px;background:var(--bg-surface);">
+            <span style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 5px;">Status</span>
+            <sc-for list="{{ statusChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+          </div>
+
+          <!-- risk chips -->
+          <div style="display:flex;align-items:center;gap:5px;padding:3px;border:1px solid var(--border-default);border-radius:9px;background:var(--bg-surface);">
+            <span style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;padding:0 5px;">Risk</span>
+            <sc-for list="{{ riskChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.label }}</button></sc-for>
+          </div>
+
+          <!-- typology multi dropdown -->
+          <div style="position:relative;">
+            <button onClick="{{ toggleTypoMenu }}" style="{{ typoBtnStyle }}">
+              <span>Typology{{ typoSuffix }}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <sc-if value="{{ typoMenuOpen }}">
+              <div style="position:absolute;left:0;top:42px;z-index:25;width:220px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.4);padding:6px;animation:ax-fade .13s ease;">
+                <sc-for list="{{ typoOptions }}" as="o" hint-placeholder-count="6">
+                  <div onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:12.5px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);">
+                    <span style="{{ o.boxStyle }}"><sc-if value="{{ o.selected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span>{{ o.label }}
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- channel multi dropdown -->
+          <div style="position:relative;">
+            <button onClick="{{ toggleChanMenu }}" style="{{ chanBtnStyle }}">
+              <span>Channel{{ chanSuffix }}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <sc-if value="{{ chanMenuOpen }}">
+              <div style="position:absolute;left:0;top:42px;z-index:25;width:180px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.4);padding:6px;animation:ax-fade .13s ease;">
+                <sc-for list="{{ chanOptions }}" as="o" hint-placeholder-count="5">
+                  <div onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:12.5px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);">
+                    <span style="{{ o.boxStyle }}"><sc-if value="{{ o.selected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span>{{ o.label }}
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- explanation source select -->
+          <div style="position:relative;display:flex;align-items:center;">
+            <select value="{{ source }}" onChange="{{ setSource }}" aria-label="Explanation source" style="appearance:none;-webkit-appearance:none;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);font-size:12.5px;padding:0 30px 0 12px;cursor:pointer;outline:none;">
+              <option value="all">Source: All</option><option value="llm">Source: llm</option><option value="template">Source: template</option><option value="pending">Source: pending</option>
+            </select>
+            <svg style="position:absolute;right:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+
+          <!-- date range select -->
+          <div style="position:relative;display:flex;align-items:center;">
+            <select value="{{ range }}" onChange="{{ setRange }}" aria-label="Date range" style="appearance:none;-webkit-appearance:none;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);font-size:12.5px;padding:0 30px 0 32px;cursor:pointer;outline:none;">
+              <option value="24h">Last 24 hours</option><option value="7d">Last 7 days</option><option value="30d">Last 30 days</option><option value="all">All time</option>
+            </select>
+            <svg style="position:absolute;left:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <svg style="position:absolute;right:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+
+          <div style="flex:1;"></div>
+
+          <!-- sort select -->
+          <div style="position:relative;display:flex;align-items:center;">
+            <svg style="position:absolute;left:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="M11 4h10"/><path d="M11 8h7"/><path d="M11 12h4"/></svg>
+            <select value="{{ sort }}" onChange="{{ setSort }}" aria-label="Sort" style="appearance:none;-webkit-appearance:none;height:36px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);font-size:12.5px;padding:0 30px 0 32px;cursor:pointer;outline:none;">
+              <option value="score">Risk score ↓</option><option value="updated">Updated ↓</option><option value="created">Created ↓</option><option value="alert">Alert ID ↑</option>
+            </select>
+            <svg style="position:absolute;right:10px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+
+          <sc-if value="{{ hasFilters }}">
+            <button onClick="{{ clearFilters }}" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:500;font-family:inherit;cursor:pointer;" style-hover="border-color:var(--accent-primary);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Clear ({{ filterCount }})</button>
+          </sc-if>
+        </div>
+
+        <!-- ===== ERROR BANNER ===== -->
+        <sc-if value="{{ isError }}">
+          <div style="display:flex;align-items:center;gap:12px;background:var(--risk-critical-muted);border:1px solid var(--risk-critical);border-radius:10px;padding:13px 16px;margin-bottom:16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--risk-critical)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--risk-critical);">Failed to load alerts</div><div style="font-size:12px;color:var(--text-secondary);margin-top:1px;"><code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg-base);padding:1px 5px;border-radius:4px;">DB_CONNECTION_LOST</code> — the alerts service is unreachable. Retry in a few seconds.</div></div>
+            <button onClick="{{ retry }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:7px;border:1px solid var(--risk-critical);background:transparent;color:var(--risk-critical);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;flex:none;" style-hover="background:var(--risk-critical);color:#fff;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>Retry</button>
+          </div>
+        </sc-if>
+
+        <!-- ===== BULK ACTION BAR ===== -->
+        <sc-if value="{{ hasSelection }}">
+          <div style="display:flex;align-items:center;gap:14px;background:var(--accent-primary-muted);border:1px solid var(--accent-primary);border-radius:10px;padding:10px 16px;margin-bottom:14px;animation:ax-fade .14s ease;">
+            <span style="font-size:13px;font-weight:600;color:var(--accent-primary);">{{ selectedCount }} selected</span>
+            <div style="height:18px;width:1px;background:var(--accent-primary);opacity:.4;"></div>
+            <button onClick="{{ bulkEscalate }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:7px;border:none;background:var(--risk-high);color:#fff;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>Bulk Escalate</button>
+            <button onClick="{{ bulkDismiss }}" style="display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 13px;border-radius:7px;border:1px solid var(--border-default);background:var(--bg-surface);color:var(--text-secondary);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>Bulk Dismiss</button>
+            <div style="flex:1;"></div>
+            <button onClick="{{ clearSelection }}" style="font-size:12.5px;color:var(--accent-primary);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;">Clear selection</button>
+          </div>
+        </sc-if>
+
+        <!-- ===== TABLE CARD ===== -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:12px;overflow:hidden;">
+
+          <!-- LOADING -->
+          <sc-if value="{{ isLoading }}">
+            <div style="padding:0;">
+              <div style="display:flex;gap:16px;padding:12px 18px;border-bottom:1px solid var(--border-subtle);background:var(--bg-elevated);">
+                <div style="height:11px;width:100%;border-radius:5px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+              </div>
+              <sc-for list="{{ eight }}" as="i" hint-placeholder-count="8">
+                <div style="display:flex;align-items:center;gap:18px;padding:15px 18px;border-bottom:1px solid var(--border-subtle);">
+                  <div style="height:14px;width:14px;border-radius:4px;flex:none;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                  <div style="height:12px;width:78px;border-radius:5px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                  <div style="height:12px;width:78px;border-radius:5px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                  <div style="height:12px;width:44px;border-radius:5px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                  <div style="height:20px;width:74px;border-radius:6px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                  <div style="height:20px;width:70px;border-radius:6px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                  <div style="flex:1;height:12px;border-radius:5px;background:linear-gradient(90deg,var(--bg-subtle) 25%,var(--bg-elevated) 50%,var(--bg-subtle) 75%);background-size:1000px 100%;animation:ax-shimmer 1.4s infinite;"></div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <!-- EMPTY (no flagged alerts at all) -->
+          <sc-if value="{{ isEmptyNone }}">
+            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:78px 24px;">
+              <div style="width:60px;height:60px;border-radius:15px;background:var(--risk-low-muted);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--risk-low)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div>
+              <h2 style="margin:0 0 8px;font-size:17px;font-weight:600;">No flagged transactions yet</h2>
+              <p style="margin:0 0 20px;font-size:13.5px;color:var(--text-muted);max-width:380px;line-height:1.55;">Nothing requires review right now. Run a batch or test a transaction to generate alerts.</p>
+              <div style="display:flex;gap:10px;"><button style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 15px;border-radius:8px;border:none;background:var(--accent-primary);color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Run Predict Batch</button><button style="height:36px;padding:0 15px;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Test via API</button></div>
+            </div>
+          </sc-if>
+
+          <!-- EMPTY (filters yield nothing) -->
+          <sc-if value="{{ isEmptyFiltered }}">
+            <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:78px 24px;">
+              <div style="width:60px;height:60px;border-radius:15px;background:var(--bg-subtle);display:flex;align-items:center;justify-content:center;margin-bottom:18px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+              <h2 style="margin:0 0 8px;font-size:17px;font-weight:600;">No alerts match your current filters</h2>
+              <p style="margin:0 0 20px;font-size:13.5px;color:var(--text-muted);max-width:360px;line-height:1.55;">Try widening the risk level, status, or date range.</p>
+              <button onClick="{{ clearFilters }}" style="display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 15px;border-radius:8px;border:1px solid var(--accent-primary);background:transparent;color:var(--accent-primary);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>Clear filters</button>
+            </div>
+          </sc-if>
+
+          <!-- TABLE -->
+          <sc-if value="{{ showTable }}">
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:1080px;">
+                <thead>
+                  <tr style="color:var(--text-muted);text-align:left;background:var(--bg-elevated);position:sticky;top:0;z-index:5;">
+                    <th style="padding:11px 14px 11px 16px;width:38px;"><span onClick="{{ toggleSelectAll }}" style="{{ selectAllBox }}"><sc-if value="{{ allSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span></th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;">Alert ID</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;">Transaction</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;text-align:right;">Score</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;">Risk</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;">Status</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;">Triggered rules</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;">Explanation</th>
+                    <th style="font-weight:600;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;padding:11px 14px;text-align:right;">Updated</th>
+                    <th style="padding:11px 16px 11px 14px;width:44px;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ pageRows }}" as="a" hint-placeholder-count="8">
+                    <tr style="{{ a.rowStyle }}">
+                      <td style="padding:13px 14px 13px 16px;" onClick="{{ a.stop }}"><span onClick="{{ a.toggleSelect }}" style="{{ a.checkboxStyle }}"><sc-if value="{{ a.selected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if></span></td>
+                      <td style="padding:13px 14px;" onClick="{{ a.open }}"><div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent-primary);">{{ a.alertId }}</span><span onClick="{{ a.copyAlert }}" title="Copy alert ID" style="display:inline-flex;cursor:pointer;color:var(--text-muted);" style-hover="color:var(--text-primary);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></td>
+                      <td style="padding:13px 14px;" onClick="{{ a.open }}"><div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ a.txnShort }}<span style="color:var(--text-muted);">…</span></span><span onClick="{{ a.copyTxn }}" title="Copy transaction ID" style="display:inline-flex;cursor:pointer;color:var(--text-muted);" style-hover="color:var(--text-primary);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></td>
+                      <td style="padding:13px 14px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;" onClick="{{ a.open }}">{{ a.score }}</td>
+                      <td style="padding:13px 14px;" onClick="{{ a.open }}"><span style="{{ a.riskStyle }}">{{ a.level }}</span></td>
+                      <td style="padding:13px 14px;" onClick="{{ a.open }}"><span style="{{ a.statusStyle }}">{{ a.status }}</span></td>
+                      <td style="padding:13px 14px;" onClick="{{ a.open }}"><div style="display:flex;flex-wrap:wrap;gap:4px;">
+                        <sc-for list="{{ a.ruleChips }}" as="r" hint-placeholder-count="2"><span style="{{ r.style }}">{{ r.id }}</span></sc-for>
+                      </div></td>
+                      <td style="padding:13px 14px;" onClick="{{ a.open }}"><span style="{{ a.explStyle }}">{{ a.explLabel }}</span></td>
+                      <td style="padding:13px 14px;text-align:right;color:var(--text-muted);" onClick="{{ a.open }}" title="{{ a.updatedIso }}">{{ a.updated }}</td>
+                      <td style="padding:13px 16px 13px 14px;position:relative;" onClick="{{ a.stop }}">
+                        <button onClick="{{ a.toggleMenu }}" aria-label="Row actions" style="width:28px;height:28px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-subtle);color:var(--text-primary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+                        <sc-if value="{{ a.menuOpen }}">
+                          <div style="position:absolute;right:14px;top:40px;z-index:20;width:148px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:9px;box-shadow:0 12px 32px rgba(0,0,0,.42);padding:5px;animation:ax-fade .12s ease;">
+                            <div onClick="{{ a.open }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:6px;font-size:12.5px;cursor:pointer;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>Open</div>
+                            <div onClick="{{ a.escalate }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:6px;font-size:12.5px;cursor:pointer;color:var(--risk-high);" style-hover="background:var(--risk-high-muted);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>Escalate</div>
+                            <div onClick="{{ a.dismiss }}" style="display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:6px;font-size:12.5px;cursor:pointer;color:var(--text-secondary);" style-hover="background:var(--bg-subtle);color:var(--text-primary);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>Dismiss</div>
+                          </div>
+                        </sc-if>
+                      </td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- PAGINATION FOOTER -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid var(--border-subtle);">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:12px;color:var(--text-muted);">Rows per page</span>
+                <div style="position:relative;display:flex;align-items:center;">
+                  <select value="{{ perPage }}" onChange="{{ setPerPage }}" aria-label="Rows per page" style="appearance:none;-webkit-appearance:none;height:30px;border-radius:7px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:12px;padding:0 26px 0 10px;cursor:pointer;outline:none;"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+                  <svg style="position:absolute;right:8px;pointer-events:none;" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <span style="font-size:12px;color:var(--text-secondary);font-family:'JetBrains Mono',monospace;">{{ rangeText }}</span>
+                <div style="display:flex;gap:6px;">
+                  <button onClick="{{ prevPage }}" aria-label="Previous page" style="{{ prevStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                  <button onClick="{{ nextPage }}" aria-label="Next page" style="{{ nextStyle }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- menu/dropdown backdrop -->
+      <sc-if value="{{ anyMenuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:15;"></div></sc-if>
+    </main>
+  </div>
+
+  <!-- ============ ALERT DETAIL MODAL ============ -->
+  <sc-if value="{{ modalOpen }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:50;background:rgba(5,6,12,.62);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:32px;">
+      <div onClick="{{ stopModal }}" style="width:100%;max-width:1000px;max-height:90vh;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;box-shadow:0 28px 70px rgba(0,0,0,.55);display:flex;flex-direction:column;overflow:hidden;animation:ax-scalein .16s ease;">
+        <!-- modal header -->
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--border-subtle);flex:none;">
+          <span style="{{ modal.riskStyle }}">{{ modal.level }}</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;color:var(--accent-primary);">{{ modal.alertId }}</span>
+          <span style="{{ modal.statusStyle }}">{{ modal.status }}</span>
+          <div style="flex:1;"></div>
+          <button onClick="{{ closeModal }}" aria-label="Close" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+
+        <!-- modal body: two columns -->
+        <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:0;overflow:hidden;flex:1;min-height:0;">
+
+          <!-- LEFT: EVIDENCE -->
+          <div style="overflow-y:auto;padding:20px 22px;border-right:1px solid var(--border-subtle);">
+            <!-- summary -->
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;">
+              <div>
+                <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;">Risk score</div>
+                <div style="font-size:42px;font-weight:700;line-height:1;font-family:'JetBrains Mono',monospace;color:{{ modal.scoreColor }};">{{ modal.score }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+                <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--risk-critical);background:var(--risk-critical-muted);padding:3px 9px;border-radius:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>is_flagged: true</span>
+                <span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">model {{ modal.modelVersion }}</span>
+              </div>
+            </div>
+
+            <!-- transaction context -->
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:10px;padding:14px 15px;margin-bottom:18px;">
+              <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:11px;">Transaction context</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px 18px;">
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Amount</div><div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;">{{ modal.amount }} <span style="font-size:11px;color:var(--text-muted);font-weight:500;">{{ modal.currency }}</span></div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Channel</div><span style="{{ modal.channelStyle }}">{{ modal.channel }}</span></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Transaction ID</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.txnShort }}…</span><span onClick="{{ modal.copyTxn }}" style="cursor:pointer;color:var(--text-muted);display:inline-flex;" style-hover="color:var(--text-primary);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Timestamp</div><div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.timestamp }}</div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Sender</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.senderShort }}…</span><span onClick="{{ modal.copySender }}" style="cursor:pointer;color:var(--text-muted);display:inline-flex;" style-hover="color:var(--text-primary);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></div>
+                <div><div style="font-size:10.5px;color:var(--text-muted);margin-bottom:2px;">Receiver</div><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary);">{{ modal.receiverShort }}…</span><span onClick="{{ modal.copyReceiver }}" style="cursor:pointer;color:var(--text-muted);display:inline-flex;" style-hover="color:var(--text-primary);"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></span></div></div>
+              </div>
+            </div>
+
+            <!-- triggered rules -->
+            <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Triggered rules</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+              <sc-for list="{{ modal.rules }}" as="r" hint-placeholder-count="2">
+                <div style="border:1px solid var(--border-subtle);border-radius:9px;padding:11px 13px;background:var(--bg-base);">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;color:var(--text-primary);">{{ r.id }}</span><span style="{{ r.sevStyle }}">{{ r.severity }}</span><div style="flex:1;"></div><span style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">{{ r.typology }}</span></div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);">→ {{ r.hint }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- SHAP features -->
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;"><span style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);">Top SHAP features</span><span style="font-size:10px;color:var(--text-muted);">contribution to score</span></div>
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <sc-for list="{{ modal.features }}" as="f" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:11px;">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-secondary);width:140px;flex:none;">{{ f.name }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);width:42px;flex:none;text-align:right;">{{ f.value }}</span>
+                  <div style="flex:1;height:7px;border-radius:4px;background:var(--bg-subtle);overflow:hidden;"><div style="{{ f.barStyle }}"></div></div>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:{{ f.color }};width:48px;flex:none;text-align:right;">{{ f.contribution }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- RIGHT: EXPLANATION + ACTIONS -->
+          <div style="overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:11px;"><span style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);">Explanation</span><span style="{{ modal.explStyle }}">{{ modal.explLabel }}</span></div>
+
+            <sc-if value="{{ modal.explPending }}">
+              <div style="display:flex;align-items:center;gap:9px;background:var(--bg-base);border:1px dashed var(--border-default);border-radius:10px;padding:16px;margin-bottom:16px;animation:ax-pulse 1.6s infinite;"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent-secondary);flex:none;"></span><span style="font-size:13px;color:var(--text-secondary);">Explanation pending… generating LLM narrative</span></div>
+            </sc-if>
+            <sc-if value="{{ modal.explReady }}">
+              <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:10px;padding:15px 16px;margin-bottom:14px;font-size:13.5px;line-height:1.65;color:var(--text-secondary);">{{ modal.explanation }}</div>
+            </sc-if>
+            <sc-if value="{{ modal.explTemplate }}">
+              <div style="display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--state-warning);background:var(--risk-medium-muted);border-radius:8px;padding:9px 11px;margin-bottom:16px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:1px;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>LLM unavailable — showing rule-based summary.</div>
+            </sc-if>
+
+            <!-- reviewer note -->
+            <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px;">Reviewer note <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+            <textarea value="{{ reviewerNote }}" onInput="{{ setReviewerNote }}" placeholder="Add context for this decision…" style="width:100%;min-height:74px;resize:vertical;border-radius:9px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-family:inherit;padding:10px 12px;outline:none;margin-bottom:16px;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);"></textarea>
+
+            <!-- actions -->
+            <div style="display:flex;gap:9px;margin-bottom:16px;">
+              <button onClick="{{ modal.escalate }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:9px;border:none;background:var(--risk-high);color:#fff;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="background:var(--risk-critical);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>Escalate</button>
+              <button onClick="{{ modal.dismiss }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;border-radius:9px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-secondary);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="background:var(--bg-elevated);color:var(--text-primary);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>Dismiss</button>
+              <button onClick="{{ closeModal }}" style="display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 14px;border-radius:9px;border:none;background:transparent;color:var(--text-muted);font-size:13.5px;font-weight:500;font-family:inherit;cursor:pointer;" style-hover="color:var(--text-primary);">Close</button>
+            </div>
+
+            <div style="flex:1;"></div>
+            <!-- audit trail -->
+            <div style="border-top:1px solid var(--border-subtle);padding-top:13px;">
+              <div style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:9px;">Audit trail</div>
+              <div style="display:flex;flex-direction:column;gap:6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:var(--text-muted);">
+                <div style="display:flex;justify-content:space-between;"><span>reviewer_id</span><span style="color:var(--text-secondary);">{{ modal.reviewerId }}</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>created_at</span><span style="color:var(--text-secondary);">{{ modal.createdAt }}</span></div>
+                <div style="display:flex;justify-content:space-between;"><span>updated_at</span><span style="color:var(--text-secondary);">{{ modal.updatedIso }}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ CONFIRMATION DIALOG ============ -->
+  <sc-if value="{{ confirmOpen }}">
+    <div style="position:fixed;inset:0;z-index:60;background:rgba(5,6,12,.6);display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div style="width:100%;max-width:460px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:16px;box-shadow:0 28px 70px rgba(0,0,0,.55);overflow:hidden;animation:ax-scalein .15s ease;">
+        <div style="padding:20px 22px 0;">
+          <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px;">
+            <span style="{{ confirm.iconWrap }}"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{{ confirm.iconPath }}</svg></span>
+            <h3 style="margin:0;font-size:16px;font-weight:600;">{{ confirm.title }}</h3>
+          </div>
+          <p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--text-secondary);">{{ confirm.body }}</p>
+          <!-- reason -->
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Reason <span style="color:var(--risk-critical);">*</span></div>
+          <div style="position:relative;display:flex;align-items:center;margin-bottom:13px;">
+            <select value="{{ reason }}" onChange="{{ setReason }}" style="appearance:none;-webkit-appearance:none;width:100%;height:38px;border-radius:8px;border:1px solid {{ reasonBorder }};background:var(--bg-base);color:var(--text-primary);font-size:13px;padding:0 30px 0 12px;cursor:pointer;outline:none;">
+              <option value="">Select a reason…</option>
+              <sc-for list="{{ confirm.reasons }}" as="r" hint-placeholder-count="4"><option value="{{ r }}">{{ r }}</option></sc-for>
+            </select>
+            <svg style="position:absolute;right:11px;pointer-events:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <sc-if value="{{ reasonError }}"><div style="font-size:11.5px;color:var(--risk-critical);margin-top:-7px;margin-bottom:11px;">Please select a reason before confirming.</div></sc-if>
+          <!-- note -->
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Note <span style="font-weight:400;">(optional)</span></div>
+          <textarea value="{{ confirmNote }}" onInput="{{ setConfirmNote }}" placeholder="Additional detail…" style="width:100%;min-height:58px;resize:vertical;border-radius:8px;border:1px solid var(--border-default);background:var(--bg-base);color:var(--text-primary);font-size:13px;font-family:inherit;padding:9px 11px;outline:none;margin-bottom:6px;" style-focus="border-color:var(--accent-primary);box-shadow:0 0 0 3px var(--accent-primary-muted);"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:9px;padding:14px 22px;background:var(--bg-elevated);border-top:1px solid var(--border-subtle);margin-top:8px;">
+          <button onClick="{{ closeConfirm }}" style="height:38px;padding:0 16px;border-radius:8px;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="color:var(--text-primary);">Cancel</button>
+          <button onClick="{{ submitConfirm }}" style="{{ confirm.btnStyle }}"><span>{{ confirm.cta }}</span></button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ TOAST ============ -->
+  <sc-if value="{{ toastVisible }}">
+    <div role="status" style="{{ toastStyle }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ toastIconColor }}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none;">{{ toastIcon }}</svg>
+      <span style="font-size:13px;color:var(--text-primary);">{{ toastMsg }}</span>
+    </div>
+  </sc-if>
+
+  <!-- ============ PREVIEW STATE SWITCHER ============ -->
+  <div style="position:fixed;bottom:18px;left:18px;z-index:55;display:flex;align-items:center;gap:6px;background:var(--bg-elevated);border:1px solid var(--border-default);border-radius:10px;padding:6px 8px;box-shadow:0 8px 28px rgba(0,0,0,.35);">
+    <span style="font-size:10px;font-weight:600;letter-spacing:.5px;color:var(--text-muted);text-transform:uppercase;padding:0 4px;">State</span>
+    <sc-for list="{{ stateOptions }}" as="s" hint-placeholder-count="4"><button onClick="{{ s.onClick }}" style="{{ s.style }}">{{ s.label }}</button></sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;screenState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;loaded&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;],&quot;default&quot;:&quot;loaded&quot;,&quot;tsType&quot;:&quot;\&quot;loaded\&quot;|\&quot;loading\&quot;|\&quot;empty\&quot;|\&quot;error\&quot;&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;\&quot;dark\&quot;|\&quot;light\&quot;&quot;}}">
+class Component extends DCLogic {
+  state = {
+    theme: this.props.defaultTheme === 'light' ? 'light' : 'dark',
+    screen: this.props.screenState || 'loaded',
+    search: '',
+    statusSel: [],
+    riskSel: [],
+    typoSel: [],
+    chanSel: [],
+    source: 'all',
+    range: '7d',
+    sort: 'score',
+    perPage: 25,
+    page: 1,
+    selected: [],
+    statusOverrides: {},
+    modalId: null,
+    rowMenu: null,
+    openMenu: null,
+    confirm: null,
+    reason: '',
+    confirmNote: '',
+    reviewerNote: '',
+    reasonError: false,
+    toast: null,
+  };
+
+  RULE_META = {
+    'R-STRUCT-01': { typology: 'structuring', severity: 'HIGH', hint: 'review_and_escalate' },
+    'R-SMURF-01': { typology: 'smurfing', severity: 'HIGH', hint: 'review_and_escalate' },
+    'R-RAPID-01': { typology: 'rapid_movement', severity: 'HIGH', hint: 'manual_review' },
+    'R-LAYER-01': { typology: 'layering', severity: 'MEDIUM', hint: 'monitor' },
+    'R-VELO-01': { typology: 'velocity_anomaly', severity: 'MEDIUM', hint: 'monitor' },
+    'R-GEO-01': { typology: 'geo_device_anomaly', severity: 'MEDIUM', hint: 'manual_review' },
+  };
+
+  ALERTS = [
+    { id: 'ALT-10428', txn: '7f3a9c21-4b2e-4f1a-9c3d-1a2b3c4d5e6f', score: 0.94, level: 'CRITICAL', status: 'NEW', rules: ['R-STRUCT-01','R-RAPID-01'], src: 'llm', channel: 'CASH_OUT', amount: 392450000, sender: 'a1f9c2d4e6b8a0c2', receiver: 'b3e7d1f5a9c3e7b1', um: 2, cm: 41, created: '2026-06-18 09:12:04+07', updatedIso: '2026-06-18 11:38:22+07', reviewer: '—', model: 'v2.4.1',
+      expl: 'Cấu trúc hóa: 8 giao dịch dưới ngưỡng trong 24 giờ, tổng 392M VND — ngay dưới hạn mức báo cáo CTR 400M. / Structuring detected: 8 sub-threshold transfers within 24h totaling 392M VND, just under the 400M CTR reporting limit. Counterparty opened 6 days prior.',
+      feats: [['amount_zscore',4.82,0.31],['structuring_score',0.91,0.27],['velocity_24h',8,0.18],['sender_age_days',6,0.12],['counterparty_risk',0.78,-0.06]] },
+    { id: 'ALT-10427', txn: 'a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d', score: 0.88, level: 'CRITICAL', status: 'NEW', rules: ['R-SMURF-01'], src: 'template', channel: 'TRANSFER', amount: 148000000, sender: 'c4d8e2f6a0b4c8d2', receiver: 'd6f0a4c8e2b6d0f4', um: 6, cm: 58, created: '2026-06-18 08:40:11+07', updatedIso: '2026-06-18 11:34:09+07', reviewer: '—', model: 'v2.4.1',
+      expl: 'Rule-based summary: smurfing pattern — funds split across 5 receiver accounts within 30 minutes. / Tóm tắt theo quy tắc: mô hình smurfing.',
+      feats: [['fanout_count',5,0.34],['velocity_1h',5,0.22],['amount_zscore',2.1,0.14],['balance_ratio',0.04,0.11]] },
+    { id: 'ALT-10425', txn: '9e8d7c6b-5a4f-3e2d-1c0b-9a8f7e6d5c4b', score: 0.81, level: 'HIGH', status: 'NEW', rules: ['R-VELO-01','R-GEO-01'], src: 'llm', channel: 'PAYMENT', amount: 24300000, sender: '9a8f7e6d5c4b3a29', receiver: '8b7c6d5e4f3a2b18', um: 14, cm: 73, created: '2026-06-18 08:22:51+07', updatedIso: '2026-06-18 11:26:40+07', reviewer: '—', model: 'v2.4.1',
+      expl: 'Velocity + geo anomaly: 14 transactions in 1 hour from a new device in a different country than the account baseline (VN→KH). / Bất thường vận tốc và vị trí địa lý.',
+      feats: [['velocity_1h',14,0.29],['device_change_flag',1,0.21],['geo_distance_km',412,0.17],['hour_of_day',3,0.08]] },
+    { id: 'ALT-10422', txn: '4f5e6d7c-8b9a-0c1d-2e3f-4a5b6c7d8e9f', score: 0.79, level: 'HIGH', status: 'REVIEWED', rules: ['R-LAYER-01'], src: 'llm', channel: 'TRANSFER', amount: 67800000, sender: '2e3f4a5b6c7d8e9f', receiver: '1d2e3f4a5b6c7d8e', um: 38, cm: 142, created: '2026-06-18 06:58:33+07', updatedIso: '2026-06-18 11:02:18+07', reviewer: 'usr_8f21a', model: 'v2.4.1',
+      expl: 'Layering: funds moved through 3 intermediary accounts before consolidation, obscuring origin. / Phân lớp giao dịch qua 3 tài khoản trung gian.',
+      feats: [['layering_depth',3,0.26],['counterparty_risk',0.71,0.19],['amount_zscore',1.6,0.1]] },
+    { id: 'ALT-10419', txn: 'c0ffee12-3456-7890-abcd-ef0123456789', score: 0.91, level: 'CRITICAL', status: 'NEW', rules: ['R-STRUCT-01'], src: 'pending', channel: 'CASH_OUT', amount: 398900000, sender: 'ef0123456789abcd', receiver: 'abcdef0123456789', um: 52, cm: 64, created: '2026-06-18 09:30:02+07', updatedIso: '2026-06-18 10:48:55+07', reviewer: '—', model: 'v2.4.1',
+      expl: null,
+      feats: [['amount_zscore',5.1,0.33],['structuring_score',0.88,0.25],['ctr_proximity',0.997,0.2]] },
+    { id: 'ALT-10417', txn: 'deadbeef-1111-2222-3333-444455556666', score: 0.74, level: 'HIGH', status: 'DISMISSED', rules: ['R-GEO-01'], src: 'template', channel: 'DEBIT', amount: 12500000, sender: '4444555566667777', receiver: '7777888899990000', um: 60, cm: 188, created: '2026-06-18 06:10:44+07', updatedIso: '2026-06-18 10:40:12+07', reviewer: 'usr_8f21a', model: 'v2.4.1',
+      expl: 'Rule-based summary: geo/device anomaly — login from unrecognized device. Reviewer verified as customer travel.',
+      feats: [['device_change_flag',1,0.24],['geo_distance_km',1840,0.22],['counterparty_risk',0.31,-0.09]] },
+    { id: 'ALT-10414', txn: '12345678-90ab-cdef-1234-567890abcdef', score: 0.86, level: 'CRITICAL', status: 'ESCALATED', rules: ['R-RAPID-01','R-SMURF-01'], src: 'llm', channel: 'TRANSFER', amount: 215600000, sender: '567890abcdef1234', receiver: 'cdef1234567890ab', um: 120, cm: 240, created: '2026-06-18 05:02:09+07', updatedIso: '2026-06-18 09:38:30+07', reviewer: 'usr_8f21a', model: 'v2.4.1',
+      expl: 'Rapid movement + smurfing: incoming funds dispersed to 4 accounts within 8 minutes of receipt. Confirmed mule network pattern. / Di chuyển nhanh kết hợp smurfing.',
+      feats: [['dwell_time_sec',480,0.3],['fanout_count',4,0.24],['velocity_1h',9,0.16]] },
+    { id: 'ALT-10410', txn: 'feedface-aaaa-bbbb-cccc-ddddeeeeffff', score: 0.72, level: 'HIGH', status: 'NEW', rules: ['R-VELO-01'], src: 'llm', channel: 'PAYMENT', amount: 9800000, sender: 'ddddeeeeffff0000', receiver: '00001111aaaabbbb', um: 180, cm: 300, created: '2026-06-18 04:20:17+07', updatedIso: '2026-06-18 08:20:44+07', reviewer: '—', model: 'v2.4.1',
+      expl: 'Velocity anomaly: transaction frequency exceeds the p99 baseline for this account segment. / Bất thường vận tốc giao dịch vượt ngưỡng p99.',
+      feats: [['velocity_24h',31,0.27],['amount_zscore',1.9,0.13],['hour_of_day',2,0.09]] },
+    { id: 'ALT-10406', txn: '0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d', score: 0.83, level: 'HIGH', status: 'NEW', rules: ['R-STRUCT-01','R-VELO-01'], src: 'template', channel: 'CASH_IN', amount: 88200000, sender: '8c9d0e1f2a3b4c5d', receiver: '6a7b8c9d0e1f2a3b', um: 240, cm: 360, created: '2026-06-18 03:40:55+07', updatedIso: '2026-06-18 07:40:02+07', reviewer: '—', model: 'v2.4.1',
+      expl: 'Rule-based summary: repeated cash-in deposits below threshold across consecutive days.',
+      feats: [['structuring_score',0.72,0.24],['velocity_24h',12,0.18],['amount_zscore',2.4,0.15]] },
+    { id: 'ALT-10401', txn: '5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a', score: 0.97, level: 'CRITICAL', status: 'ESCALATED', rules: ['R-STRUCT-01','R-SMURF-01','R-RAPID-01'], src: 'llm', channel: 'CASH_OUT', amount: 399800000, sender: '3f4a5b6c7d8e9f0a', receiver: '1d2e3f4a5b6c7d8e', um: 300, cm: 420, created: '2026-06-18 02:11:33+07', updatedIso: '2026-06-18 06:11:48+07', reviewer: 'usr_8f21a', model: 'v2.4.1',
+      expl: 'Three high-severity rules co-fired: structuring, smurfing, and rapid movement on a near-CTR cash-out. Highest-risk case in queue. / Ba quy tắc nghiêm trọng cùng kích hoạt.',
+      feats: [['structuring_score',0.95,0.3],['fanout_count',7,0.26],['ctr_proximity',0.999,0.22],['dwell_time_sec',120,0.14]] },
+    { id: 'ALT-10398', txn: 'bb11cc22-dd33-ee44-ff55-aa66bb77cc88', score: 0.76, level: 'HIGH', status: 'NEW', rules: ['R-GEO-01','R-VELO-01'], src: 'pending', channel: 'PAYMENT', amount: 33400000, sender: 'aa66bb77cc88dd99', receiver: 'ee44ff55aa66bb77', um: 420, cm: 540, created: '2026-06-18 01:02:00+07', updatedIso: '2026-06-18 04:02:11+07', reviewer: '—', model: 'v2.4.1',
+      expl: null,
+      feats: [['geo_distance_km',980,0.23],['device_change_flag',1,0.2],['velocity_1h',7,0.12]] },
+    { id: 'ALT-10392', txn: '99aa88bb-77cc-66dd-55ee-44ff33aa22bb', score: 0.8, level: 'HIGH', status: 'DISMISSED', rules: ['R-LAYER-01'], src: 'template', channel: 'TRANSFER', amount: 54100000, sender: '44ff33aa22bb11cc', receiver: '55ee44ff33aa22bb', um: 540, cm: 720, created: '2026-06-17 22:30:18+07', updatedIso: '2026-06-18 02:30:40+07', reviewer: 'usr_3c90b', model: 'v2.4.1',
+      expl: 'Rule-based summary: layering signal on intra-bank transfer. Reviewer confirmed legitimate payroll distribution.',
+      feats: [['layering_depth',2,0.21],['counterparty_risk',0.4,0.1],['amount_zscore',1.2,0.08]] },
+  ];
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+  onSearch = (e) => this.setState({ search: e.target.value, page: 1 });
+  toggleArr(key, val) { this.setState(s => { const a = s[key]; const n = a.includes(val) ? a.filter(x => x !== val) : [...a, val]; return { [key]: n, page: 1 }; }); }
+  setSource = (e) => this.setState({ source: e.target.value, page: 1 });
+  setRange = (e) => this.setState({ range: e.target.value, page: 1 });
+  setSort = (e) => this.setState({ sort: e.target.value });
+  setPerPage = (e) => this.setState({ perPage: parseInt(e.target.value, 10), page: 1 });
+  clearFilters = () => this.setState({ search: '', statusSel: [], riskSel: [], typoSel: [], chanSel: [], source: 'all', range: '7d', page: 1 });
+  toggleMenuName = (n) => this.setState(s => ({ openMenu: s.openMenu === n ? null : n, rowMenu: null }));
+  closeMenus = () => this.setState({ openMenu: null, rowMenu: null });
+
+  toggleSelect = (id) => this.setState(s => ({ selected: s.selected.includes(id) ? s.selected.filter(x => x !== id) : [...s.selected, id] }));
+  clearSelection = () => this.setState({ selected: [] });
+
+  openModal = (id) => this.setState({ modalId: id, rowMenu: null, openMenu: null, reviewerNote: '' });
+  closeModal = () => this.setState({ modalId: null });
+  setReviewerNote = (e) => this.setState({ reviewerNote: e.target.value });
+  toggleRowMenu = (id) => this.setState(s => ({ rowMenu: s.rowMenu === id ? null : id, openMenu: null }));
+
+  openConfirm = (action, ids, bulk) => this.setState({ confirm: { action, ids, bulk }, reason: '', confirmNote: '', reasonError: false, rowMenu: null });
+  closeConfirm = () => this.setState({ confirm: null, reasonError: false });
+  setReason = (e) => this.setState({ reason: e.target.value, reasonError: false });
+  setConfirmNote = (e) => this.setState({ confirmNote: e.target.value });
+  submitConfirm = () => {
+    const c = this.state.confirm;
+    if (!c) return;
+    if (!this.state.reason) { this.setState({ reasonError: true }); return; }
+    const newStatus = c.action;
+    this.setState(s => {
+      const ov = { ...s.statusOverrides };
+      c.ids.forEach(id => { ov[id] = newStatus; });
+      const verb = newStatus === 'ESCALATED' ? 'escalated' : 'dismissed';
+      const msg = c.bulk ? (c.ids.length + ' alerts ' + verb) : ('Alert ' + c.ids[0] + ' ' + verb);
+      return { statusOverrides: ov, confirm: null, reasonError: false, modalId: c.bulk ? s.modalId : null, selected: c.bulk ? [] : s.selected, toast: { msg, kind: newStatus === 'ESCALATED' ? 'escalate' : 'success' } };
+    });
+    clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 3200);
+  };
+
+  copyVal = (v, label) => {
+    try { navigator.clipboard && navigator.clipboard.writeText(v); } catch (e) {}
+    this.setState({ toast: { msg: (label || 'Value') + ' copied to clipboard', kind: 'copy' } });
+    clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2000);
+  };
+
+  retry = () => { this.setState({ screen: 'loading' }); setTimeout(() => this.setState({ screen: 'loaded' }), 1100); };
+  setScreen = (v) => this.setState({ screen: v, selected: [], modalId: null, confirm: null });
+
+  badge(color, bg, border) {
+    return { display: 'inline-flex', alignItems: 'center', fontSize: '10.5px', fontWeight: 700, letterSpacing: '.3px', fontFamily: "'JetBrains Mono', monospace", padding: '2px 8px', borderRadius: '6px', color, background: bg || 'transparent', border: border ? '1px solid ' + border : '1px solid transparent', whiteSpace: 'nowrap' };
+  }
+  riskStyle(level) { const m = { LOW: ['var(--risk-low)','var(--risk-low-muted)'], MEDIUM: ['var(--risk-medium)','var(--risk-medium-muted)'], HIGH: ['var(--risk-high)','var(--risk-high-muted)'], CRITICAL: ['var(--risk-critical)','var(--risk-critical-muted)'] }[level]; return this.badge(m[0], m[1]); }
+  statusStyle(st) {
+    if (st === 'NEW') return this.badge('var(--state-info)', 'transparent', 'var(--border-default)');
+    if (st === 'DISMISSED') return this.badge('var(--text-muted)', 'var(--bg-subtle)');
+    if (st === 'ESCALATED') return this.badge('var(--risk-critical)', 'var(--risk-critical-muted)');
+    if (st === 'REVIEWED') return this.badge('var(--state-success)', 'var(--risk-low-muted)');
+    return this.badge('var(--text-muted)', 'var(--bg-subtle)');
+  }
+  sevColor(s) { return s === 'CRITICAL' ? 'var(--risk-critical)' : s === 'HIGH' ? 'var(--risk-high)' : 'var(--risk-medium)'; }
+  sevBg(s) { return s === 'CRITICAL' ? 'var(--risk-critical-muted)' : s === 'HIGH' ? 'var(--risk-high-muted)' : 'var(--risk-medium-muted)'; }
+  explStyle(src) {
+    if (src === 'llm') return { ...this.badge('var(--accent-secondary)', 'var(--accent-secondary-muted)'), textTransform: 'lowercase' };
+    if (src === 'template') return { ...this.badge('var(--text-muted)', 'var(--bg-subtle)'), textTransform: 'lowercase' };
+    return { ...this.badge('var(--accent-primary)', 'var(--accent-primary-muted)'), textTransform: 'lowercase', animation: 'ax-pulse 1.6s infinite' };
+  }
+  explLabel(src) { return src === 'pending' ? 'pending…' : src; }
+  chanStyle() { return this.badge('var(--text-secondary)', 'var(--bg-subtle)'); }
+  fmtVND(n) { return n.toLocaleString('en-US'); }
+  relTime(min) { if (min < 60) return min + 'm ago'; const h = Math.floor(min / 60); if (h < 24) return h + 'h ago'; return Math.floor(h / 24) + 'd ago'; }
+
+  chip(active, color, bg) {
+    return { fontSize: '11px', fontWeight: 600, fontFamily: 'inherit', padding: '4px 9px', borderRadius: '6px', cursor: 'pointer', border: '1px solid ' + (active ? (color || 'var(--accent-primary)') : 'transparent'), background: active ? (bg || 'var(--accent-primary)') : 'transparent', color: active ? (bg ? color : '#fff') : 'var(--text-secondary)', whiteSpace: 'nowrap' };
+  }
+  dropBtn(active) { return { display: 'inline-flex', alignItems: 'center', gap: '6px', height: '36px', padding: '0 11px', borderRadius: '8px', border: '1px solid ' + (active ? 'var(--accent-primary)' : 'var(--border-default)'), background: 'var(--bg-surface)', color: active ? 'var(--text-primary)' : 'var(--text-secondary)', fontSize: '12.5px', fontWeight: 500, fontFamily: 'inherit', cursor: 'pointer' }; }
+  checkBox(checked) { return { width: '16px', height: '16px', borderRadius: '4px', border: '1.5px solid ' + (checked ? 'var(--accent-primary)' : 'var(--border-default)'), background: checked ? 'var(--accent-primary)' : 'transparent', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flex: 'none' }; }
+
+  renderVals() {
+    const S = this.state;
+    const screen = S.screen;
+    const stripeColor = { LOW: 'var(--risk-low)', MEDIUM: 'var(--risk-medium)', HIGH: 'var(--risk-high)', CRITICAL: 'var(--risk-critical)' };
+
+    // apply status overrides
+    const all = this.ALERTS.map(a => ({ ...a, status: S.statusOverrides[a.id] || a.status }));
+
+    // filtering
+    const rangeMin = { '24h': 1440, '7d': 10080, '30d': 43200, all: Infinity }[S.range];
+    let filtered = all.filter(a => {
+      if (S.search) { const q = S.search.toLowerCase(); if (!a.id.toLowerCase().includes(q) && !a.txn.toLowerCase().includes(q)) return false; }
+      if (S.statusSel.length && !S.statusSel.includes(a.status)) return false;
+      if (S.riskSel.length && !S.riskSel.includes(a.level)) return false;
+      if (S.typoSel.length && !a.rules.some(r => S.typoSel.includes(this.RULE_META[r].typology))) return false;
+      if (S.chanSel.length && !S.chanSel.includes(a.channel)) return false;
+      if (S.source !== 'all' && a.src !== S.source) return false;
+      if (a.um > rangeMin) return false;
+      return true;
+    });
+    // sort
+    const sorters = {
+      score: (a, b) => b.score - a.score,
+      updated: (a, b) => a.um - b.um,
+      created: (a, b) => a.cm - b.cm,
+      alert: (a, b) => a.id.localeCompare(b.id),
+    };
+    filtered = [...filtered].sort(sorters[S.sort]);
+
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / S.perPage));
+    const page = Math.min(S.page, totalPages);
+    const startIdx = (page - 1) * S.perPage;
+    const slice = filtered.slice(startIdx, startIdx + S.perPage);
+
+    const isLoading = screen === 'loading';
+    const isError = screen === 'error';
+    const isEmptyNone = screen === 'empty';
+    const isEmptyFiltered = !isLoading && !isError && !isEmptyNone && total === 0;
+    const showTable = !isLoading && !isError && !isEmptyNone && total > 0;
+
+    const mk = (a) => {
+      const ruleChips = a.rules.map(r => ({ id: r, style: { ...this.badge(this.sevColor(this.RULE_META[r].severity), this.sevBg(this.RULE_META[r].severity)), fontSize: '9.5px', padding: '1px 6px' } }));
+      return {
+        alertId: a.id, txnShort: a.txn.slice(0, 8), score: a.score.toFixed(2), level: a.level, status: a.status,
+        updated: this.relTime(a.um), updatedIso: a.updatedIso,
+        riskStyle: this.riskStyle(a.level), statusStyle: this.statusStyle(a.status),
+        ruleChips, explStyle: this.explStyle(a.src), explLabel: this.explLabel(a.src),
+        selected: S.selected.includes(a.id), menuOpen: S.rowMenu === a.id,
+        rowStyle: { borderBottom: '1px solid var(--border-subtle)', borderLeft: '3px solid ' + stripeColor[a.level], background: S.selected.includes(a.id) ? 'var(--accent-primary-muted)' : 'transparent', cursor: 'pointer' },
+        checkboxStyle: this.checkBox(S.selected.includes(a.id)),
+        open: () => this.openModal(a.id),
+        toggleSelect: () => this.toggleSelect(a.id),
+        toggleMenu: () => this.toggleRowMenu(a.id),
+        escalate: () => this.openConfirm('ESCALATED', [a.id], false),
+        dismiss: () => this.openConfirm('DISMISSED', [a.id], false),
+        copyAlert: () => this.copyVal(a.id, 'Alert ID'),
+        copyTxn: () => this.copyVal(a.txn, 'Transaction ID'),
+        stop: () => {},
+      };
+    };
+    const pageRows = slice.map(mk);
+
+    // chips
+    const statusChips = ['NEW', 'ESCALATED', 'DISMISSED'].map(v => ({ label: v, onClick: () => this.toggleArr('statusSel', v), style: this.chip(S.statusSel.includes(v), this.statusStyle(v).color, v === 'NEW' ? 'transparent' : (v === 'ESCALATED' ? 'var(--risk-critical-muted)' : 'var(--bg-subtle)')) }));
+    const riskChips = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map(v => ({ label: v, onClick: () => this.toggleArr('riskSel', v), style: this.chip(S.riskSel.includes(v), this.riskStyle(v).color, this.riskStyle(v).background) }));
+
+    const typoList = ['structuring', 'smurfing', 'rapid_movement', 'layering', 'velocity_anomaly', 'geo_device_anomaly'];
+    const typoOptions = typoList.map(v => ({ label: v, selected: S.typoSel.includes(v), onClick: () => this.toggleArr('typoSel', v), boxStyle: this.checkBox(S.typoSel.includes(v)) }));
+    const chanList = ['PAYMENT', 'TRANSFER', 'CASH_OUT', 'CASH_IN', 'DEBIT'];
+    const chanOptions = chanList.map(v => ({ label: v, selected: S.chanSel.includes(v), onClick: () => this.toggleArr('chanSel', v), boxStyle: this.checkBox(S.chanSel.includes(v)) }));
+
+    const filterCount = (S.search ? 1 : 0) + (S.statusSel.length ? 1 : 0) + (S.riskSel.length ? 1 : 0) + (S.typoSel.length ? 1 : 0) + (S.chanSel.length ? 1 : 0) + (S.source !== 'all' ? 1 : 0) + (S.range !== '7d' ? 1 : 0);
+
+    // modal
+    const ma = all.find(a => a.id === S.modalId);
+    let modal = null;
+    if (ma) {
+      const maxC = Math.max(...ma.feats.map(f => Math.abs(f[2]))) || 1;
+      modal = {
+        alertId: ma.id, level: ma.level, status: ma.status, score: ma.score.toFixed(2),
+        scoreColor: stripeColor[ma.level], riskStyle: this.riskStyle(ma.level), statusStyle: this.statusStyle(ma.status),
+        modelVersion: ma.model, amount: this.fmtVND(ma.amount), currency: 'VND', channel: ma.channel, channelStyle: this.chanStyle(),
+        txnShort: ma.txn.slice(0, 8), senderShort: ma.sender.slice(0, 8), receiverShort: ma.receiver.slice(0, 8),
+        timestamp: ma.created, createdAt: ma.created, updatedIso: ma.updatedIso, reviewerId: ma.reviewer,
+        rules: ma.rules.map(r => ({ id: r, typology: this.RULE_META[r].typology, severity: this.RULE_META[r].severity, hint: this.RULE_META[r].hint, sevStyle: { ...this.badge(this.sevColor(this.RULE_META[r].severity), this.sevBg(this.RULE_META[r].severity)), fontSize: '9.5px', padding: '1px 7px' } })),
+        features: ma.feats.map(f => { const pos = f[2] >= 0; const w = Math.round(Math.abs(f[2]) / maxC * 100); return { name: f[0], value: String(f[1]), contribution: (pos ? '+' : '') + f[2].toFixed(2), color: pos ? 'var(--risk-high)' : 'var(--risk-low)', barStyle: { height: '100%', width: w + '%', borderRadius: '4px', background: pos ? 'var(--risk-high)' : 'var(--risk-low)' } }; }),
+        explStyle: this.explStyle(ma.src), explLabel: this.explLabel(ma.src),
+        explPending: ma.src === 'pending', explReady: ma.src !== 'pending', explTemplate: ma.src === 'template', explanation: ma.expl,
+        copyTxn: () => this.copyVal(ma.txn, 'Transaction ID'), copySender: () => this.copyVal(ma.sender, 'Sender ID'), copyReceiver: () => this.copyVal(ma.receiver, 'Receiver ID'),
+        escalate: () => this.openConfirm('ESCALATED', [ma.id], false), dismiss: () => this.openConfirm('DISMISSED', [ma.id], false),
+      };
+    }
+
+    // confirm
+    const c = S.confirm;
+    let confirm = null;
+    if (c) {
+      const esc = c.action === 'ESCALATED';
+      const n = c.ids.length;
+      confirm = {
+        title: esc ? (c.bulk ? 'Escalate ' + n + ' alerts?' : 'Escalate this alert?') : (c.bulk ? 'Dismiss ' + n + ' alerts?' : 'Dismiss this alert?'),
+        body: esc ? 'This will flag the transaction as a confirmed AML case and create a ground-truth label for model retraining. The reviewer and timestamp are recorded in the audit log.' : 'This marks the alert as a false positive. It will be logged as a ground-truth label for model retraining and removed from the active review queue.',
+        cta: esc ? (c.bulk ? 'Escalate ' + n : 'Escalate') : (c.bulk ? 'Dismiss ' + n : 'Dismiss'),
+        reasons: esc ? ['Confirmed structuring pattern', 'Matches known AML typology', 'CTR threshold exceeded (≥400M VND)', 'Manual investigation warranted'] : ['False positive — legitimate activity', 'Duplicate of another alert', 'Below materiality threshold', 'Verified with customer'],
+        iconPath: esc ? React.createElement(React.Fragment, null, React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('path', { d: 'm16 12-4-4-4 4' }), React.createElement('path', { d: 'M12 16V8' })) : React.createElement(React.Fragment, null, React.createElement('circle', { cx: 12, cy: 12, r: 10 }), React.createElement('path', { d: 'm15 9-6 6' }), React.createElement('path', { d: 'm9 9 6 6' })),
+        iconWrap: { width: '34px', height: '34px', borderRadius: '9px', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: esc ? 'var(--risk-high)' : 'var(--text-secondary)', background: esc ? 'var(--risk-high-muted)' : 'var(--bg-subtle)' },
+        btnStyle: { height: '38px', padding: '0 18px', borderRadius: '8px', border: 'none', background: esc ? 'var(--risk-high)' : 'var(--accent-primary)', color: '#fff', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
+      };
+    }
+
+    // toast
+    const tk = S.toast && S.toast.kind;
+    const toastColor = tk === 'escalate' ? 'var(--risk-high)' : tk === 'copy' ? 'var(--state-info)' : 'var(--state-success)';
+    const toastIcon = tk === 'copy'
+      ? React.createElement(React.Fragment, null, React.createElement('rect', { width: 14, height: 14, x: 8, y: 8, rx: 2 }), React.createElement('path', { d: 'M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2' }))
+      : React.createElement('path', { d: 'M20 6 9 17l-5-5' });
+
+    const stateOpts = ['loaded', 'loading', 'empty', 'error'];
+    const stateOptions = stateOpts.map(v => ({ label: v, onClick: () => this.setScreen(v), style: { fontSize: '11px', fontWeight: 600, fontFamily: 'inherit', textTransform: 'capitalize', padding: '5px 11px', borderRadius: '7px', cursor: 'pointer', border: '1px solid ' + (screen === v ? 'var(--accent-primary)' : 'var(--border-default)'), background: screen === v ? 'var(--accent-primary)' : 'var(--bg-base)', color: screen === v ? '#fff' : 'var(--text-secondary)' } }));
+
+    const allSelected = slice.length > 0 && slice.every(a => S.selected.includes(a.id));
+
+    return {
+      theme: S.theme, isLight: S.theme === 'light', isDark: S.theme === 'dark', toggleTheme: this.toggleTheme,
+      flaggedCount: all.filter(a => a.status === 'NEW').length,
+      search: S.search, onSearch: this.onSearch,
+      statusChips, riskChips,
+      typoOptions, chanOptions,
+      toggleTypoMenu: () => this.toggleMenuName('typo'), typoMenuOpen: S.openMenu === 'typo', typoBtnStyle: this.dropBtn(S.typoSel.length > 0 || S.openMenu === 'typo'), typoSuffix: S.typoSel.length ? ' (' + S.typoSel.length + ')' : '',
+      toggleChanMenu: () => this.toggleMenuName('chan'), chanMenuOpen: S.openMenu === 'chan', chanBtnStyle: this.dropBtn(S.chanSel.length > 0 || S.openMenu === 'chan'), chanSuffix: S.chanSel.length ? ' (' + S.chanSel.length + ')' : '',
+      source: S.source, setSource: this.setSource, range: S.range, setRange: this.setRange, sort: S.sort, setSort: this.setSort,
+      hasFilters: filterCount > 0, filterCount, clearFilters: this.clearFilters,
+      anyMenuOpen: !!S.openMenu || !!S.rowMenu,
+      closeMenus: this.closeMenus,
+
+      isLoading, isError, isEmptyNone, isEmptyFiltered, showTable,
+      retry: this.retry,
+      eight: [0, 1, 2, 3, 4, 5, 6, 7],
+
+      pageRows,
+      allSelected, toggleSelectAll: () => this.setState(st => ({ selected: allSelected ? st.selected.filter(id => !slice.some(a => a.id === id)) : [...new Set([...st.selected, ...slice.map(a => a.id)])] })),
+      selectAllBox: this.checkBox(allSelected),
+
+      hasSelection: S.selected.length > 0, selectedCount: S.selected.length,
+      bulkEscalate: () => this.openConfirm('ESCALATED', S.selected, true), bulkDismiss: () => this.openConfirm('DISMISSED', S.selected, true), clearSelection: this.clearSelection,
+
+      perPage: String(S.perPage), setPerPage: this.setPerPage,
+      rangeText: total === 0 ? '0 of 0' : (startIdx + 1) + '–' + Math.min(startIdx + S.perPage, total) + ' of ' + total,
+      prevPage: () => this.setState(st => ({ page: Math.max(1, st.page - 1) })), nextPage: () => this.setState(st => ({ page: Math.min(totalPages, st.page + 1) })),
+      prevStyle: { width: '30px', height: '30px', borderRadius: '7px', border: '1px solid var(--border-default)', background: 'var(--bg-base)', color: page <= 1 ? 'var(--text-muted)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: page <= 1 ? 'not-allowed' : 'pointer', opacity: page <= 1 ? 0.5 : 1 },
+      nextStyle: { width: '30px', height: '30px', borderRadius: '7px', border: '1px solid var(--border-default)', background: 'var(--bg-base)', color: page >= totalPages ? 'var(--text-muted)' : 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: page >= totalPages ? 'not-allowed' : 'pointer', opacity: page >= totalPages ? 0.5 : 1 },
+
+      modalOpen: !!modal, modal: modal || {}, closeModal: this.closeModal, stopModal: (e) => e.stopPropagation(),
+      reviewerNote: S.reviewerNote, setReviewerNote: this.setReviewerNote,
+
+      confirmOpen: !!confirm, confirm: confirm || {}, closeConfirm: this.closeConfirm, submitConfirm: this.submitConfirm,
+      reason: S.reason, setReason: this.setReason, confirmNote: S.confirmNote, setConfirmNote: this.setConfirmNote,
+      reasonError: S.reasonError, reasonBorder: S.reasonError ? 'var(--risk-critical)' : 'var(--border-default)',
+
+      toastVisible: !!S.toast, toastMsg: S.toast ? S.toast.msg : '', toastIcon, toastIconColor: toastColor,
+      toastStyle: { position: 'fixed', bottom: '22px', right: '22px', zIndex: 70, display: 'flex', alignItems: 'center', gap: '11px', background: 'var(--bg-elevated)', border: '1px solid ' + toastColor, borderLeft: '3px solid ' + toastColor, borderRadius: '10px', padding: '13px 16px', boxShadow: '0 12px 36px rgba(0,0,0,.4)', animation: 'ax-fade .18s ease', maxWidth: '360px' },
+
+      stateOptions,
+    };
+  }
+}
+</script>
+</body>
+</html>
