@@ -211,8 +211,8 @@ Shared across all screens — exact types from TDD.
 
 | Method + path | Auth | Used by screen |
 |---------------|------|---------------|
-| `GET /health` | None | Dashboard, Monitor |
-| `GET /metrics` | None | Dashboard, Monitor |
+| `GET /api/v1/health` | None | Dashboard, Monitor |
+| `GET /api/v1/metrics` | None | Dashboard, Monitor |
 | `POST /api/v1/predict` | Bearer token | API Testing |
 | `POST /api/v1/batch-score` | Bearer token | Predict Batch |
 | `GET /api/v1/alerts` | Bearer token | Dashboard, Alerts |

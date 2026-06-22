@@ -137,7 +137,7 @@ Live connectivity status chips for each external dependency:
 ## States
 
 ### Loading
-- Skeleton cards while `/health` and settings data load
+- Skeleton cards while `/api/v1/health` and settings data load
 
 ### Empty
 - Show defaults if no config has been explicitly set; badge each default with a subtle "default" chip

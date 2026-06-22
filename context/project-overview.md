@@ -112,5 +112,5 @@ AnomalyX is a backend-first AML transaction anomaly detection prototype for e-wa
 4. Repeated request with same idempotency key returns cached response and does not create duplicate alerts.
 5. Flagged alert explanation path masks sensitive context and falls back to template on LLM failure.
 6. PostgreSQL mode persists alerts, review labels, and prediction logs according to `backend/db/schema.sql`.
-7. Protected business endpoints require `Authorization: Bearer <AUTH_TOKEN>`; `/health` and `/metrics` stay public.
+7. Protected business endpoints require `Authorization: Bearer <AUTH_TOKEN>`; `/api/v1/health` and `/api/v1/metrics` stay public.
 8. No implementation stores raw transaction payloads or raw PII.

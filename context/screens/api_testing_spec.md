@@ -38,8 +38,8 @@ The API Testing screen provides a Postman-like demo workspace for testing all An
 
 | Method | Path | Auth required | Description |
 |--------|------|--------------|-------------|
-| GET | `/health` | No | Liveness / readiness check |
-| GET | `/metrics` | No | Prometheus metrics scrape |
+| GET | `/api/v1/health` | No | Liveness / readiness check |
+| GET | `/api/v1/metrics` | No | Prometheus metrics scrape |
 | POST | `/api/v1/predict` | Yes (JWT) | Real-time transaction scoring |
 | POST | `/api/v1/batch-score` | Yes (JWT) | Batch scoring |
 | GET | `/api/v1/alerts` | Yes (JWT) | List / filter alerts |

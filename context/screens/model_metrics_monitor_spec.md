@@ -8,7 +8,7 @@ The Model & Metrics Monitor provides the primary observability page for the Anom
 - Admin
 
 ## Goals
-- Monitor real-time service health from `GET /health` and `GET /metrics`
+- Monitor real-time service health from `GET /api/v1/health` and `GET /api/v1/metrics`
 - Visualize all locked Prometheus metrics from TDD §8
 - Display the locked success metric targets alongside current values so the engineer can see at-a-glance whether the system is meeting them
 - Surface model and rule performance indicators
@@ -31,7 +31,7 @@ The Model & Metrics Monitor provides the primary observability page for the Anom
 
 ### Health status chips (top row, always visible)
 
-Sourced from `GET /health`. Display as compact horizontal chips with colored indicators:
+Sourced from `GET /api/v1/health`. Display as compact horizontal chips with colored indicators:
 
 | Component | Status source |
 |-----------|--------------|
@@ -123,7 +123,7 @@ Horizontal bar chart of top-10 features by mean absolute SHAP value:
 ---
 
 ## Interaction model
-- **Refresh** button in the header: forces a new scrape of `/metrics`
+- **Refresh** button in the header: forces a new scrape of `/api/v1/metrics`
 - **Auto-refresh toggle**: refresh every 30s (off by default)
 - **Time range selector**: applies to all charts simultaneously
 - Clicking a chart opens a modal with a larger, more detailed view of that chart
@@ -141,7 +141,7 @@ Horizontal bar chart of top-10 features by mean absolute SHAP value:
 - Charts show an empty state illustration
 
 ### Error
-- If `/metrics` scrape fails: "Metrics unavailable — Prometheus may not be running. Retry?" banner
+- If `/api/v1/metrics` scrape fails: "Metrics unavailable — Prometheus may not be running. Retry?" banner
 - Individual chart error: "Chart data unavailable" placeholder with retry icon
 - Health chip turns red immediately on component failure
 

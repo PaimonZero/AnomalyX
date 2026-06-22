@@ -9,8 +9,8 @@ The Dashboard is the main landing page of the AnomalyX Admin Console. It provide
 - Demo Evaluator/Mentor
 
 ## Goals
-- Summarize current service health from `GET /health` (model loaded, rules loaded, DB reachable)
-- Show high-level Prometheus metrics from `GET /metrics`
+- Summarize current service health from `GET /api/v1/health` (model loaded, rules loaded, DB reachable)
+- Show high-level Prometheus metrics from `GET /api/v1/metrics`
 - Surface the latest flagged alerts (HIGH + CRITICAL) immediately
 - Show recent batch jobs and API tests as activity context
 - Provide quick navigation into every major workflow
@@ -58,11 +58,11 @@ Each card shows: current value, delta vs prior period, a trend sparkline, and a 
 
 ### Service health cards
 
-Status chips sourced from `GET /health`. Each card shows: component name, status (UP / DOWN / DEGRADED), and latency/version info where available.
+Status chips sourced from `GET /api/v1/health`. Each card shows: component name, status (UP / DOWN / DEGRADED), and latency/version info where available.
 
 | Component | Health check detail |
 |-----------|-------------------|
-| API service | Liveness / readiness from `/health` |
+| API service | Liveness / readiness from `/api/v1/health` |
 | ML model loaded | `model_version` from model registry |
 | Rule engine loaded | Active rule count + `rule_version` |
 | PostgreSQL | DB reachability |
@@ -133,7 +133,7 @@ Thresholds: τ_medium = 0.40, τ_flag = 0.70 (configurable via Settings).
 - Single CTA button to open API Testing
 
 ### Error
-- Compact error banner if `/metrics` or `/health` fails; show "Metrics unavailable — retry" with a refresh button
+- Compact error banner if `/api/v1/metrics` or `/api/v1/health` fails; show "Metrics unavailable — retry" with a refresh button
 - Keep the rest of the dashboard visible if partial data loads
 - Per-widget error state if individual widget fails
 
