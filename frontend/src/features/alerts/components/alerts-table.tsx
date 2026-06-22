@@ -2,6 +2,7 @@ import { ChevronRight, Copy } from "lucide-react";
 
 import { RiskBadge, SourceBadge, StatusBadge } from "@/features/alerts/components/alert-badges";
 import type { AlertDetail } from "@/features/alerts/types";
+import { copyTextToClipboard } from "@/features/alerts/utils/clipboard";
 import { Button } from "@/shared/ui/button";
 
 interface AlertsTableProps {
@@ -9,6 +10,7 @@ interface AlertsTableProps {
   loading: boolean;
   onOpen: (alert: AlertDetail) => void;
   onClearFilters: () => void;
+  onCopyFeedback: (message: string) => void;
 }
 
 function truncateId(value: string) {
@@ -24,11 +26,12 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-async function copyId(value: string) {
-  await navigator.clipboard.writeText(value);
+async function copyId(value: string, onCopyFeedback: (message: string) => void) {
+  const copied = await copyTextToClipboard(value);
+  onCopyFeedback(copied ? "Transaction ID copied." : "Could not copy transaction ID.");
 }
 
-export function AlertsTable({ alerts, loading, onClearFilters, onOpen }: AlertsTableProps) {
+export function AlertsTable({ alerts, loading, onClearFilters, onCopyFeedback, onOpen }: AlertsTableProps) {
   return (
     <div className="alerts-table-card">
       <div className="table-heading">
@@ -71,7 +74,7 @@ export function AlertsTable({ alerts, loading, onClearFilters, onOpen }: AlertsT
                           aria-label={`Copy ${alert.transaction_id}`}
                           onClick={(event) => {
                             event.stopPropagation();
-                            void copyId(alert.transaction_id);
+                            void copyId(alert.transaction_id, onCopyFeedback);
                           }}
                         >
                           <Copy size={12} />

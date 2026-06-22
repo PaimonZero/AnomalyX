@@ -108,6 +108,7 @@ export function AlertsPage() {
           loading={alertsQuery.isLoading}
           onOpen={(alert) => setSelectedAlertId(alert.id)}
           onClearFilters={() => setFilters(defaultFilters)}
+          onCopyFeedback={setToast}
         />
       )}
 
