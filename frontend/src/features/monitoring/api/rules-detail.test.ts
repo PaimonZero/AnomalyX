@@ -27,3 +27,16 @@ test("formatRuleTypology falls back to fake backend rule name", () => {
     "Structuring pattern",
   );
 });
+
+test("formatRuleTypology falls back when typology is empty", () => {
+  assert.equal(
+    formatRuleTypology({
+      id: "R-STRUCT-02",
+      typology: "",
+      name: "Structuring pattern",
+      severity: "HIGH",
+      enabled: true,
+    }),
+    "Structuring pattern",
+  );
+});

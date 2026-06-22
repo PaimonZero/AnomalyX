@@ -19,5 +19,5 @@ export function summarizeRuleEngine(details: RuleEngineDetails) {
 }
 
 export function formatRuleTypology(rule: RuleConfig) {
-  return (rule.typology ?? rule.name ?? "No typology").replaceAll("_", " ");
+  return (rule.typology || rule.name || "No typology").replaceAll("_", " ");
 }
