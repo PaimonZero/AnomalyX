@@ -36,7 +36,24 @@ ALLOWED_CONTEXT_NAMES = {
     "new_device_proxy",
     "geo_anomaly_proxy",
     "impossible_travel_proxy",
+    # Real aggregates (new)
+    "has_history",
+    "tx_count_1h",
+    "tx_count_24h",
+    "sum_amount_1h",
+    "sum_amount_24h",
+    "distinct_receivers_1h",
+    "distinct_receivers_24h",
+    "count_just_below_threshold_24h",
+    "sum_just_below_threshold_24h",
+    "rapid_inout_count_1h",
+    "chain_depth",
+    "velocity_vs_baseline_ratio",
+    "new_device",
+    "geo_anomaly",
+    "impossible_travel",
 }
+
 
 
 class RuleEngineError(ValueError):

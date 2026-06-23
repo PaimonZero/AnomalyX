@@ -90,8 +90,9 @@ Update this file after every meaningful implementation change.
   - Client-side `TransactionRequest` validation for required fields, enums, ISO timestamps, non-negative amounts, and duplicate transaction IDs.
   - Real authenticated `POST /api/v1/batch-score`; synchronous waiting state, request cancellation, and exact `results[]`/`errors[]` mapping back to input rows.
   - Result summary, risk/flag filters, sortable risk-first table, partial-failure presentation, and record detail modal.
-  - JSON/CSV result export and schema helper; all risk scores, rules, model features, alert IDs, and row errors now come from FastAPI.
-  - Frontend lint and production build pass; smoke test through the Vite proxy returned 2 results with expected flagged/error counts.
+- Alerts / Review Queue frontend implemented against the real FastAPI contract.
+- API Testing frontend connected to the real FastAPI endpoints.
+- Predict Batch frontend connected to the real batch-score endpoint.
 - Monitoring frontend screen connected to real backend observability endpoints:
   - New `/monitoring` route and sidebar entry matching the existing application shell.
   - Real `GET /api/v1/health` JSON call for service checks, storage mode, model mode, and metrics availability.
@@ -99,6 +100,16 @@ Update this file after every meaningful implementation change.
   - Displays service health checks, model/storage mode, HTTP request volume/status/latency, alert count, decision distribution, rule-trigger counts, LLM explanation outcomes, fallback count, and a drift placeholder.
   - Manual refresh and optional 30-second auto refresh are wired through TanStack Query.
   - Parser coverage added for mapping Prometheus counters/histograms/gauges into Monitoring UI metrics.
+- Audit & Verification Phase (June 2026):
+  - Verified system integrity against PRD & TDD, resolving port conflicts and docker infrastructure setup.
+  - Confirmed connectivity to PostgreSQL (port 5435) and Redis (port 6379).
+- Core Gap Implementation Phase (June 2026):
+  - Redis rolling aggregates: Sliding-window aggregates (1h/24h counts, sums, and distinct recipients) computed per-sender using Redis with an in-memory fallback.
+  - Explanation cache: Cache alerts by Rule & bucketed SHAP contribution fingerprint using Redis/in-memory, preventing redundant LLM calls.
+  - Geo/Device history: Implemented full historical profiles per sender to compute `new_device`, `geo_anomaly`, and `impossible_travel` indicators.
+  - PSI-based Drift detection: Implemented mathematical Population Stability Index (PSI) tracking over a rolling window of recent score predictions vs. baseline, exposing drift metrics via Prometheus and GET `/api/v1/drift/status`.
+  - Rules migration: Updated `configs/rules.yaml` to reference the real rolling features.
+  - Test suite expansion: Created unit tests for Redis aggregates, explanation cache, geo-device logic, drift detector, and XGB predictor, achieving 78% total code coverage (88 passing, 2 skipped).
 
 ## In Progress
 
@@ -106,17 +117,12 @@ Update this file after every meaningful implementation change.
 
 ## Next Up
 
-1. **W4 — Redis rolling aggregates**: wire real `tx_count_sender`, `fan_out_orig`, etc. from Redis into `_compute_features`; cold-start defaults currently bias scores toward false negatives on high-velocity patterns.
-2. **W5 — Unit tests for `XGBPredictor`**: add pytest tests covering feature mapping, prediction contract, SHAP fallback, and cold-start path.
-3. **Frontend API integration**: core workflows and Monitoring are connected; add automated browser coverage and production deployment configuration.
-4. **Explanation cache**: wire schema-ready `feature_snapshots`/explanation store.
-5. **Drift metric implementation**: wire real drift detection from `model_registry` and metrics.
-6. Update `.env.example` or docs if runtime configuration changes.
-7. Keep context files synchronized as implementation evolves.
+1. **Frontend API integration**: Core workflows and Monitoring are connected; add automated browser coverage and production deployment configuration.
+2. Update `.env.example` or docs if runtime configuration changes.
+3. Keep context files synchronized as implementation evolves.
 
 ## Open Questions
 
-- Cold-start historical features (`tx_count_sender`, `fan_out_orig`, etc.) use constant defaults — when will Redis rolling aggregates be implemented? Until then fraud scores for high-velocity patterns are suppressed.
 - `_PAYSIM_THRESHOLD = 200_000` is in PaySim synthetic units; if model is retrained on VND data this constant and related flag features must be recalibrated against `CTR_THRESHOLD_VND`.
 - `balance_diff_dest` is always 0 when `new_bal_dest` is computed from the same request; this feature only has variance in the raw PaySim CSV due to reporting inconsistencies. Consider removing it from the live feature vector or sourcing real account state.
 - Should Supabase remain as legacy optional adapter or be removed from product docs and dependency expectations?

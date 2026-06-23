@@ -58,7 +58,31 @@ class PredictionService:
         try:
             triggered_rules = rule_engine_manager.engine.evaluate(transaction)
             model_prediction = get_model_predictor().predict(transaction)
+
+            # Record the transaction details in the aggregates history (post-features calculation)
+            from app.features.redis_aggregates import redis_aggregate_service
+            redis_aggregate_service.record_transaction(
+                tx_id=transaction.transaction_id,
+                sender_id=transaction.sender_id,
+                receiver_id=transaction.receiver_id,
+                amount=transaction.amount,
+                timestamp=transaction.timestamp.timestamp(),
+                channel=transaction.channel.value,
+                device_id=transaction.device_id,
+                country=transaction.location_country,
+                region=transaction.location_region,
+            )
+
+            # Record risk score in drift detector and update model drift metric if PSI is computed
+            from app.core.drift import score_drift_detector
+            from app.core.metrics import set_model_drift_psi
+            psi = score_drift_detector.record_score(model_prediction.risk_score)
+            if psi is not None:
+                set_model_drift_psi(psi)
+
             decision = self.decision_engine.decide(
+
+
                 risk_score=model_prediction.risk_score,
                 triggered_rules=triggered_rules,
             )
@@ -181,10 +205,12 @@ class PredictionService:
     def explain_alert(self, alert_id: str, transaction: TransactionRequest) -> None:
         start_time = time.perf_counter()
         explanation_source = "unknown"
+        explanation_source_for_metrics = "unknown"
         try:
             alert = self.alert_service.get_alert(alert_id)
             explanation = self.explainer.explain(alert, transaction)
             explanation_source = self._normalize_explanation_source(explanation.source)
+            explanation_source_for_metrics = explanation.source
             self.alert_service.update_explanation(
                 alert_id=alert_id,
                 explanation=explanation.text,
@@ -200,5 +226,6 @@ class PredictionService:
             )
         finally:
             latency_seconds = time.perf_counter() - start_time
-            record_explanation_result(explanation_source)
-            observe_explanation_latency(explanation_source, latency_seconds)
+            record_explanation_result(explanation_source_for_metrics)
+            observe_explanation_latency(explanation_source_for_metrics, latency_seconds)
+

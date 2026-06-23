@@ -42,6 +42,26 @@ def _compute_features(tx: TransactionRequest) -> dict[str, Any]:
     balance_diff_orig = abs(old_bal_orig - new_bal_orig - amount)
     balance_diff_dest = abs(old_bal_dest + amount - new_bal_dest)
 
+    # Fetch aggregates from RedisAggregateService
+    from app.features.redis_aggregates import redis_aggregate_service
+    aggs = redis_aggregate_service.get_aggregates(
+        sender_id=tx.sender_id,
+        receiver_id=tx.receiver_id,
+        amount=amount,
+        timestamp=tx.timestamp.timestamp(),
+        channel=tx.channel.value,
+        device_id=tx.device_id,
+        country=tx.location_country,
+        region=tx.location_region,
+    )
+
+    # Thresholds for flag features
+    VELOCITY_THRESHOLD = 5
+    FANOUT_THRESHOLD = 3
+
+    flag_high_velocity = int(aggs["tx_count_sender"] >= VELOCITY_THRESHOLD)
+    flag_high_fanout = int(aggs["fan_out_orig"] >= FANOUT_THRESHOLD)
+
     raw: dict[str, Any] = {
         "type_encoded": _CHANNEL_ENCODING[tx.channel],
         "is_transfer_or_cashout": int(
@@ -60,25 +80,23 @@ def _compute_features(tx: TransactionRequest) -> dict[str, Any]:
         "dest_balance_change_ratio": (new_bal_dest - old_bal_dest) / (amount + eps),
         # step: PaySim time-step proxy — use hour-of-day (0-23)
         "step": tx.timestamp.hour,
-        # Historical/velocity features — cold-start defaults (no Redis history yet).
-        # Using these constants suppresses fraud signals for repeat offenders; scores on
-        # high-velocity patterns are biased toward false negatives until Redis rolling
-        # aggregates are wired (see context/progress-tracker.md "Next Up").
-        "tx_count_sender": 1,
-        "total_amount_sender": amount,
-        "avg_amount_sender": amount,
-        "amount_vs_avg": 1.0,
-        "unique_dest_sender": 1,
-        "fan_out_orig": 1,
-        "fan_in_dest": 0,
+        # Real historical/velocity features
+        "tx_count_sender": aggs["tx_count_sender"],
+        "total_amount_sender": aggs["total_amount_sender"],
+        "avg_amount_sender": aggs["avg_amount_sender"],
+        "amount_vs_avg": aggs["amount_vs_avg"],
+        "unique_dest_sender": aggs["unique_dest_sender"],
+        "fan_out_orig": aggs["fan_out_orig"],
+        "fan_in_dest": aggs["fan_in_dest"],
         # AML flags
         "flag_near_threshold": int(_PAYSIM_THRESHOLD * 0.9 <= amount < _PAYSIM_THRESHOLD),
         "flag_large_tx": int(amount >= _PAYSIM_THRESHOLD),
-        "flag_high_velocity": 0,
-        "flag_high_fanout": 0,
+        "flag_high_velocity": flag_high_velocity,
+        "flag_high_fanout": flag_high_fanout,
         "flag_balance_inconsist": int(balance_diff_orig > 1 or balance_diff_dest > 1),
     }
     return raw
+
 
 
 class XGBPredictor:

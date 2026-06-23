@@ -28,6 +28,12 @@ class AlertExplainer(Protocol):
 
 class OpenAIAlertExplainer:
     def explain(self, alert: Alert, transaction: TransactionRequest) -> ExplanationResult:
+        # Check cache first
+        from app.llm.explanation_cache import explanation_cache
+        cached = explanation_cache.get(alert)
+        if cached is not None:
+            return cached
+
         settings = get_settings()
         if not settings.openai_api_key:
             return template_explanation(alert)
@@ -63,7 +69,10 @@ class OpenAIAlertExplainer:
             if not is_grounded(explanation, alert, transaction):
                 return template_explanation(alert)
 
-            return ExplanationResult(text=explanation, source="openai")
+            res = ExplanationResult(text=explanation, source="openai")
+            explanation_cache.set(alert, res)
+            return res
+
         except (OpenAIError, TimeoutError, ConnectionError, JSONDecodeError):
             logger.exception(
                 "Handled OpenAI alert explanation failure",
