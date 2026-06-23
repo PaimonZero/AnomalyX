@@ -1,125 +1,121 @@
 # Hướng Dẫn Chạy Backend
 
-Backend chạy bằng FastAPI. Chạy lệnh từ repo root trừ khi có ghi chú `cd backend`.
+Backend được phát triển bằng FastAPI. Chạy lệnh từ repo root hoặc thư mục `backend/` theo hướng dẫn cụ thể dưới đây.
 
-## 1. Cài Dependencies
+---
 
+## 1. Hướng Dẫn Chạy Bằng Docker Compose (Khuyên Dùng)
+
+Đây là cách nhanh nhất và chuẩn nhất để chạy toàn bộ hệ thống backend (bao gồm API Service, PostgreSQL database và Redis cache).
+
+### Bước 1: Tạo file `.env`
+Sao chép `.env.example` ở repo root thành `.env`:
+```powershell
+cp .env.example .env
+```
+Mở file `.env` và thiết lập các giá trị bảo mật bắt buộc:
+* `AUTH_TOKEN` và `JWT_SECRET_KEY` phải dài ít nhất 32 ký tự.
+* Cập nhật `POSTGRES_PASSWORD` thành mật khẩu tùy chọn của bạn (ví dụ: `anomalyx_password`).
+
+### Bước 2: Khởi động Docker Compose
+Từ thư mục root của dự án, chạy lệnh:
+```powershell
+docker compose up --build -d
+```
+Lệnh này sẽ xây dựng container cho FastAPI API, khởi chạy PostgreSQL (cổng host `5435`, cổng container `5432`) và khởi chạy Redis (cổng `6379`).
+
+### Bước 3: Kiểm tra Logs và Trạng thái
+Để kiểm tra logs của FastAPI API:
+```powershell
+docker compose logs -f api
+```
+
+### Bước 4: Chạy Preflight Checks inside Docker
+Để đảm bảo kết nối DB và Redis trong container đã hoàn toàn sẵn sàng, chạy các lệnh:
+```powershell
+docker compose exec api python scripts/check_config.py
+docker compose exec api python scripts/check_postgres.py
+docker compose exec api python scripts/check_redis.py
+```
+
+---
+
+## 2. Hướng Dẫn Chạy Trực Tiếp (Không Dùng Docker cho API)
+
+Nếu muốn chạy trực tiếp file Python trên máy host (để phát triển hoặc debug cục bộ), hãy làm theo các bước dưới đây.
+
+### Bước 1: Khởi động PostgreSQL và Redis
+Vẫn sử dụng Docker để khởi chạy cơ sở hạ tầng nền tảng:
+```powershell
+docker compose up -d postgres redis
+```
+*Lưu ý: PostgreSQL sẽ chạy trên cổng `5435` ở máy host.*
+
+### Bước 2: Cài đặt Python Dependencies
+Khuyên dùng Python 3.11+. Từ repo root, chạy lệnh:
 ```powershell
 python -m pip install -r backend/requirements.txt
 ```
 
-## 2. Tạo `.env`
-
-File `.env` nằm ở repo root, không nằm trong `backend/`.
-
-Quick local mode, không cần PostgreSQL/Redis/Supabase:
-
-```env
-ALERT_REPOSITORY=in_memory
-IDEMPOTENCY_STORE=in_memory
-AUTH_TOKEN=<AUTH_TOKEN>
-JWT_SECRET_KEY=<JWT_SECRET_KEY>
-MOCK_ML_ENABLED=true
-```
-
-> `AUTH_TOKEN` và `JWT_SECRET_KEY` phải đủ dài, không dùng giá trị dev mặc định như `dev-service-token` hoặc `dev-jwt-secret`.
-
-PostgreSQL + Redis mode:
-
+### Bước 3: Cấu hình cổng PostgreSQL trong `.env`
+Khi chạy API trực tiếp trên máy host, bạn cần cấu hình cổng PostgreSQL kết nối là `5435`:
 ```env
 ALERT_REPOSITORY=postgres
 POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
+POSTGRES_PORT=5435
 POSTGRES_DB=anomalyx
 POSTGRES_USER=anomalyx_user
-POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
-POSTGRES_SSLMODE=disable
+POSTGRES_PASSWORD=<MẬT_KHẨU_ĐÃ_ĐẶT_Ở_BƯỚC_1>
 IDEMPOTENCY_STORE=redis
 REDIS_URL=redis://localhost:6379/0
-AUTH_TOKEN=<AUTH_TOKEN>
-JWT_SECRET_KEY=<JWT_SECRET_KEY>
-MOCK_ML_ENABLED=true
 ```
 
-## 3. Start Local Infrastructure
-
-Chỉ cần nếu dùng PostgreSQL/Redis mode:
-
-```powershell
-docker compose up -d postgres redis
-```
-
-## 4. Vào Thư Mục Backend
-
+### Bước 4: Chạy Preflight Checks cục bộ
+Di chuyển vào thư mục `backend/` và chạy các kịch bản kiểm tra:
 ```powershell
 cd backend
-```
-
-## 5. Kiểm Tra Config
-
-```powershell
 python scripts/check_config.py
-```
-
-Nếu dùng PostgreSQL:
-
-```powershell
 python scripts/check_postgres.py
-```
-
-Nếu dùng Redis:
-
-```powershell
 python scripts/check_redis.py
 ```
 
-Nếu vẫn dùng Supabase legacy:
-
-```powershell
-python scripts/check_supabase.py
-```
-
-## 6. Chạy Backend
-
+### Bước 5: Khởi động API
 ```powershell
 python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Swagger UI:
+Swagger UI sẽ có sẵn tại: <http://localhost:8000/docs>
 
-```text
-http://localhost:8000/docs
+---
+
+## 3. Chạy Unit Tests & Đo Code Coverage
+
+Các bộ kiểm thử tự động sử dụng kho dữ liệu In-Memory để không cần kết nối thật đến PostgreSQL hay Redis khi chạy mặc định.
+
+Từ thư mục `backend/`, chạy lệnh kiểm thử:
+```powershell
+cd backend
+python -m pytest tests -v
 ```
 
-## 7. Test Nhanh API
-
-Health và metrics public:
-
+Để đo lường độ bao phủ mã nguồn (Code Coverage):
 ```powershell
-Invoke-RestMethod http://localhost:8000/api/v1/health
-Invoke-RestMethod http://localhost:8000/api/v1/metrics
+python -m pytest --cov=app tests
+```
+Mục tiêu độ bao phủ yêu cầu là `>= 70%` (hiện tại đạt **78%**).
+
+---
+
+## 4. Các Endpoint API Chính
+
+Tất cả các endpoint nghiệp vụ đều yêu cầu truyền Bearer token trong Header:
+```http
+Authorization: Bearer <AUTH_TOKEN>
 ```
 
-Các endpoint như `/predict`, `/batch-score`, `/alerts`, `/rules` cần bearer token:
-
+### 4.1. Dự đoán giao dịch đơn lẻ (`POST /api/v1/predict`)
 ```powershell
-$headers = @{ Authorization = "Bearer local-service-token-change-me-000000" }
-```
-
-Payload predict bắt buộc các field transaction cơ bản. Các field `device_id`, `location_country`, và `location_region` là optional; nếu không có hoặc chưa có historical profile/Redis aggregate hỗ trợ, rule geo/device dùng giá trị neutral và không tự tạo rủi ro giả.
-
-Alerts:
-
-```powershell
-Invoke-RestMethod `
-  -Uri http://localhost:8000/api/v1/alerts `
-  -Headers $headers
-```
-
-## 8. Test Predict
-
-```powershell
-$headers = @{ Authorization = "Bearer local-service-token-change-me-000000" }
+$headers = @{ Authorization = "Bearer test-service-token-strong-000000000000" }
 
 $body = @{
   transaction_id = "tx_demo_001"
@@ -131,7 +127,6 @@ $body = @{
   currency = "VND"
   timestamp = "2026-05-30T09:14:03+07:00"
   channel = "TRANSFER"
-  # Optional geo/device evidence; omit these fields if not available.
   device_id = "device-demo-001"
   location_country = "VN"
   location_region = "HN"
@@ -145,10 +140,9 @@ Invoke-RestMethod `
   -Body $body
 ```
 
-## 9. Test Batch Score
-
+### 4.2. Dự đoán giao dịch theo lô (`POST /api/v1/batch-score`)
 ```powershell
-$headers = @{ Authorization = "Bearer local-service-token-change-me-000000" }
+$headers = @{ Authorization = "Bearer test-service-token-strong-000000000000" }
 
 $body = @{
   batch_id = "batch_demo_001"
@@ -163,17 +157,6 @@ $body = @{
       currency = "VND"
       timestamp = "2026-05-30T09:14:03+07:00"
       channel = "TRANSFER"
-    },
-    @{
-      transaction_id = "tx_batch_002"
-      sender_id = "h:sender002"
-      receiver_id = "h:receiver002"
-      sender_balance = 15000000
-      receiver_balance = 200000
-      amount = 9500000
-      currency = "VND"
-      timestamp = "2026-05-30T09:20:03+07:00"
-      channel = "PAYMENT"
     }
   )
 } | ConvertTo-Json -Depth 5
@@ -186,18 +169,13 @@ Invoke-RestMethod `
   -Body $body
 ```
 
-Batch response có `predictions`, `flagged_predictions`, `errors`, và `results`. Nếu một transaction lỗi, các transaction còn lại vẫn có kết quả.
-
-## 10. Chạy Unit Tests
-
-Từ thư mục `backend/`:
-
-```powershell
-python -m pytest tests -q
-```
-
-Kết quả mong muốn:
-
-```text
-All tests passed
-```
+### 4.3. Theo dõi Drift Giao Dịch
+* **Xem trạng thái Drift hiện tại (PSI):**
+  ```powershell
+  Invoke-RestMethod -Uri http://localhost:8000/api/v1/drift/status -Headers $headers
+  ```
+* **Cập nhật phân phối Baseline:**
+  ```powershell
+  $body = @{ scores = @(0.05, 0.05, 0.1, 0.2, 0.05) } | ConvertTo-Json
+  Invoke-RestMethod -Uri http://localhost:8000/api/v1/drift/baseline -Method POST -Headers $headers -ContentType "application/json" -Body $body
+  ```
