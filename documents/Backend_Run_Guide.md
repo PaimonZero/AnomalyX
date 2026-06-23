@@ -114,6 +114,10 @@ Authorization: Bearer <AUTH_TOKEN>
 ```
 
 ### 4.1. Dự đoán giao dịch đơn lẻ (`POST /api/v1/predict`)
+
+> [!NOTE]
+> Các trường `device_id`, `location_country`, và `location_region` là hoàn toàn **không bắt buộc (optional)**. Bạn có thể bỏ qua chúng trong payload nếu không có dữ liệu; hệ thống sẽ tự động gán giá trị mặc định là `None`, và bỏ qua các quy tắc kiểm tra Geo/Device anomaly mà không gây lỗi logic hay kích hoạt cảnh báo giả.
+
 ```powershell
 $headers = @{ Authorization = "Bearer test-service-token-strong-000000000000" }
 
