@@ -1,125 +1,186 @@
-# AnomalyX - AML Transaction Anomaly Detector Backend
+# AnomalyX - AML Transaction Anomaly Detector
 
-AnomalyX is a backend-only FastAPI prototype for Anti-Money Laundering (AML) transaction scoring. It validates transactions, computes serving-time features, runs YAML rules and mock ML inference, reconciles risk with a decision engine, persists audit/alert records, and asynchronously generates grounded alert explanations.
+AnomalyX is a prototype Anti-Money Laundering (AML) system for scoring suspicious transactions. The system combines:
 
-This repository currently does **not** include a React frontend or production ML training/retraining pipeline. Runtime inference implementations and pre-built model artifacts may exist; mock ML remains the default unless `MOCK_ML_ENABLED=false`.
+- FastAPI backend
+- React/Vite frontend
+- YAML rule engine
+- Mock or real ML predictor
+- PostgreSQL alert/audit storage
+- Redis idempotency store
+- Optional LLM explanation fallback
 
-## Current capabilities
+## Main features
 
-- Real-time scoring: `POST /api/v1/predict`
-- Batch scoring over supplied transactions: `POST /api/v1/batch-score`
-- Alert listing/detail/status update
-- Rule hot reload from `configs/rules.yaml`
-- Prometheus metrics and health/readiness endpoint
-- Bearer service-token auth for protected endpoints
-- PostgreSQL primary alert/audit storage (`ALERT_REPOSITORY=postgres`)
-- Optional in-memory alert/audit storage for tests and quick local runs
-- Optional legacy Supabase REST alert/audit adapter
-- In-memory or Redis-backed idempotency store
-- OpenAI-based LLM explainer with deterministic template fallback
-- Mock ML predictor fallback (`mock-ml-v1`) by default; optional `XGBPredictor` runtime inference when `MOCK_ML_ENABLED=false` and artifacts are present
+- Single transaction scoring: `POST /api/v1/predict`
+- Batch scoring: `POST /api/v1/batch-score`
+- Alert list/detail/status update
+- Active AML rules from `configs/rules.yaml`
+- Apply updated rules to backend: `POST /api/v1/rules/reload`
+- Health and Prometheus metrics
+- Bearer token protection for protected APIs
+- Frontend pages:
+  - Alerts
+  - Single Prediction
+  - Batch Scoring
+  - Monitoring
 
 ## Repository layout
 
 ```text
-backend/
-  app/
-    api/                 FastAPI routers and auth dependency
-    core/                config, logging, middleware, metrics, errors
-    features/            shared serving-time feature computation
-    llm/                 SecureDataWrapper + explainer/fallback guardrails
-    ml/                  predictor interface + deterministic mock predictor
-    repositories/        in-memory, PostgreSQL, Supabase, Redis-backed adapters
-    rules/               YAML safe-DSL rule engine and hot-reload manager
-    schemas/             Pydantic API models
-    services/            prediction, alert, idempotency orchestration
-  db/schema.sql          PostgreSQL schema
-  scripts/               config/PostgreSQL/Supabase/Redis preflight checks
-  tests/                 pytest suite
+backend/                 FastAPI backend
+frontend/                React/Vite frontend
 configs/rules.yaml       Active AML rule configuration
-supabase/schema.sql      Optional legacy Supabase schema
-docker-compose.yml       PostgreSQL + Redis for local infrastructure
-.env.example             Root-level environment template
+ml/models/artifacts/     Optional real ML model artifacts
+docker-compose.yml       Docker stack: api + postgres + redis
+.env.example             Environment template
+documents/               Project documents and run guides
 ```
 
-## Setup
+## Docker services
 
-Use Python 3.11+.
+`docker-compose.yml` starts 3 services:
 
-```bash
-python -m pip install -r backend/requirements.txt
-cp .env.example .env
+| Service | Image/build | Port | Purpose |
+|---|---|---:|---|
+| `api` | built from `backend/Dockerfile` | `8000` | AnomalyX backend |
+| `postgres` | `postgres:16` | `5432` | Alert/audit database |
+| `redis` | `redis:7` | `6379` | Idempotency store |
+
+The backend container mounts:
+
+```yaml
+./configs:/configs:ro
+./ml/models/artifacts:/app/ml/models/artifacts:ro
 ```
 
-`.env` lives at the repository root, not inside `backend/`.
+So the backend can read:
 
-For quick local development without external services, use:
+```text
+/configs/rules.yaml
+/app/ml/models/artifacts/xgb_aml_v1.json
+```
+
+## 1. Create `.env`
+
+From repo root:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Update these required values in `.env`:
 
 ```env
-ALERT_REPOSITORY=in_memory
-IDEMPOTENCY_STORE=in_memory
-AUTH_TOKEN=<AUTH_TOKEN>
-JWT_SECRET_KEY=<JWT_SECRET_KEY>
-MOCK_ML_ENABLED=true
-```
+AUTH_TOKEN=local-service-token-change-me-000000
+JWT_SECRET_KEY=local-jwt-secret-change-me-000000
 
-`OPENAI_API_KEY` is optional. If missing, the explainer uses deterministic template output.
-
-## Local PostgreSQL + Redis
-
-Start local infrastructure:
-
-```bash
-docker compose up -d postgres redis
-```
-
-Docker Compose reads PostgreSQL credentials from your shell or root `.env`; set `POSTGRES_PASSWORD` before starting the stack. Local Compose is for development only. Production deployments must use a secrets manager, Vault, Docker secrets, or equivalent platform secret store instead of committed literal credentials.
-
-Use PostgreSQL persistence:
-
-```env
 ALERT_REPOSITORY=postgres
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
+IDEMPOTENCY_STORE=redis
+
 POSTGRES_DB=anomalyx
 POSTGRES_USER=anomalyx_user
-POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
+POSTGRES_PASSWORD=local-postgres-password-change-me
 POSTGRES_SSLMODE=disable
-IDEMPOTENCY_STORE=redis
-REDIS_URL=redis://localhost:6379/0
-AUTH_TOKEN=<AUTH_TOKEN>
-JWT_SECRET_KEY=<JWT_SECRET_KEY>
+
 MOCK_ML_ENABLED=true
+
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174
 ```
 
-`backend/db/schema.sql` is mounted into the Postgres container as an init script. For an existing database, apply that schema manually.
+Do not commit `.env`.
 
-## Run backend
+## 2. Start backend stack with Docker
 
-```bash
-cd backend
-python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+Build and start:
+
+```powershell
+docker compose up --build -d
 ```
 
-Swagger UI: <http://localhost:8000/docs>
+Check containers:
 
-## Test and preflight
-
-No linter/formatter is configured. Use pytest and the preflight scripts as quality gates.
-
-```bash
-cd backend
-python -m pytest tests -q
-python -m pytest tests/test_prediction_api.py -q
-python -m pytest tests/test_prediction_api.py::test_predict_rejects_invalid_payload -q
-
-python scripts/check_config.py
-python scripts/check_postgres.py  # active only when ALERT_REPOSITORY=postgres
-python scripts/check_supabase.py  # active only when ALERT_REPOSITORY=supabase
-python scripts/check_redis.py     # active only when IDEMPOTENCY_STORE=redis
+```powershell
+docker compose ps
 ```
 
-## Authentication
+Expected services:
+
+```text
+api
+postgres
+redis
+```
+
+View backend logs:
+
+```powershell
+docker compose logs -f api
+```
+
+Stop all services:
+
+```powershell
+docker compose down
+```
+
+Reset local database volume:
+
+```powershell
+docker compose down -v
+```
+
+Use `down -v` only when you intentionally want to delete local PostgreSQL data.
+
+## 3. Check backend
+
+Swagger UI:
+
+```text
+http://localhost:8000/docs
+```
+
+Health:
+
+```powershell
+Invoke-RestMethod http://localhost:8000/api/v1/health
+```
+
+Metrics:
+
+```powershell
+Invoke-RestMethod http://localhost:8000/api/v1/metrics
+```
+
+## 4. Run frontend
+
+Frontend is not inside Docker Compose yet. Run it separately:
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend environment should point to Docker backend:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+```
+
+In the frontend sidebar, enter the same bearer token from `.env`:
+
+```text
+local-service-token-change-me-000000
+```
+
+If Vite runs on `http://localhost:5174`, make sure `.env` backend has:
+
+```env
+CORS_ORIGINS=http://localhost:5174,http://127.0.0.1:5174
+```
+
+## 5. Test protected API
 
 Protected endpoints require:
 
@@ -127,201 +188,143 @@ Protected endpoints require:
 Authorization: Bearer <AUTH_TOKEN>
 ```
 
-Public endpoints:
+Example predict request:
 
-- `GET /api/v1/health`
-- `GET /api/v1/metrics`
+```powershell
+$headers = @{ Authorization = "Bearer local-service-token-change-me-000000" }
 
-Protected endpoints:
+$body = @{
+  transaction_id = "tx_demo_001"
+  sender_id = "h:sender001"
+  receiver_id = "h:receiver001"
+  sender_balance = 500000000
+  receiver_balance = 200000
+  amount = 380000000
+  currency = "VND"
+  timestamp = "2026-05-30T09:14:03+07:00"
+  channel = "TRANSFER"
+} | ConvertTo-Json
 
-- `POST /api/v1/predict`
-- `POST /api/v1/batch-score`
-- `GET /api/v1/alerts`
-- `GET /api/v1/alerts/{alert_id}`
-- `PATCH /api/v1/alerts/{alert_id}/status`
-- `GET /api/v1/rules`
-- `POST /api/v1/rules/reload`
-
-## API examples
-
-### Predict
-
-```bash
-curl -X POST http://localhost:8000/api/v1/predict \
-  -H "Authorization: Bearer <AUTH_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "transaction_id": "tx_demo_001",
-    "sender_id": "h:sender001",
-    "receiver_id": "h:receiver001",
-    "sender_balance": 500000000,
-    "receiver_balance": 200000,
-    "amount": 380000000,
-    "currency": "VND",
-    "timestamp": "2026-05-30T09:14:03+07:00",
-    "channel": "TRANSFER"
-  }'
+Invoke-RestMethod `
+  -Uri http://localhost:8000/api/v1/predict `
+  -Method POST `
+  -Headers $headers `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
-Response includes:
+## 6. Mock ML vs real ML
 
-- `transaction_id`
-- `risk_score`
-- `risk_level`
-- `is_flagged`
-- `model_version`
-- `triggered_rules`
-- `top_features`
-- `explanation_source`
-- `alert_id`
+Default demo mode:
 
-Malformed payloads return HTTP 400 with:
+```env
+MOCK_ML_ENABLED=true
+```
+
+This uses:
+
+```text
+backend/app/ml/mock_predictor.py
+```
+
+To use the real XGBoost model artifacts:
+
+```env
+MOCK_ML_ENABLED=false
+```
+
+Docker Compose already mounts:
+
+```text
+ml/models/artifacts/xgb_aml_v1.json
+ml/models/artifacts/model_config.json
+```
+
+Restart after changing `.env`:
+
+```powershell
+docker compose down
+docker compose up --build -d
+```
+
+Check `/health`. Real ML should show:
 
 ```json
 {
-  "error": {
-    "code": "validation_error",
-    "message": "Request validation failed.",
-    "details": {}
+  "model": {
+    "mock_enabled": false,
+    "version": "xgb_aml_v1"
   }
 }
 ```
 
-Repeated `transaction_id` or `Idempotency-Key` returns the original prediction without rerunning scoring.
+## 7. Rules reload
 
-### Batch score
+Rules live in:
 
-```bash
-curl -X POST http://localhost:8000/api/v1/batch-score \
-  -H "Authorization: Bearer <AUTH_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "batch_id": "batch_demo_001",
-    "transactions": [
-      {
-        "transaction_id": "tx_batch_001",
-        "sender_id": "h:sender001",
-        "receiver_id": "h:receiver001",
-        "sender_balance": 500000000,
-        "receiver_balance": 200000,
-        "amount": 380000000,
-        "currency": "VND",
-        "timestamp": "2026-05-30T09:14:03+07:00",
-        "channel": "TRANSFER"
-      }
-    ]
-  }'
+```text
+configs/rules.yaml
 ```
 
-Batch scoring currently scores transactions supplied in the request. It does not yet query historical time windows from PostgreSQL.
+Because Docker mounts `./configs` into the API container, editing `configs/rules.yaml` on the host changes the file seen by the container.
 
-### Alert review
+After editing rules, call:
 
-```bash
-curl -X PATCH http://localhost:8000/api/v1/alerts/al_example/status \
-  -H "Authorization: Bearer <AUTH_TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{"status":"ESCALATED","reviewer_id":"reviewer_001"}'
+```powershell
+$headers = @{ Authorization = "Bearer local-service-token-change-me-000000" }
+
+Invoke-RestMethod `
+  -Uri http://localhost:8000/api/v1/rules/reload `
+  -Method POST `
+  -Headers $headers
 ```
 
-Allowed statuses:
+The backend reads the updated file and replaces the in-memory rule engine. If reload fails, the previous valid rules remain active.
 
-- `NEW`
-- `ESCALATED`
-- `DISMISSED`
+## 8. Common issues
 
-Escalated/dismissed reviews create review-label records for future retraining.
+### `POSTGRES_PASSWORD is required`
 
-### Rules
-
-```bash
-curl -H "Authorization: Bearer <AUTH_TOKEN>" http://localhost:8000/api/v1/rules
-
-curl -X POST \
-  -H "Authorization: Bearer <AUTH_TOKEN>" \
-  http://localhost:8000/api/v1/rules/reload
-```
-
-Rules live in `configs/rules.yaml`. The rule engine uses a safe AST-based DSL. If reload fails, the previous valid rule set remains active.
-
-Initial rules cover threshold avoidance, structuring, smurfing, rapid movement, layering, velocity anomaly, and large cash-out patterns using available request-derived features.
-
-## Persistence
-
-### In-memory mode
-
-Use this for tests and quick local development:
+Set this in `.env`:
 
 ```env
-ALERT_REPOSITORY=in_memory
-IDEMPOTENCY_STORE=in_memory
+POSTGRES_PASSWORD=local-postgres-password-change-me
 ```
 
-### PostgreSQL mode
+Then restart:
 
-PostgreSQL is the primary persistent alert/audit backend:
+```powershell
+docker compose up --build -d
+```
+
+### Backend exits because of insecure token
+
+`AUTH_TOKEN` and `JWT_SECRET_KEY` must be non-default and at least 32 characters.
+
+### Frontend CORS error
+
+Add the frontend origin to backend `.env`:
 
 ```env
-ALERT_REPOSITORY=postgres
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=anomalyx
-POSTGRES_USER=anomalyx_user
-POSTGRES_PASSWORD=<POSTGRES_PASSWORD>
-POSTGRES_SSLMODE=disable
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174
 ```
 
-Stored data is limited to transaction IDs, prediction outputs, derived feature/rule evidence, alert review metadata, explanations, and timestamps. Raw transaction payloads and raw PII are not stored.
+Then rebuild/restart API:
 
-PostgreSQL schema includes:
-
-- `alerts`
-- `review_labels`
-- `prediction_logs`
-- `feature_snapshots` (schema-ready, not wired into scoring flow yet)
-- `rule_versions` (schema-ready, not wired into rule reload yet)
-- `model_registry` (schema-ready, no real model artifact yet)
-
-### Optional legacy Supabase adapter
-
-Supabase REST remains available as a legacy adapter:
-
-```env
-ALERT_REPOSITORY=supabase
-SUPABASE_URL=https://...
-SUPABASE_SERVICE_ROLE_KEY=...
-SUPABASE_SCHEMA=public
+```powershell
+docker compose up --build -d api
 ```
 
-Run `supabase/schema.sql` in Supabase SQL Editor before use.
+### Backend cannot find `rules.yaml`
 
-### Redis
+Make sure `docker-compose.yml` has:
 
-Redis can store idempotency keys:
-
-```env
-IDEMPOTENCY_STORE=redis
-REDIS_URL=redis://localhost:6379/0
+```yaml
+volumes:
+  - ./configs:/configs:ro
 ```
 
-Redis rolling aggregate features and explanation cache are planned but not fully implemented yet.
+## More documentation
 
-## LLM explanation behavior
-
-Flagged alerts trigger a FastAPI background task. Before calling the LLM, `SecureDataWrapper` masks identifiers and sends only grounded context:
-
-- triggered rule IDs/severity/typology
-- risk score and risk level
-- top features
-- masked non-PII transaction metadata
-
-If the provider fails or produces unsupported claims, the system stores a deterministic template explanation with `explanation_source = "template"`. Successful provider output is stored as `explanation_source = "llm"`.
-
-## Remaining gaps vs PRD/TDD
-
-- No React/Vite compliance dashboard is included.
-- Production ML training/retraining and artifact generation remain out of scope; `MOCK_ML_ENABLED=true` is the default working mode.
-- Runtime `XGBPredictor` inference and pre-built artifacts may exist for optional real-model mode when `MOCK_ML_ENABLED=false`.
-- Redis rolling aggregate features and explanation cache are placeholders/TODOs.
-- Real drift detection is a Prometheus placeholder metric, not a PSI/KS implementation.
-- PostgreSQL `feature_snapshots`, `rule_versions`, and `model_registry` tables are schema-ready but not fully wired into application workflows yet.
+- [Backend run guide](documents/Backend_Run_Guide.md)
+- [Remaining project roadmap](documents/Remaining_Project_Roadmap.md)

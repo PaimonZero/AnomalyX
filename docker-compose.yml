@@ -45,6 +45,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-anomalyx_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_SSLMODE: ${POSTGRES_SSLMODE:-disable}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-anomalyx_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-anomalyx}
       REDIS_URL: redis://redis:6379/0
       ALERT_REPOSITORY: postgres
       IDEMPOTENCY_STORE: redis
@@ -52,6 +53,8 @@ services:
     volumes:
       # Mount model artifacts so they're accessible inside the container
       - ./ml/models/artifacts:/app/ml/models/artifacts:ro
+      # Mount active rules so the backend can load /configs/rules.yaml and hot-reload it
+      - ./configs:/configs:ro
     depends_on:
       postgres:
         condition: service_healthy
