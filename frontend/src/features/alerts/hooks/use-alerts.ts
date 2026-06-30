@@ -11,6 +11,8 @@ export function useAlerts(filters: AlertFilters) {
   return useQuery({
     queryKey: [...alertsKey, filters, token],
     queryFn: () => listAlerts(filters, token),
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

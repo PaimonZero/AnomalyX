@@ -1,8 +1,9 @@
 ﻿import { useQuery } from "@tanstack/react-query";
-import { Activity, AlertTriangle, BellRing, BrainCircuit, CheckCircle2, Clock3, RefreshCw, Server, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Activity, AlertTriangle, BellRing, CheckCircle2, RefreshCw, Server, ShieldCheck } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAuthToken } from "@/app/providers/auth-token-context";
+import { useHeaderAction } from "@/app/providers/header-action-context";
 import { formatHttpStatusBarWidth } from "@/features/monitoring/api/monitoring-display-format";
 import { getRuleEngineDetails } from "@/features/monitoring/api/rules-detail";
 import { formatReloadRulesSuccess } from "@/features/monitoring/api/rules-reload-format";
@@ -12,19 +13,19 @@ import { MonitoringChart } from "@/features/monitoring/components/monitoring-cha
 import { RuleEngineDetailModal } from "@/features/monitoring/components/rule-engine-detail-modal";
 import { useMonitoring } from "@/features/monitoring/hooks/use-monitoring";
 import { ApiError } from "@/shared/api/client";
-import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
 
 export function MonitoringPage() {
   const { token } = useAuthToken();
-  const [autoRefresh, setAutoRefresh] = useState(false);
+  const { setHeaderAction } = useHeaderAction();
   const [reloadConfirmOpen, setReloadConfirmOpen] = useState(false);
   const [reloadError, setReloadError] = useState<string | null>(null);
   const [reloadingRules, setReloadingRules] = useState(false);
   const [ruleDetailsOpen, setRuleDetailsOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const { health, metrics, refresh } = useMonitoring(autoRefresh);
+  const { health, metrics, refresh } = useMonitoring(false);
+  const refreshMonitoring = useCallback(() => refresh(), [refresh]);
   const rulesQuery = useQuery({
     queryKey: ["monitoring", "rules", token],
     queryFn: () => getRuleEngineDetails(token),
@@ -50,6 +51,16 @@ export function MonitoringPage() {
     return () => window.clearTimeout(timeout);
   }, [toast]);
 
+  useEffect(() => {
+    setHeaderAction(
+      <Button variant="secondary" size="sm" onClick={() => void refreshMonitoring()} disabled={health.isFetching || metrics.isFetching}>
+        <RefreshCw size={14} className={health.isFetching || metrics.isFetching ? "spin" : ""} /> Refresh
+      </Button>,
+    );
+
+    return () => setHeaderAction(null);
+  }, [health.isFetching, metrics.isFetching, refreshMonitoring, setHeaderAction]);
+
   const confirmReloadRules = async () => {
     setReloadingRules(true);
     setReloadError(null);
@@ -59,7 +70,7 @@ export function MonitoringPage() {
       setReloadConfirmOpen(false);
       setToast(formatReloadRulesSuccess(result));
       await rulesQuery.refetch();
-      await refresh();
+      await refreshMonitoring();
     } catch (error) {
       const message = error instanceof ApiError
         ? `${error.code}: ${error.message}`
@@ -72,20 +83,8 @@ export function MonitoringPage() {
 
   return (
     <div className="monitoring-page">
-      <section className="monitor-toolbar">
-        <div>
-          <label className="switch-label monitor-switch">
-            <input type="checkbox" checked={autoRefresh} onChange={(event) => setAutoRefresh(event.target.checked)} />
-            <span /> Auto refresh 30s
-          </label>
-          <Button variant="secondary" size="sm" onClick={() => void refresh()} disabled={health.isFetching || metrics.isFetching}>
-            <RefreshCw size={14} className={health.isFetching || metrics.isFetching ? "spin" : ""} /> Refresh
-          </Button>
-        </div>
-      </section>
-
       {failed ? (
-        <div className="alerts-error" role="alert"><div><AlertTriangle size={17} /><span>Could not load monitoring data from the backend.</span></div><Button size="sm" onClick={() => void refresh()}>Retry</Button></div>
+        <div className="alerts-error" role="alert"><div><AlertTriangle size={17} /><span>Could not load monitoring data from the backend.</span></div><Button size="sm" onClick={() => void refreshMonitoring()}>Retry</Button></div>
       ) : null}
 
       {loading || !health.data || !data ? (
@@ -99,7 +98,6 @@ export function MonitoringPage() {
 
           <section className="monitor-kpis">
             <article><div className="monitor-kpi-icon"><Server size={17} /></div><span>HTTP requests</span><strong>{data.requestsTotal.toLocaleString("en-US")}</strong><small>{data.requestSuccessRate}% successful</small></article>
-            <article><div className="monitor-kpi-icon"><Clock3 size={17} /></div><span>Request p95</span><strong>{data.requestP95Ms}<em>ms</em></strong><small>Histogram HTTP</small></article>
             <article><div className="monitor-kpi-icon"><BellRing size={17} /></div><span>Alerts created</span><strong>{data.alertsTotal}</strong><small>{flaggedRate.toFixed(1)}% decisions flagged</small></article>
             <article><div className="monitor-kpi-icon"><ShieldCheck size={17} /></div><span>LLM outcomes</span><strong>{explanationSuccess.toFixed(1)}<em>%</em></strong><small>{data.fallbackTotal} template fallback</small></article>
           </section>
@@ -108,7 +106,6 @@ export function MonitoringPage() {
             <div className="monitor-section-heading"><div><Activity size={16} /><h2>Runtime metrics</h2></div><span>Prometheus · live snapshot</span></div>
             <div className="monitor-chart-grid">
               <MonitoringChart title="Request volume" metric="anomalyx_http_requests_total" points={data.requestVolume} valueLabel={`${data.requestsTotal.toLocaleString("en-US")} total`} />
-              <MonitoringChart title="HTTP latency p95" metric="anomalyx_http_request_duration_seconds" points={data.latencyTrend} valueLabel={`${data.requestP95Ms} ms`} threshold={500} />
 
               <article className="monitor-chart-card">
                 <header><div><h3>Decision distribution</h3><code>anomalyx_decisions_total</code></div><strong>{decisionTotal.toLocaleString("en-US")}</strong></header>
@@ -130,17 +127,6 @@ export function MonitoringPage() {
           </section>
 
           <section className="monitor-lower-grid">
-            <article className="monitor-panel">
-              <header><div><BrainCircuit size={17} /><h2>Model & storage</h2></div><Badge tone={health.data.model.mock_enabled ? "warning" : "success"}>{health.data.model.mock_enabled ? "MOCK" : "REAL"}</Badge></header>
-              <dl className="monitor-details">
-                <div><dt>Model version</dt><dd>{health.data.model.version}</dd></div>
-                <div><dt>Metrics enabled</dt><dd>{health.data.metrics_enabled ? "yes" : "no"}</dd></div>
-                <div><dt>Alert repository</dt><dd>{health.data.storage.alert_repository}</dd></div>
-                <div><dt>Idempotency store</dt><dd>{health.data.storage.idempotency_store}</dd></div>
-                <div><dt>Health timestamp</dt><dd>{new Date(health.data.timestamp).toLocaleString("en-US")}</dd></div>
-              </dl>
-            </article>
-
             <article className="monitor-panel">
               <header><div><Activity size={17} /><h2>Rule triggers</h2></div><span>{data.ruleTriggers.reduce((sum, rule) => sum + rule.count, 0).toLocaleString("en-US")}</span></header>
               <div className="rule-trigger-bars">

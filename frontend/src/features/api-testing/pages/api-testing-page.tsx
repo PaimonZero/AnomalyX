@@ -9,7 +9,9 @@ import { RequestBuilder } from "@/features/api-testing/components/request-builde
 import { ResponseViewer } from "@/features/api-testing/components/response-viewer";
 import { blankPredictionBody, predictEndpoint, samplePredictionBody } from "@/features/api-testing/data/endpoints";
 import type { ApiTestResponse } from "@/features/api-testing/types";
+import { getAlert } from "@/features/alerts/api/alerts-api";
 import { env } from "@/shared/config/env";
+import type { PredictionResponse } from "@/shared/types/api";
 
 export function ApiTestingPage() {
   const { token } = useAuthToken();
@@ -19,6 +21,20 @@ export function ApiTestingPage() {
   const [sending, setSending] = useState(false);
   const [integrationOpen, setIntegrationOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  const pendingAlertId = useMemo(() => {
+    const bodyValue = response?.body;
+    if (
+      typeof bodyValue === "object" &&
+      bodyValue !== null &&
+      "alert_id" in bodyValue &&
+      "explanation" in bodyValue
+    ) {
+      const prediction = bodyValue as PredictionResponse;
+      return prediction.alert_id && !prediction.explanation ? prediction.alert_id : null;
+    }
+    return null;
+  }, [response]);
 
   const jsonValid = useMemo(() => {
     if (!body.trim()) return false;
@@ -52,6 +68,57 @@ export function ApiTestingPage() {
 
     return () => setHeaderAction(null);
   }, [setHeaderAction]);
+
+  useEffect(() => {
+    if (!pendingAlertId || !token.trim()) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 15;
+
+    const pollExplanation = async () => {
+      attempts += 1;
+      try {
+        const alert = await getAlert(pendingAlertId, token);
+        if (cancelled) return;
+
+        if (alert.explanation) {
+          setResponse((current) => {
+            if (!current || typeof current.body !== "object" || current.body === null) return current;
+            return {
+              ...current,
+              body: {
+                ...current.body,
+                explanation: alert.explanation,
+                explanation_source: alert.explanation_source,
+              },
+              raw: JSON.stringify(
+                {
+                  ...current.body,
+                  explanation: alert.explanation,
+                  explanation_source: alert.explanation_source,
+                },
+                null,
+                2,
+              ),
+            };
+          });
+        }
+      } catch {
+        // Keep the original prediction visible; the alert page can still be checked manually.
+      }
+
+      if (!cancelled && attempts < maxAttempts) {
+        window.setTimeout(() => void pollExplanation(), 2000);
+      }
+    };
+
+    const timeout = window.setTimeout(() => void pollExplanation(), 1500);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [pendingAlertId, token]);
 
   const send = async () => {
     setSending(true);

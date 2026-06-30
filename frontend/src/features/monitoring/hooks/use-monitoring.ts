@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 import { getMonitoringHealth, getMonitoringMetrics } from "@/features/monitoring/api/monitoring-api";
 
@@ -14,10 +15,14 @@ export function useMonitoring(autoRefresh: boolean) {
     queryFn: getMonitoringMetrics,
     refetchInterval: refreshInterval,
   });
+  const refresh = useCallback(
+    async () => Promise.all([health.refetch(), metrics.refetch()]),
+    [health, metrics],
+  );
 
   return {
     health,
     metrics,
-    refresh: async () => Promise.all([health.refetch(), metrics.refetch()]),
+    refresh,
   };
 }

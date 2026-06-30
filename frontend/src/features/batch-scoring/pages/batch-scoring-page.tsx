@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useHeaderAction } from "@/app/providers/header-action-context";
 import { useAuthToken } from "@/app/providers/auth-token-context";
+import { getAlert } from "@/features/alerts/api/alerts-api";
 import { IntegrationSampleModal } from "@/features/api-testing/components/integration-sample-modal";
 import { runBatch } from "@/features/batch-scoring/api/batch-api";
 import { validateBatchJson } from "@/features/batch-scoring/api/batch-validation";
@@ -55,6 +56,15 @@ export function BatchScoringPage() {
       transactions,
     }, null, 2);
   }, [batchName, rawJson, validation.transactions]);
+  const pendingAlertIds = useMemo(
+    () =>
+      rows
+        .map((row) => row.prediction)
+        .filter((prediction) => prediction?.alert_id && !prediction.explanation)
+        .map((prediction) => prediction!.alert_id!)
+        .filter((alertId, index, alertIds) => alertIds.indexOf(alertId) === index),
+    [rows],
+  );
 
   useEffect(() => {
     if (!toast) return;
@@ -80,6 +90,75 @@ export function BatchScoringPage() {
 
     return () => setHeaderAction(null);
   }, [setHeaderAction]);
+
+  useEffect(() => {
+    if (!pendingAlertIds.length || !token.trim()) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 15;
+
+    const pollExplanations = async () => {
+      attempts += 1;
+      const alerts = await Promise.all(
+        pendingAlertIds.map(async (alertId) => {
+          try {
+            return await getAlert(alertId, token);
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      if (cancelled) return;
+
+      const explanationByAlertId = new Map(
+        alerts
+          .filter((alert) => alert?.id && alert.explanation)
+          .map((alert) => [alert!.id, {
+            explanation: alert!.explanation,
+            explanation_source: alert!.explanation_source,
+          }]),
+      );
+
+      if (explanationByAlertId.size) {
+        setRows((currentRows) =>
+          currentRows.map((row) => {
+            const alertId = row.prediction?.alert_id;
+            if (!alertId || !explanationByAlertId.has(alertId) || !row.prediction) return row;
+            return {
+              ...row,
+              prediction: {
+                ...row.prediction,
+                ...explanationByAlertId.get(alertId),
+              },
+            };
+          }),
+        );
+        setDetailRow((currentDetail) => {
+          const alertId = currentDetail?.prediction?.alert_id;
+          if (!currentDetail?.prediction || !alertId || !explanationByAlertId.has(alertId)) return currentDetail;
+          return {
+            ...currentDetail,
+            prediction: {
+              ...currentDetail.prediction,
+              ...explanationByAlertId.get(alertId),
+            },
+          };
+        });
+      }
+
+      if (!cancelled && attempts < maxAttempts) {
+        window.setTimeout(() => void pollExplanations(), 2000);
+      }
+    };
+
+    const timeout = window.setTimeout(() => void pollExplanations(), 1500);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [pendingAlertIds, token]);
 
   const formatJson = () => {
     try {
