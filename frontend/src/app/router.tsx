@@ -4,6 +4,7 @@ import { ApiTestingPage } from "@/features/api-testing/pages/api-testing-page";
 import { AlertsPage } from "@/features/alerts/pages/alerts-page";
 import { BatchScoringPage } from "@/features/batch-scoring/pages/batch-scoring-page";
 import { MonitoringPage } from "@/features/monitoring/pages/monitoring-page";
+import { PresentationPage } from "@/features/presentation/pages/presentation-page";
 import { AppShell } from "@/layouts/app-shell";
 import { NotFoundPage } from "@/shared/ui/not-found-page";
 
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { path: "api-testing", element: <ApiTestingPage /> },
       { path: "batch-scoring", element: <BatchScoringPage /> },
       { path: "monitoring", element: <MonitoringPage /> },
+      { path: "presentation", element: <PresentationPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

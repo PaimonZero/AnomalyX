@@ -12,6 +12,7 @@ const pageTitles: Record<string, string> = {
   "/api-testing": "Single Prediction",
   "/batch-scoring": "Batch Scoring",
   "/monitoring": "Monitoring",
+  "/presentation": "Presentation",
 };
 
 export function AppShell() {
