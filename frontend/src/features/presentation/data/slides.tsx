@@ -143,7 +143,7 @@ const slideDefinitions: Slide[] = [
           <div className="slide-feature-card">
             <BrainCircuit size={28} style={{ color: "var(--accent-secondary)" }} />
             <strong>ML Predictor</strong>
-            <span>XGBoost với AUC-ROC 0.9999 trên PaySim</span>
+            <span>XGBoost prototype trên dữ liệu mô phỏng PaySim</span>
           </div>
           <div className="slide-feature-card">
             <FileText size={28} style={{ color: "var(--state-success)" }} />
@@ -172,7 +172,7 @@ const slideDefinitions: Slide[] = [
           <div className="slide-feature-card">
             <BrainCircuit size={28} style={{ color: "var(--accent-secondary)" }} />
             <strong>ML Predictor</strong>
-            <span>XGBoost with AUC-ROC 0.9999 on PaySim</span>
+            <span>XGBoost prototype trained on PaySim synthetic data</span>
           </div>
           <div className="slide-feature-card">
             <FileText size={28} style={{ color: "var(--state-success)" }} />
@@ -424,8 +424,8 @@ const slideDefinitions: Slide[] = [
         </div>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 12 }}>
           <div className="slide-stat-callout slide-stat-callout--success">
-            <div className="slide-stat-number">0.9999</div>
-            <div className="slide-stat-label">AUC-ROC</div>
+            <div className="slide-stat-number">PR-AUC</div>
+            <div className="slide-stat-label">primary metric for imbalanced data</div>
           </div>
           <div className="slide-stat-callout" style={{ marginTop: 16 }}>
             <div className="slide-stat-number">26</div>
@@ -449,8 +449,8 @@ const slideDefinitions: Slide[] = [
         </div>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 12 }}>
           <div className="slide-stat-callout slide-stat-callout--success">
-            <div className="slide-stat-number">0.9999</div>
-            <div className="slide-stat-label">AUC-ROC</div>
+            <div className="slide-stat-number">PR-AUC</div>
+            <div className="slide-stat-label">primary metric for imbalanced data</div>
           </div>
           <div className="slide-stat-callout" style={{ marginTop: 16 }}>
             <div className="slide-stat-number">26</div>
