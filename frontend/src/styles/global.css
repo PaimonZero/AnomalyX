@@ -1671,13 +1671,14 @@ textarea:focus-visible {
 .slide-nav {
   position: fixed;
   bottom: 0;
-  left: var(--sidebar-width, 240px);
+  left: 0;
   right: 0;
   height: 56px;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto minmax(160px, 1fr);
   align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
+  gap: 16px;
+  padding: 0 40px;
   background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--border-default);
@@ -1727,12 +1728,14 @@ textarea:focus-visible {
 .slide-nav-center {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
 .slide-nav-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 6px;
 }
 
