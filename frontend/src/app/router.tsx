@@ -9,6 +9,7 @@ import { AppShell } from "@/layouts/app-shell";
 import { NotFoundPage } from "@/shared/ui/not-found-page";
 
 export const router = createBrowserRouter([
+  { path: "/presentation", element: <PresentationPage /> },
   {
     path: "/",
     element: <AppShell />,
@@ -18,7 +19,6 @@ export const router = createBrowserRouter([
       { path: "api-testing", element: <ApiTestingPage /> },
       { path: "batch-scoring", element: <BatchScoringPage /> },
       { path: "monitoring", element: <MonitoringPage /> },
-      { path: "presentation", element: <PresentationPage /> },
       { path: "*", element: <NotFoundPage /> },
     ],
   },

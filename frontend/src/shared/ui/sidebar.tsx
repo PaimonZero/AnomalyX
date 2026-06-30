@@ -1,4 +1,4 @@
-import { Activity, ChevronLeft, ChevronRight, Files, Presentation, ShieldAlert, TerminalSquare } from "lucide-react";
+import { Activity, ChevronLeft, ChevronRight, Files, ShieldAlert, TerminalSquare } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
@@ -18,7 +18,6 @@ const navigation = [
   { to: "/api-testing", label: "Single Prediction", icon: TerminalSquare },
   { to: "/batch-scoring", label: "Predict Batch", icon: Files },
   { to: "/monitoring", label: "Monitoring", icon: Activity },
-  { to: "/presentation", label: "Presentation", icon: Presentation },
 ];
 
 export function Sidebar() {

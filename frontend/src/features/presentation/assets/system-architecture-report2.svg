@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" fill="none">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#6b7280"/>
+    </marker>
+    <marker id="arrowStart" markerWidth="10" markerHeight="10" refX="2" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M10,0 L0,5 L10,10 Z" fill="#6b7280"/>
+    </marker>
+    <filter id="softShadow" x="-20%" y="-30%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#111827" flood-opacity="0.10"/>
+    </filter>
+    <style>
+      .node { fill: #fbfaf7; stroke: #c9b8ad; stroke-width: 1.5; filter: url(#softShadow); }
+      .node-core { fill: #fff2ec; stroke: #d47a59; stroke-width: 2; filter: url(#softShadow); }
+      .store { fill: #f8fafc; stroke: #c9b8ad; stroke-width: 1.5; stroke-dasharray: 6 5; filter: url(#softShadow); }
+      .title { fill: #111827; font-family: Inter, Arial, sans-serif; font-size: 17px; font-weight: 700; }
+      .detail { fill: #6b7280; font-family: Inter, Arial, sans-serif; font-size: 13px; }
+      .edge { stroke: #6b7280; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+      .edge-dashed { stroke-dasharray: 7 6; }
+      .edge-bidir { marker-start: url(#arrowStart); marker-end: url(#arrow); }
+      .label-bg { fill: #fbfaf7; opacity: 0.96; }
+      .edge-label { fill: #4b5563; font-family: Inter, Arial, sans-serif; font-size: 13px; font-weight: 600; }
+      .section { fill: #8a817b; font-family: Inter, Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="760" rx="28" fill="#f7f4ef"/>
+
+  <!-- Top callers -->
+  <rect class="node" x="105" y="42" width="190" height="64" rx="8"/>
+  <text class="title" x="200" y="70" text-anchor="middle">Wallet Backend</text>
+  <text class="detail" x="200" y="91" text-anchor="middle">predict request</text>
+
+  <rect class="node" x="555" y="32" width="250" height="74" rx="8"/>
+  <text class="title" x="680" y="64" text-anchor="middle">Presentation Layer</text>
+  <text class="detail" x="680" y="86" text-anchor="middle">ReactJS · CRUD alerts</text>
+
+  <rect class="node" x="1085" y="42" width="220" height="64" rx="8"/>
+  <text class="title" x="1195" y="70" text-anchor="middle">Monitoring</text>
+  <text class="detail" x="1195" y="91" text-anchor="middle">Prometheus</text>
+
+  <!-- Backend center -->
+  <rect class="node-core" x="540" y="190" width="280" height="82" rx="10"/>
+  <text class="title" x="680" y="224" text-anchor="middle">AML Backend Service</text>
+  <text class="detail" x="680" y="248" text-anchor="middle">FastAPI + Uvicorn</text>
+
+  <!-- Processing layer -->
+  <rect class="node" x="72" y="360" width="250" height="74" rx="8"/>
+  <text class="title" x="197" y="391" text-anchor="middle">Feature Service</text>
+  <text class="detail" x="197" y="414" text-anchor="middle">Python + Redis</text>
+
+  <ellipse class="store" cx="197" cy="555" rx="145" ry="48"/>
+  <text class="title" x="197" y="545" text-anchor="middle">Redis</text>
+  <text class="detail" x="197" y="568" text-anchor="middle">rolling aggregates · cache · idempotency</text>
+
+  <rect class="node" x="385" y="360" width="250" height="74" rx="8"/>
+  <text class="title" x="510" y="391" text-anchor="middle">Rule Engine</text>
+  <text class="detail" x="510" y="414" text-anchor="middle">YAML + safe DSL</text>
+
+  <rect class="node" x="725" y="360" width="270" height="74" rx="8"/>
+  <text class="title" x="860" y="391" text-anchor="middle">ML Inference</text>
+  <text class="detail" x="860" y="414" text-anchor="middle">XGBoost/LightGBM + SHAP</text>
+
+  <rect class="node" x="570" y="510" width="220" height="70" rx="8"/>
+  <text class="title" x="680" y="541" text-anchor="middle">Decision Engine</text>
+  <text class="detail" x="680" y="563" text-anchor="middle">rules + ML score</text>
+
+  <ellipse class="store" cx="940" cy="635" rx="170" ry="50"/>
+  <text class="title" x="940" y="624" text-anchor="middle">PostgreSQL</text>
+  <text class="detail" x="940" y="648" text-anchor="middle">alerts · labels · snapshots · registry</text>
+
+  <!-- Async LLM branch -->
+  <rect class="node" x="1110" y="330" width="250" height="74" rx="8"/>
+  <text class="title" x="1235" y="361" text-anchor="middle">SecureDataWrapper</text>
+  <text class="detail" x="1235" y="384" text-anchor="middle">PII masking</text>
+
+  <rect class="node" x="1155" y="480" width="190" height="70" rx="8"/>
+  <text class="title" x="1250" y="511" text-anchor="middle">LLM Explainer</text>
+  <text class="detail" x="1250" y="533" text-anchor="middle">grounded explanation</text>
+
+  <rect class="node" x="1120" y="635" width="260" height="72" rx="8"/>
+  <text class="title" x="1250" y="666" text-anchor="middle">External LLM API</text>
+  <text class="detail" x="1250" y="689" text-anchor="middle">OpenAI / Claude · HTTPS</text>
+
+  <!-- Edges from callers to backend -->
+  <path class="edge" d="M200 106 L200 150 L610 150 L610 190"/>
+  <rect class="label-bg" x="273" y="138" width="106" height="22" rx="4"/>
+  <text class="edge-label" x="326" y="154" text-anchor="middle">predict request</text>
+
+  <path class="edge" d="M680 106 L680 190"/>
+  <rect class="label-bg" x="696" y="138" width="78" height="22" rx="4"/>
+  <text class="edge-label" x="735" y="154" text-anchor="middle">CRUD alerts</text>
+
+  <path class="edge edge-dashed" d="M1195 106 L1195 150 L750 150 L750 190"/>
+  <rect class="label-bg" x="995" y="138" width="106" height="22" rx="4"/>
+  <text class="edge-label" x="1048" y="154" text-anchor="middle">scrape metrics</text>
+
+  <!-- Backend fan-out -->
+  <path class="edge" d="M570 272 L570 316 L197 316 L197 360"/>
+  <path class="edge" d="M640 272 L640 316 L510 316 L510 360"/>
+  <path class="edge" d="M720 272 L720 316 L860 316 L860 360"/>
+
+  <!-- Feature service <-> Redis -->
+  <path class="edge edge-bidir" d="M197 434 L197 506"/>
+
+  <!-- Rule/ML to decision -->
+  <path class="edge" d="M510 434 L510 468 L640 468 L640 510"/>
+  <path class="edge" d="M860 434 L860 468 L720 468 L720 510"/>
+
+  <!-- Decision back to backend -->
+  <path class="edge" d="M680 510 L680 462 L800 462 L800 272"/>
+
+  <!-- Backend to Postgres -->
+  <path class="edge" d="M770 272 L770 595 L820 595"/>
+
+  <!-- Async LLM branch -->
+  <path class="edge edge-dashed" d="M820 231 L1046 231 L1046 367 L1110 367"/>
+  <rect class="label-bg" x="943" y="219" width="44" height="22" rx="4"/>
+  <text class="edge-label" x="965" y="235" text-anchor="middle">async</text>
+
+  <path class="edge" d="M1235 404 L1235 480"/>
+  <path class="edge" d="M1210 550 L1050 610"/>
+  <path class="edge" d="M1275 550 L1275 635"/>
+  <rect class="label-bg" x="1288" y="585" width="52" height="22" rx="4"/>
+  <text class="edge-label" x="1314" y="601" text-anchor="middle">HTTPS</text>
+
+  <text class="section" x="680" y="735" text-anchor="middle">
+    Component and data-flow architecture based on Report 2
+  </text>
+</svg>

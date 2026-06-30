@@ -25,7 +25,7 @@ import { bilingual, IconBullet, Tag } from "./slide-helpers";
 
 /* ──────────────── Slide definitions ──────────────── */
 
-export const slides: Slide[] = [
+const slideDefinitions: Slide[] = [
   /* 1 — Title */
   {
     id: "title",
@@ -857,3 +857,26 @@ export const slides: Slide[] = [
     ),
   },
 ];
+
+const presentationOrder = [
+  "title",
+  "problem",
+  "what-is",
+  "why-hybrid",
+  "architecture",
+  "rules",
+  "ml",
+  "decision",
+  "llm",
+  "pipeline",
+  "repo-structure",
+  "ending",
+];
+
+export const slides: Slide[] = presentationOrder.map((id) => {
+  const slide = slideDefinitions.find((item) => item.id === id);
+  if (!slide) {
+    throw new Error(`Missing presentation slide: ${id}`);
+  }
+  return slide;
+});
