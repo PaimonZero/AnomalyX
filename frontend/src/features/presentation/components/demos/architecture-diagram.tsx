@@ -1,4 +1,4 @@
-import architectureImage from "../../assets/system-architecture-report2.svg";
+import architectureImage from "../../assets/system-architecture.webp";
 import type { Language } from "../../types";
 
 export function ArchitectureDiagram(_: { language: Language; token: string }) {
