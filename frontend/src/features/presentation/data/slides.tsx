@@ -4,11 +4,9 @@ import {
   BarChart3,
   BrainCircuit,
   CheckCircle2,
-  Cpu,
   Database,
   FileText,
   FolderTree,
-  Layers,
   Lightbulb,
   Server,
   Shield,
@@ -668,59 +666,113 @@ const slideDefinitions: Slide[] = [
     ),
   },
 
-  /* 13 — Frontend & Design System */
+  /* 13 — Backend & Database Technology Stack */
+  {
+    id: "backend-stack",
+    layout: "content",
+    content: bilingual(
+      <>
+        <h2 className="slide-heading">Backend &amp; Database Stack</h2>
+        <p className="slide-lead" style={{ maxWidth: 760, margin: "0 auto 28px" }}>
+          Backend được thiết kế theo hướng <strong>modular FastAPI service</strong>, tách rõ API, rule engine, ML inference, persistence và monitoring để dễ test, dễ chạy bằng Docker.
+        </p>
+        <div className="slide-tech-grid">
+          {[
+            ["FastAPI", "REST API, validation, OpenAPI schema", "https://cdn.simpleicons.org/fastapi/009688"],
+            ["Python", "Business logic, rule engine, ML inference", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"],
+            ["PostgreSQL", "Lưu alerts, labels, prediction logs", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg"],
+            ["Redis", "Idempotency cache và rolling aggregates", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg"],
+            ["Docker", "Đóng gói API, Postgres, Redis bằng Compose", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"],
+            ["Prometheus", "Metrics endpoint cho monitoring", "https://cdn.simpleicons.org/prometheus/E6522C"],
+          ].map(([name, desc, logo]) => (
+            <div className="slide-tech-card" key={name}>
+              <div className="slide-tech-logo">
+                <img src={logo} alt="" aria-hidden="true" />
+              </div>
+              <strong>{name}</strong>
+              <span>{desc}</span>
+            </div>
+          ))}
+        </div>
+      </>,
+      <>
+        <h2 className="slide-heading">Backend &amp; Database Stack</h2>
+        <p className="slide-lead" style={{ maxWidth: 760, margin: "0 auto 28px" }}>
+          The backend is structured as a <strong>modular FastAPI service</strong>, separating API routes, rule engine, ML inference, persistence, and monitoring for easier testing and Docker-based deployment.
+        </p>
+        <div className="slide-tech-grid">
+          {[
+            ["FastAPI", "REST API, validation, OpenAPI schema", "https://cdn.simpleicons.org/fastapi/009688"],
+            ["Python", "Business logic, rule engine, ML inference", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg"],
+            ["PostgreSQL", "Stores alerts, labels, prediction logs", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg"],
+            ["Redis", "Idempotency cache and rolling aggregates", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg"],
+            ["Docker", "Packages API, Postgres, Redis with Compose", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"],
+            ["Prometheus", "Metrics endpoint for monitoring", "https://cdn.simpleicons.org/prometheus/E6522C"],
+          ].map(([name, desc, logo]) => (
+            <div className="slide-tech-card" key={name}>
+              <div className="slide-tech-logo">
+                <img src={logo} alt="" aria-hidden="true" />
+              </div>
+              <strong>{name}</strong>
+              <span>{desc}</span>
+            </div>
+          ))}
+        </div>
+      </>,
+    ),
+  },
+
+  /* 13 — Frontend Technology Stack */
   {
     id: "frontend",
     layout: "content",
     content: bilingual(
       <>
-        <h2 className="slide-heading">Frontend &amp; Design System</h2>
-        <div className="slide-feature-grid">
-          <div className="slide-feature-card">
-            <Layers size={28} style={{ color: "var(--accent-secondary)" }} />
-            <strong>React 19 + Vite 7</strong>
-            <span>TypeScript, HMR, tối ưu build</span>
-          </div>
-          <div className="slide-feature-card">
-            <Cpu size={28} style={{ color: "var(--accent-primary)" }} />
-            <strong>TanStack Query v5</strong>
-            <span>Server state, cache, auto-refresh</span>
-          </div>
-          <div className="slide-feature-card">
-            <Database size={28} style={{ color: "var(--state-info)" }} />
-            <strong>Tailwind CSS v4</strong>
-            <span>Dark/Light theme, CSS variables</span>
-          </div>
-          <div className="slide-feature-card">
-            <Server size={28} style={{ color: "var(--state-success)" }} />
-            <strong>Lucide Icons</strong>
-            <span>Consistent icon system</span>
-          </div>
+        <h2 className="slide-heading">Frontend Technology Stack</h2>
+        <p className="slide-lead" style={{ maxWidth: 760, margin: "0 auto 28px" }}>
+          Frontend được xây dựng theo hướng <strong>component-based</strong> và <strong>feature-based</strong>, tập trung vào demo nghiệp vụ AML rõ ràng, dễ mở rộng và dễ kết nối backend thật.
+        </p>
+        <div className="slide-tech-grid">
+          {[
+            ["React 19", "Component UI cho các màn hình nghiệp vụ", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"],
+            ["TypeScript 5", "Typed data model, giảm lỗi khi gọi API", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"],
+            ["Vite 7", "Dev server nhanh, build gọn cho prototype", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg"],
+            ["React Router 7", "Route riêng cho Alerts, Predict, Batch, Monitoring", "https://cdn.simpleicons.org/reactrouter/CA4245"],
+            ["TanStack Query 5", "Quản lý server state, loading, error, refetch", "https://cdn.simpleicons.org/reactquery/FF4154"],
+            ["Tailwind CSS 4", "Design tokens, responsive layout, dark/light theme", "https://cdn.simpleicons.org/tailwindcss/06B6D4"],
+          ].map(([name, desc, logo]) => (
+            <div className="slide-tech-card" key={name}>
+              <div className="slide-tech-logo">
+                <img src={logo} alt="" aria-hidden="true" />
+              </div>
+              <strong>{name}</strong>
+              <span>{desc}</span>
+            </div>
+          ))}
         </div>
       </>,
       <>
-        <h2 className="slide-heading">Frontend &amp; Design System</h2>
-        <div className="slide-feature-grid">
-          <div className="slide-feature-card">
-            <Layers size={28} style={{ color: "var(--accent-secondary)" }} />
-            <strong>React 19 + Vite 7</strong>
-            <span>TypeScript, HMR, optimized builds</span>
-          </div>
-          <div className="slide-feature-card">
-            <Cpu size={28} style={{ color: "var(--accent-primary)" }} />
-            <strong>TanStack Query v5</strong>
-            <span>Server state, cache, auto-refresh</span>
-          </div>
-          <div className="slide-feature-card">
-            <Database size={28} style={{ color: "var(--state-info)" }} />
-            <strong>Tailwind CSS v4</strong>
-            <span>Dark/Light theme, CSS variables</span>
-          </div>
-          <div className="slide-feature-card">
-            <Server size={28} style={{ color: "var(--state-success)" }} />
-            <strong>Lucide Icons</strong>
-            <span>Consistent icon system</span>
-          </div>
+        <h2 className="slide-heading">Frontend Technology Stack</h2>
+        <p className="slide-lead" style={{ maxWidth: 760, margin: "0 auto 28px" }}>
+          The frontend follows a <strong>component-based</strong> and <strong>feature-based</strong> structure, focused on clear AML workflows, easy extension, and real backend integration.
+        </p>
+        <div className="slide-tech-grid">
+          {[
+            ["React 19", "Component UI for business screens", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"],
+            ["TypeScript 5", "Typed data models and safer API usage", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"],
+            ["Vite 7", "Fast dev server and lightweight prototype builds", "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vitejs/vitejs-original.svg"],
+            ["React Router 7", "Dedicated routes for Alerts, Predict, Batch, Monitoring", "https://cdn.simpleicons.org/reactrouter/CA4245"],
+            ["TanStack Query 5", "Server state, loading, errors, and refetching", "https://cdn.simpleicons.org/reactquery/FF4154"],
+            ["Tailwind CSS 4", "Design tokens, responsive layout, dark/light theme", "https://cdn.simpleicons.org/tailwindcss/06B6D4"],
+          ].map(([name, desc, logo]) => (
+            <div className="slide-tech-card" key={name}>
+              <div className="slide-tech-logo">
+                <img src={logo} alt="" aria-hidden="true" />
+              </div>
+              <strong>{name}</strong>
+              <span>{desc}</span>
+            </div>
+          ))}
         </div>
       </>,
     ),
@@ -869,6 +921,8 @@ const presentationOrder = [
   "decision",
   "llm",
   "pipeline",
+  "backend-stack",
+  "frontend",
   "repo-structure",
   "ending",
 ];
