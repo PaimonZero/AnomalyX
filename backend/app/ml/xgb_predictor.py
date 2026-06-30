@@ -91,15 +91,18 @@ class XGBPredictor:
         self.feature_cols: list[str] = config["feature_cols"]
         self.model_version: str = config["model_version"]
 
-        self._model = xgb.XGBClassifier()
+        self._model = xgb.Booster()
         self._model.load_model(model_path)
         self._shap_explainer = None
 
     def predict(self, transaction: TransactionRequest) -> ModelPrediction:
+        import xgboost as xgb
+
         features = _compute_features(transaction)
         X = np.array([[features[c] for c in self.feature_cols]], dtype=np.float32)
+        dmatrix = xgb.DMatrix(X, feature_names=self.feature_cols)
 
-        risk_score = float(self._model.predict_proba(X)[0, 1])
+        risk_score = float(self._model.predict(dmatrix)[0])
 
         top_features = self._shap_top_features(X, features)
 
