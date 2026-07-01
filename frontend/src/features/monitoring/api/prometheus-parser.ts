@@ -67,6 +67,23 @@ function estimateHistogramP95Ms(samples: MetricSample[], bucketName: string, lab
   return Math.round(matched[0] * 1000);
 }
 
+function getHistogramBucketValue(samples: MetricSample[], bucketName: string, upperBound: string) {
+  const sample = samples.find((item) => item.name === bucketName && item.labels.le === upperBound);
+  return sample?.value ?? 0;
+}
+
+function parseRiskScoreDistribution(samples: MetricSample[]): MonitoringMetrics["riskScoreDistribution"] {
+  const lowCumulative = getHistogramBucketValue(samples, "anomalyx_prediction_risk_score_bucket", "0.4");
+  const mediumCumulative = getHistogramBucketValue(samples, "anomalyx_prediction_risk_score_bucket", "0.7");
+  const highCumulative = getHistogramBucketValue(samples, "anomalyx_prediction_risk_score_bucket", "1.0");
+
+  return {
+    LOW: lowCumulative,
+    MEDIUM: Math.max(0, mediumCumulative - lowCumulative),
+    HIGH: Math.max(0, highCumulative - mediumCumulative),
+  };
+}
+
 function groupStatus(statusCode: string) {
   if (statusCode.startsWith("2") || statusCode.startsWith("3")) return "2xx";
   if (statusCode.startsWith("4")) return "4xx";
@@ -96,6 +113,11 @@ export function parseMonitoringMetrics(metricsText: string): MonitoringMetrics {
   const requestsTotal = httpStatuses["2xx"] + httpStatuses["4xx"] + httpStatuses["5xx"];
   const successRate = requestsTotal ? Number(((httpStatuses["2xx"] / requestsTotal) * 100).toFixed(1)) : 0;
   const requestP95Ms = estimateHistogramP95Ms(samples, "anomalyx_http_request_duration_seconds_bucket");
+  const predictionP95Ms = estimateHistogramP95Ms(
+    samples,
+    "anomalyx_http_request_duration_seconds_bucket",
+    (labels) => labels.path === "/api/v1/predict" || labels.path === "/api/v1/batch-score",
+  );
   const explanationP95Ms = estimateHistogramP95Ms(samples, "anomalyx_llm_explanation_duration_seconds_bucket");
 
   const ruleTriggerMap = new Map<string, MonitoringMetrics["ruleTriggers"][number]>();
@@ -120,8 +142,10 @@ export function parseMonitoringMetrics(metricsText: string): MonitoringMetrics {
     requestsTotal,
     requestSuccessRate: successRate,
     requestP95Ms,
+    predictionP95Ms,
     alertsTotal: sumMetric(samples, "anomalyx_alerts_total"),
     decisions,
+    riskScoreDistribution: parseRiskScoreDistribution(samples),
     httpStatuses,
     ruleTriggers,
     explanationOutcomes: {

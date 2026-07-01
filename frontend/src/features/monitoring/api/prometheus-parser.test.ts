@@ -11,6 +11,11 @@ anomalyx_http_requests_total{method="GET",path="/api/v1/alerts",status_code="500
 anomalyx_http_request_duration_seconds_bucket{method="POST",path="/api/v1/predict",le="0.005"} 0
 anomalyx_http_request_duration_seconds_bucket{method="POST",path="/api/v1/predict",le="0.5"} 20
 anomalyx_http_request_duration_seconds_bucket{method="POST",path="/api/v1/predict",le="+Inf"} 24
+anomalyx_prediction_risk_score_bucket{le="0.0"} 0
+anomalyx_prediction_risk_score_bucket{le="0.4"} 10
+anomalyx_prediction_risk_score_bucket{le="0.7"} 12
+anomalyx_prediction_risk_score_bucket{le="1.0"} 18
+anomalyx_prediction_risk_score_bucket{le="+Inf"} 18
 anomalyx_decisions_total{risk_level="LOW",is_flagged="false"} 10
 anomalyx_decisions_total{risk_level="HIGH",is_flagged="true"} 6
 anomalyx_decisions_total{risk_level="CRITICAL",is_flagged="true"} 2
@@ -31,8 +36,10 @@ test("parseMonitoringMetrics maps backend Prometheus text to MonitoringMetrics",
   assert.equal(metrics.requestsTotal, 24);
   assert.equal(metrics.requestSuccessRate, 83.3);
   assert.equal(metrics.requestP95Ms, 500);
+  assert.equal(metrics.predictionP95Ms, 500);
   assert.deepEqual(metrics.httpStatuses, { "2xx": 20, "4xx": 3, "5xx": 1 });
   assert.deepEqual(metrics.decisions, { LOW: 10, MEDIUM: 0, HIGH: 6, CRITICAL: 2 });
+  assert.deepEqual(metrics.riskScoreDistribution, { LOW: 10, MEDIUM: 2, HIGH: 6 });
   assert.equal(metrics.alertsTotal, 8);
   assert.deepEqual(metrics.ruleTriggers, [
     { id: "R-STRUCT-01", severity: "HIGH", count: 4 },

@@ -44,6 +44,12 @@ ALERT_COUNT = Counter(
     "Total flagged predictions that created alerts.",
 )
 
+RISK_SCORE = Histogram(
+    "anomalyx_prediction_risk_score",
+    "Distribution of prediction risk scores.",
+    buckets=(0.0, 0.4, 0.7, 1.0),
+)
+
 LLM_FALLBACK_COUNT = Counter(
     "anomalyx_llm_fallback_total",
     "Total explanation fallbacks to the deterministic template.",
@@ -56,8 +62,15 @@ MODEL_DRIFT_PLACEHOLDER = Gauge(
 MODEL_DRIFT_PLACEHOLDER.set(0)
 
 
-def record_prediction(risk_level: str, is_flagged: bool, triggered_rules: list) -> None:
+def record_prediction(
+    risk_level: str,
+    is_flagged: bool,
+    triggered_rules: list,
+    risk_score: float | None = None,
+) -> None:
     DECISION_COUNT.labels(risk_level=risk_level, is_flagged=str(is_flagged).lower()).inc()
+    if risk_score is not None:
+        RISK_SCORE.observe(risk_score)
     if is_flagged:
         ALERT_COUNT.inc()
     for rule in triggered_rules:

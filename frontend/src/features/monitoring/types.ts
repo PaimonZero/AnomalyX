@@ -31,8 +31,10 @@ export interface MonitoringMetrics {
   requestsTotal: number;
   requestSuccessRate: number;
   requestP95Ms: number;
+  predictionP95Ms: number;
   alertsTotal: number;
   decisions: Record<"LOW" | "MEDIUM" | "HIGH" | "CRITICAL", number>;
+  riskScoreDistribution: Record<"LOW" | "MEDIUM" | "HIGH", number>;
   httpStatuses: Record<"2xx" | "4xx" | "5xx", number>;
   ruleTriggers: Array<{ id: string; severity: "HIGH" | "MEDIUM"; count: number }>;
   explanationOutcomes: { llm: number; template: number };

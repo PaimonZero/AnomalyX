@@ -98,6 +98,7 @@ class PredictionService:
             risk_level=response.risk_level.value,
             is_flagged=response.is_flagged,
             triggered_rules=response.triggered_rules,
+            risk_score=response.risk_score,
         )
         return response
 

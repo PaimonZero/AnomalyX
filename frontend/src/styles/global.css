@@ -1067,7 +1067,7 @@ textarea:focus-visible {
 .health-up i { background: var(--success); box-shadow: 0 0 0 3px var(--success-muted); }
 .health-down { color: var(--risk-critical); }
 .health-down i { background: var(--risk-critical); }
-.monitor-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: var(--bg-surface); }
+.monitor-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: var(--bg-surface); }
 .monitor-kpis article { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto auto; align-content: center; column-gap: 12px; min-height: 118px; padding: 18px; }
 .monitor-kpis article + article { border-left: 1px solid var(--border-default); }
 .monitor-kpi-icon { grid-row: 1 / 4; align-self: center; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 8px; background: var(--accent-muted); color: var(--accent-primary); }
@@ -1099,6 +1099,11 @@ textarea:focus-visible {
 .decision-medium { background: var(--warning); }
 .decision-high { background: var(--risk-high); }
 .decision-critical { background: var(--risk-critical); }
+.risk-score-stack { height: 18px; display: flex; overflow: hidden; margin-top: 48px; border-radius: 5px; background: var(--bg-subtle); }
+.risk-score-stack span { height: 100%; }
+.risk-score-low { background: var(--success); }
+.risk-score-medium { background: var(--warning); }
+.risk-score-high { background: var(--risk-high); }
 .decision-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 18px; margin-top: 24px; }
 .decision-legend > div { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 7px; }
 .decision-legend i { width: 8px; height: 8px; border-radius: 2px; }
